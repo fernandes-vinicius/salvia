@@ -9,15 +9,21 @@ import { dietItem, dietMeal, food } from "~/shared/db/schema";
 
 const INITIAL_MEALS = 3;
 
-/** Plano do usuário; cria as 3 refeições em branco na primeira visita. */
-export async function getDiet(userId: string): Promise<DietMeal[]> {
+/**
+ * Plano do usuário. Por padrão cria as 3 refeições em branco na primeira
+ * visita (aba Dieta); `createIfEmpty: false` só lê (ex.: Início).
+ */
+export async function getDiet(
+	userId: string,
+	{ createIfEmpty = true }: { createIfEmpty?: boolean } = {},
+): Promise<DietMeal[]> {
 	let meals = await db
 		.select({ id: dietMeal.id, name: dietMeal.name, time: dietMeal.time })
 		.from(dietMeal)
 		.where(eq(dietMeal.userId, userId))
 		.orderBy(asc(dietMeal.position), asc(dietMeal.createdAt));
 
-	if (meals.length === 0) {
+	if (meals.length === 0 && createIfEmpty) {
 		meals = await db
 			.insert(dietMeal)
 			.values(

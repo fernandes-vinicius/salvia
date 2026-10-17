@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import { AttentionList } from "~/domains/home/components/attention-list";
+import { SetupChecklist } from "~/domains/home/components/setup-checklist";
 import { Flame, Plus } from "~/shared/components/icons";
 import { ModeToggle } from "~/shared/components/mode-toggle";
 import { Badge } from "~/shared/components/ui/badge";
@@ -173,6 +175,52 @@ export default function DesignSystemPage() {
 						</Progress>
 					</CardContent>
 				</Card>
+			</section>
+
+			<section className="flex flex-col gap-4">
+				<h2 className="font-heading font-semibold text-lg">
+					Início: blocos condicionais
+				</h2>
+				<SetupChecklist
+					steps={[
+						{
+							label: "Preencher seus dados",
+							description: "Peso, altura, idade e rotina.",
+							href: "/tmb",
+							done: true,
+						},
+						{
+							label: "Definir sua meta",
+							description: "Perder, manter ou ganhar, e os macros do dia.",
+							href: "/meta",
+							done: false,
+						},
+						{
+							label: "Montar sua dieta",
+							description: "Refeições e alimentos, comparados com a meta.",
+							href: "/dieta",
+							done: false,
+						},
+					]}
+				/>
+				<AttentionList
+					items={[
+						{
+							id: "goal",
+							message:
+								"Sua meta ficou abaixo do que o corpo gasta em repouso (TMB).",
+							href: "/meta",
+							action: "Ajustar meta",
+						},
+						{
+							id: "food",
+							message:
+								"whey protein está com 25 g de proteína por 100 g. Isso parece ser o valor de uma dose.",
+							href: "/configuracoes",
+							action: "Revisar alimento",
+						},
+					]}
+				/>
 			</section>
 		</main>
 	);

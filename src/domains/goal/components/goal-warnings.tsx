@@ -2,7 +2,7 @@ import type { GoalWarning } from "~/domains/goal/types/goal-types";
 import { TriangleAlertIcon } from "~/shared/components/icons";
 import { Alert, AlertDescription } from "~/shared/components/ui/alert";
 
-const MESSAGES: Record<GoalWarning, string> = {
+export const GOAL_WARNING_MESSAGES: Record<GoalWarning, string> = {
 	"below-bmr":
 		"Sua meta ficou abaixo do que o corpo gasta em repouso (TMB). Prefira um ritmo mais leve ou procure um nutricionista.",
 	"carbs-negative":
@@ -19,7 +19,7 @@ export function GoalWarnings({ warnings }: { warnings: GoalWarning[] }) {
 			{warnings.map((warning) => (
 				<Alert key={warning} variant="destructive">
 					<TriangleAlertIcon />
-					<AlertDescription>{MESSAGES[warning]}</AlertDescription>
+					<AlertDescription>{GOAL_WARNING_MESSAGES[warning]}</AlertDescription>
 				</Alert>
 			))}
 		</div>

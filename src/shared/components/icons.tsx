@@ -1,6 +1,7 @@
 export type { LucideIcon } from "lucide-react";
 export {
 	ArrowDown,
+	ArrowRight,
 	ArrowUp,
 	Beef,
 	Bike,
@@ -12,7 +13,9 @@ export {
 	ChevronLeft,
 	ChevronRight,
 	ChevronRightIcon,
+	Circle,
 	CircleAlert,
+	CircleCheck,
 	CircleCheckIcon,
 	Clock,
 	CloudCheck,
