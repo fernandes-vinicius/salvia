@@ -69,6 +69,7 @@ export {
 	SlidersHorizontal,
 	Smartphone,
 	Sofa,
+	Sparkles,
 	Sprout,
 	Sun,
 	Target,

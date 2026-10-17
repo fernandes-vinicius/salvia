@@ -4,6 +4,8 @@ import { Suspense } from "react";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { summarizeDiet } from "~/domains/diet";
 import { getDiet } from "~/domains/diet/services/diet-service";
+import { DietTemplates, previewTemplates } from "~/domains/diet-templates";
+import { getTemplateFoods } from "~/domains/diet-templates/services/diet-template-service";
 import { listCustomFoods } from "~/domains/food/services/food-service";
 import { calculateTargets } from "~/domains/goal";
 import { GOAL_WARNING_MESSAGES } from "~/domains/goal/components/goal-warnings";
@@ -43,16 +45,24 @@ export default function DashboardPage() {
 
 async function HomeContent() {
 	const user = await getCurrentUser();
-	const [profile, goal, settings, meals, customFoods, measurements] =
-		await Promise.all([
-			findProfileByUserId(user.id),
-			findGoalByUserId(user.id),
-			getSettingsByUserId(user.id),
-			// Só lê: quem cria as refeições em branco é a aba Dieta.
-			getDiet(user.id, { createIfEmpty: false }),
-			listCustomFoods(user.id),
-			listMeasurements(user.id),
-		]);
+	const [
+		profile,
+		goal,
+		settings,
+		meals,
+		customFoods,
+		measurements,
+		templateFoods,
+	] = await Promise.all([
+		findProfileByUserId(user.id),
+		findGoalByUserId(user.id),
+		getSettingsByUserId(user.id),
+		// Só lê: quem cria as refeições em branco é a aba Dieta.
+		getDiet(user.id, { createIfEmpty: false }),
+		listCustomFoods(user.id),
+		listMeasurements(user.id),
+		getTemplateFoods(user.id),
+	]);
 
 	const tdee = profile ? calculateTdee(profile, settings.bmrFormula) : null;
 	const targets =
@@ -100,6 +110,22 @@ async function HomeContent() {
 		...emptyMealItems(meals),
 	];
 
+	const hasFoods = meals.some((meal) => meal.items.length > 0);
+	const templates = (
+		<DietTemplates
+			templates={previewTemplates(
+				templateFoods,
+				targets && {
+					protein: targets.protein.grams,
+					carbs: targets.carbs.grams,
+					fat: targets.fat.grams,
+				},
+			)}
+			currentMealCount={meals.length}
+			hasCurrentFoods={hasFoods}
+		/>
+	);
+
 	const firstName = user.name.split(" ")[0];
 
 	return (
@@ -113,6 +139,8 @@ async function HomeContent() {
 
 			<SetupChecklist steps={steps} />
 			<AttentionList items={attention} />
+			{/* Sem dieta ainda: as prontas são o atalho mais útil, vêm antes. */}
+			{!hasFoods && templates}
 
 			{targets && <PlanOverview summary={summary} targets={targets} />}
 
@@ -125,6 +153,8 @@ async function HomeContent() {
 					<MeasurementsCard measurements={measurements} />
 				</div>
 			</div>
+
+			{hasFoods && templates}
 		</>
 	);
 }
