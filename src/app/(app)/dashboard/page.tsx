@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { getCurrentUser } from "~/domains/auth/services/session-service";
@@ -28,7 +29,9 @@ import { getSettingsByUserId } from "~/domains/settings/services/settings-servic
 import { Skeleton } from "~/shared/components/ui/skeleton";
 import { APP_TAGLINE } from "~/shared/lib/app-config";
 
-export default function HomePage() {
+export const metadata: Metadata = { title: "Início" };
+
+export default function DashboardPage() {
 	return (
 		<main className="container-wrapper flex flex-col gap-6">
 			<Suspense fallback={<HomeSkeleton />}>

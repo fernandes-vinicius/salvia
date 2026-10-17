@@ -13,13 +13,13 @@ import {
 import { cn } from "~/shared/lib/utils";
 
 interface Tab {
-	href: "/" | "/tmb" | "/meta" | "/dieta";
+	href: "/dashboard" | "/tmb" | "/meta" | "/dieta";
 	label: string;
 	icon: LucideIcon;
 }
 
 const tabs: Tab[] = [
-	{ href: "/", label: "Início", icon: House },
+	{ href: "/dashboard", label: "Início", icon: House },
 	{ href: "/tmb", label: "TMB", icon: Flame },
 	{ href: "/meta", label: "Meta", icon: Target },
 	{ href: "/dieta", label: "Dieta", icon: Salad },
@@ -27,7 +27,6 @@ const tabs: Tab[] = [
 
 function isTabActive(pathname: string | null, href: Tab["href"]) {
 	if (!pathname) return false;
-	if (href === "/") return pathname === "/";
 	return pathname === href || pathname.startsWith(`${href}/`);
 }
 

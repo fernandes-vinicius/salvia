@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import type { DietMeal } from "~/domains/diet/types/diet-types";
 import { itemMacros, mealMacros } from "~/domains/diet/utils/diet";
 import { kcalFor, UNIT_LABELS } from "~/domains/food/utils/food";
@@ -13,9 +15,12 @@ import { cn } from "~/shared/lib/utils";
 // com o nome completo de cada alimento e a quantidade. É também o que vai
 // pro PDF (impressão do navegador).
 export function DietPreview({ meals }: { meals: DietMeal[] }) {
-	const today = new Date().toLocaleDateString("pt-BR");
+	// Data só no navegador: `new Date()` na renderização quebra páginas
+	// estáticas (Cache Components), como a landing que usa este componente.
+	const [today, setToday] = useState("");
+	useEffect(() => setToday(new Date().toLocaleDateString("pt-BR")), []);
 	// Nome sugerido do PDF: "Dieta 17-10-2026".
-	usePrintSetup(`Dieta ${today.replaceAll("/", "-")}`);
+	usePrintSetup(`Dieta ${today.replaceAll("/", "-")}`.trim());
 
 	return (
 		<div className="flex flex-col gap-4">

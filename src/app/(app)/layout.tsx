@@ -17,7 +17,7 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
 			{/* Acompanha páginas largas (`data-wide-page`) via CSS, sem usePathname. */}
 			<header className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 pt-6 group-has-[[data-wide-page]]/app:max-w-[87rem] sm:px-6 print:hidden">
 				<Link
-					href="/"
+					href="/dashboard"
 					aria-label={`Início — ${APP_NAME}`}
 					className="rounded-full outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
 				>

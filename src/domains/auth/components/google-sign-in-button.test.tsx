@@ -26,7 +26,7 @@ describe("GoogleSignInButton", () => {
 
 		expect(social).toHaveBeenCalledWith({
 			provider: "google",
-			callbackURL: "/",
+			callbackURL: "/dashboard",
 			errorCallbackURL: "/login",
 		});
 		expect(button).toBeDisabled();

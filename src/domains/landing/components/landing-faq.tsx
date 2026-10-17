@@ -1,0 +1,65 @@
+import { ChevronDown } from "~/shared/components/icons";
+import { APP_NAME } from "~/shared/lib/app-config";
+
+const QUESTIONS = [
+	{
+		question: "É grátis?",
+		answer: "Sim. Entra com a conta Google e usa tudo, sem cartão de crédito.",
+	},
+	{
+		question: "Substitui o nutricionista?",
+		answer: `Não. O ${APP_NAME} é uma ferramenta pra quem já entende o básico e quer planejar e acompanhar a própria dieta. Se você tem alguma condição de saúde, objetivo competitivo ou dúvida séria, procure um profissional.`,
+	},
+	{
+		question: "Serve pra cutting e pra bulking?",
+		answer:
+			"Serve. Você escolhe perder, manter ou ganhar peso, com ritmos prontos ou um ajuste de kcal personalizado.",
+	},
+	{
+		question: "De onde vêm os dados dos alimentos?",
+		answer:
+			"Da TACO (Tabela Brasileira de Composição de Alimentos, da Unicamp), com 597 alimentos. O que não estiver lá, como o seu whey ou uma marca específica, você cadastra com os valores do rótulo.",
+	},
+	{
+		question: "Por que a proteína é separada em animal e vegetal?",
+		answer:
+			"Porque é assim que muita gente que treina conta: a meta de proteína é pela animal (mais completa), e a vegetal entra no total sem inflar a conta.",
+	},
+	{
+		question: "Funciona no celular?",
+		answer:
+			"Funciona no navegador do celular e do computador, com tema claro e escuro. Não precisa instalar nada.",
+	},
+];
+
+export function LandingFaq() {
+	return (
+		<section
+			id="duvidas"
+			className="mx-auto flex w-full max-w-3xl scroll-mt-20 flex-col gap-8 px-4 py-16 sm:px-6 lg:py-24"
+		>
+			<h2 className="text-balance font-heading font-semibold text-3xl tracking-tight">
+				Dúvidas frequentes
+			</h2>
+			<div className="flex flex-col gap-3">
+				{QUESTIONS.map(({ question, answer }) => (
+					<details
+						key={question}
+						className="group rounded-3xl bg-card px-5 py-4 [&_summary::-webkit-details-marker]:hidden"
+					>
+						<summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium outline-none focus-visible:underline">
+							{question}
+							<ChevronDown
+								className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180"
+								aria-hidden
+							/>
+						</summary>
+						<p className="text-pretty pt-3 text-muted-foreground text-sm">
+							{answer}
+						</p>
+					</details>
+				))}
+			</div>
+		</section>
+	);
+}

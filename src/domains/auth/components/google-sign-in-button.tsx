@@ -18,7 +18,7 @@ export function GoogleSignInButton() {
 		// loading só precisa ser desfeito quando a chamada falha.
 		const { error } = await authClient.signIn.social({
 			provider: "google",
-			callbackURL: "/",
+			callbackURL: "/dashboard",
 			errorCallbackURL: "/login",
 		});
 

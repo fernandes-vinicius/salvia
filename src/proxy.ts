@@ -5,15 +5,22 @@ import { type NextRequest, NextResponse } from "next/server";
 // porque o proxy roda em toda navegação e prefetch). A validação real fica
 // no DAL (`getCurrentUser`). Usuário logado em `/login` é tratado no client
 // (`RedirectIfAuthenticated`) pra não gerar loop com cookie expirado.
+// `/` é a landing pública; com sessão, vai direto pro app.
 function isPublicPath(pathname: string) {
-	if (pathname === "/login") return true;
+	if (pathname === "/" || pathname === "/login") return true;
 	return process.env.NODE_ENV !== "production" && pathname === "/design-system";
 }
 
 export function proxy(request: NextRequest) {
 	const { pathname } = request.nextUrl;
 
-	if (isPublicPath(pathname) || getSessionCookie(request)) {
+	const hasSession = getSessionCookie(request) !== null;
+
+	if (pathname === "/" && hasSession) {
+		return NextResponse.redirect(new URL("/dashboard", request.url));
+	}
+
+	if (isPublicPath(pathname) || hasSession) {
 		return NextResponse.next();
 	}
 
