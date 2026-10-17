@@ -9,6 +9,8 @@ import {
 	deleteItem,
 	deleteMeal,
 	placeItems,
+	replaceItemFood,
+	resetDiet,
 	updateItemQuantity,
 	updateMeal,
 } from "~/domains/diet/services/diet-service";
@@ -109,6 +111,25 @@ export async function updateItemQuantityAction(
 		: stale("Alimento não encontrado.");
 }
 
+/** Substitui o alimento do item (mesma posição); devolve o item atualizado. */
+export async function replaceItemFoodAction(
+	input: unknown,
+): Promise<ActionResult<DietItem>> {
+	const user = await getCurrentUser();
+	const parsed = z
+		.object({ itemId: id, foodId: id, quantity })
+		.safeParse(input);
+	if (!parsed.success) return fail("Dados inválidos.");
+
+	const food = await findVisibleFood(user.id, parsed.data.foodId);
+	if (!food) return fail("Alimento não encontrado.");
+
+	const { itemId, quantity: value } = parsed.data;
+	return (await replaceItemFood(user.id, itemId, food.id, value))
+		? done({ id: itemId, quantity: value, food })
+		: stale("Alimento não encontrado.");
+}
+
 export async function deleteItemAction(itemId: unknown): Promise<ActionResult> {
 	const user = await getCurrentUser();
 	const parsed = id.safeParse(itemId);
@@ -129,4 +150,10 @@ export async function placeItemsAction(layout: unknown): Promise<ActionResult> {
 	return (await placeItems(user.id, parsed.data))
 		? done(null)
 		: stale("Não foi possível mover o alimento.");
+}
+
+/** Apaga refeições e alimentos e recria as 3 refeições em branco. */
+export async function resetDietAction(): Promise<ActionResult<DietMeal[]>> {
+	const user = await getCurrentUser();
+	return done(await resetDiet(user.id));
 }

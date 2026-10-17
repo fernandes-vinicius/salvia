@@ -41,7 +41,7 @@ export function TabBar() {
 			aria-label="Navegação principal"
 			// `w-max`: com `left-1/2` o elemento fixo só teria metade da tela
 			// de largura disponível e espremeria os rótulos.
-			className="fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] left-1/2 z-40 w-max -translate-x-1/2"
+			className="fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] left-1/2 z-40 w-max -translate-x-1/2 print:hidden"
 		>
 			<ul className="flex items-center gap-1 rounded-full bg-card/85 p-1.5 ring-1 ring-foreground/10 backdrop-blur-md">
 				{tabs.map((tab) => (

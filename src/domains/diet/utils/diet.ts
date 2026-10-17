@@ -5,8 +5,13 @@ import type {
 	MacroKey,
 	MacroLine,
 } from "~/domains/diet/types/diet-types";
-import type { Macros } from "~/domains/food/types/food-types";
-import { kcalFor, macrosFor, sumMacros } from "~/domains/food/utils/food";
+import type { Food, Macros } from "~/domains/food/types/food-types";
+import {
+	kcalFor,
+	macrosFor,
+	quantityRangeFor,
+	sumMacros,
+} from "~/domains/food/utils/food";
 
 export const MACRO_KEYS: MacroKey[] = [
 	"proteinAnimal",
@@ -66,6 +71,52 @@ export function nextMealName(meals: Pick<DietMeal, "name">[]) {
 	let n = meals.length + 1;
 	while (used.has(`Refeição ${n}`)) n++;
 	return `Refeição ${n}`;
+}
+
+// --- Substituir alimento ----------------------------------------------------
+
+export type SwapMacro = "protein" | "carbs" | "fat";
+
+export interface Equivalent {
+	quantity: number;
+	/** Macro que guiou a troca (o que mais pesa nas kcal do item original). */
+	macro: SwapMacro;
+	/** Gramas desse macro no item original. */
+	grams: number;
+}
+
+/**
+ * Quantidade do alimento novo que entrega o mesmo macro principal do item
+ * (ex.: 100 g de arroz → batata com os mesmos 28 g de carboidrato),
+ * arredondada ao passo do editor. Null se o item não tem macros ou o
+ * alimento novo não tem esse macro.
+ */
+export function equivalentQuantity(
+	item: DietItem,
+	food: Pick<Food, "unit" | "protein" | "carbs" | "fat">,
+): Equivalent | null {
+	const macros = itemMacros(item);
+	const grams: Record<SwapMacro, number> = {
+		protein: macros.proteinAnimal + macros.proteinVegetal,
+		carbs: macros.carbs,
+		fat: macros.fat,
+	};
+	const kcal: Record<SwapMacro, number> = {
+		protein: grams.protein * 4,
+		carbs: grams.carbs * 4,
+		fat: grams.fat * 9,
+	};
+	const macro = (["protein", "carbs", "fat"] as const).reduce((best, key) =>
+		kcal[key] > kcal[best] ? key : best,
+	);
+	const perBase = food[macro];
+	if (grams[macro] <= 0 || perBase <= 0) return null;
+
+	const range = quantityRangeFor(food.unit);
+	const raw = (grams[macro] / perBase) * (food.unit === "unit" ? 1 : 100);
+	const rounded = Math.round(raw / range.step) * range.step;
+	const quantity = Math.min(range.max, Math.max(range.min, rounded));
+	return { quantity, macro, grams: grams[macro] };
 }
 
 // --- Arrastar e soltar ------------------------------------------------------

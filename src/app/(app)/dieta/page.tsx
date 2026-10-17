@@ -16,10 +16,14 @@ export const metadata: Metadata = { title: "Dieta" };
 
 export default function DietaPage() {
 	return (
-		<main data-wide-page className="container-wide flex flex-col gap-8">
+		<main
+			data-wide-page
+			className="container-wide flex flex-col gap-8 print:max-w-none print:gap-0 print:p-0"
+		>
 			<PageHeader
 				title="Dieta"
 				description="Suas refeições e o total do dia comparado com a sua meta."
+				className="print:hidden"
 			/>
 			<Suspense fallback={<DietSkeleton />}>
 				<DietContent />

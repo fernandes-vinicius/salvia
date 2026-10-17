@@ -185,3 +185,17 @@
 @utility container-wide {
 	@apply mx-auto w-full max-w-[87rem] px-4 py-8 sm:px-6 sm:py-10 md:py-14;
 }
+
+/* Impressão / "Salvar como PDF" (modo Visualizar da Dieta). O tema claro é
+   forçado por `usePrintSetup`; aqui só papel branco, margens e sem toasts. */
+@media print {
+	@page {
+		margin: 14mm;
+	}
+	body {
+		background: white;
+	}
+	[data-sonner-toaster] {
+		display: none;
+	}
+}

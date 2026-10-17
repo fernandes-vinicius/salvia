@@ -24,16 +24,7 @@ export async function getDiet(
 		.orderBy(asc(dietMeal.position), asc(dietMeal.createdAt));
 
 	if (meals.length === 0 && createIfEmpty) {
-		meals = await db
-			.insert(dietMeal)
-			.values(
-				Array.from({ length: INITIAL_MEALS }, (_, index) => ({
-					userId,
-					name: `Refeição ${index + 1}`,
-					position: index,
-				})),
-			)
-			.returning({ id: dietMeal.id, name: dietMeal.name, time: dietMeal.time });
+		meals = await insertInitialMeals(db, userId);
 	}
 
 	const items = await db
@@ -59,6 +50,34 @@ export async function getDiet(
 			.filter((item) => item.mealId === meal.id)
 			.map(({ mealId: _, ...item }) => item),
 	}));
+}
+
+type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+/** As 3 refeições em branco do começo ("Refeição 1–3"). */
+function insertInitialMeals(executor: typeof db | Tx, userId: string) {
+	return executor
+		.insert(dietMeal)
+		.values(
+			Array.from({ length: INITIAL_MEALS }, (_, index) => ({
+				userId,
+				name: `Refeição ${index + 1}`,
+				position: index,
+			})),
+		)
+		.returning({ id: dietMeal.id, name: dietMeal.name, time: dietMeal.time });
+}
+
+/**
+ * Volta a dieta ao estado inicial: apaga todas as refeições (os itens vão
+ * junto, cascade) e recria as 3 em branco, tudo numa transação.
+ */
+export async function resetDiet(userId: string): Promise<DietMeal[]> {
+	const meals = await db.transaction(async (tx) => {
+		await tx.delete(dietMeal).where(eq(dietMeal.userId, userId));
+		return insertInitialMeals(tx, userId);
+	});
+	return meals.map((meal) => ({ ...meal, items: [] }));
 }
 
 async function ownedMeal(userId: string, mealId: string) {
@@ -209,6 +228,21 @@ export async function updateItemQuantity(
 ) {
 	if (!(await ownedItem(userId, itemId))) return false;
 	await db.update(dietItem).set({ quantity }).where(eq(dietItem.id, itemId));
+	return true;
+}
+
+/** Troca o alimento do item mantendo a posição na refeição. */
+export async function replaceItemFood(
+	userId: string,
+	itemId: string,
+	foodId: string,
+	quantity: number,
+) {
+	if (!(await ownedItem(userId, itemId))) return false;
+	await db
+		.update(dietItem)
+		.set({ foodId, quantity })
+		.where(eq(dietItem.id, itemId));
 	return true;
 }
 

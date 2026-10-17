@@ -14,7 +14,7 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
 	return (
 		<div className="group/app flex min-h-svh flex-col">
 			{/* Acompanha páginas largas (`data-wide-page`) via CSS, sem usePathname. */}
-			<header className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 pt-6 group-has-[[data-wide-page]]/app:max-w-[87rem] sm:px-6">
+			<header className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 pt-6 group-has-[[data-wide-page]]/app:max-w-[87rem] sm:px-6 print:hidden">
 				<Logo />
 				<div className="flex items-center gap-2">
 					<Button
@@ -35,7 +35,7 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
 				</div>
 			</header>
 			{/* Espaço no fim pra barra de abas flutuante não cobrir conteúdo. */}
-			<div className="flex flex-1 flex-col pb-[calc(env(safe-area-inset-bottom)+6rem)]">
+			<div className="flex flex-1 flex-col pb-[calc(env(safe-area-inset-bottom)+6rem)] print:pb-0">
 				{children}
 			</div>
 			<Suspense fallback={<TabBarFallback />}>

@@ -4,10 +4,7 @@ export { CustomFoodForm } from "~/domains/food/components/custom-food-form";
 export { FoodSearch } from "~/domains/food/components/food-search";
 export { MacroLine } from "~/domains/food/components/macro-line";
 export { MyFoods } from "~/domains/food/components/my-foods";
-export {
-	defaultQuantityFor,
-	QuantityEditor,
-} from "~/domains/food/components/quantity-editor";
+export { QuantityEditor } from "~/domains/food/components/quantity-editor";
 export type {
 	CustomFoodSummary,
 	Food,
@@ -16,6 +13,7 @@ export type {
 	ProteinSource,
 } from "~/domains/food/types/food-types";
 export {
+	defaultQuantityFor,
 	kcalFor,
 	macrosFor,
 	sumMacros,

@@ -1,25 +1,11 @@
 "use client";
 
 import type { Food } from "~/domains/food/types/food-types";
-import { UNIT_LABELS } from "~/domains/food/utils/food";
+import { quantityRangeFor, UNIT_LABELS } from "~/domains/food/utils/food";
 import { Scale } from "~/shared/components/icons";
 import { MeasureSlider } from "~/shared/components/measure-slider";
 import { Button } from "~/shared/components/ui/button";
 import { formatNumber } from "~/shared/lib/format";
-
-const RANGES = {
-	weight: { min: 5, max: 1000, step: 5, chips: [50, 100, 150, 200, 300] },
-	unit: { min: 0.5, max: 20, step: 0.5, chips: [1, 2, 3, 4] },
-} as const;
-
-export function quantityRangeFor(unit: Food["unit"]) {
-	return unit === "unit" ? RANGES.unit : RANGES.weight;
-}
-
-/** Quantidade padrão ao adicionar: 100 g/ml ou 1 unidade. */
-export function defaultQuantityFor(unit: Food["unit"]) {
-	return unit === "unit" ? 1 : 100;
-}
 
 interface QuantityEditorProps {
 	unit: Food["unit"];

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { DietMeal } from "~/domains/diet/types/diet-types";
 import {
 	changedLayouts,
+	equivalentQuantity,
 	mealMacros,
 	moveItemTo,
 	nextMealName,
@@ -139,5 +140,49 @@ describe("moveItemTo / changedLayouts", () => {
 
 	it("sem mudança não gera layout", () => {
 		expect(changedLayouts(meals, meals)).toEqual([]);
+	});
+});
+
+describe("equivalentQuantity", () => {
+	const batata = food("Batata", {
+		protein: 1.2,
+		carbs: 14,
+		fat: 0,
+		proteinSource: "vegetal",
+	});
+
+	it("troca pelo macro principal do item (arroz → batata no carboidrato)", () => {
+		// 100 g de arroz = 28 g C → 200 g de batata.
+		expect(
+			equivalentQuantity({ id: "i", quantity: 100, food: arroz }, batata),
+		).toEqual({ quantity: 200, macro: "carbs", grams: 28 });
+	});
+
+	it("arredonda ao passo da unidade (0,5)", () => {
+		const ovo = food(
+			"Ovo",
+			{ protein: 6, carbs: 0.5, fat: 5, proteinSource: "animal" },
+			"unit",
+		);
+		// 100 g de frango = 32 g P → 5,3 ovos → 5,5.
+		expect(
+			equivalentQuantity({ id: "i", quantity: 100, food: frango }, ovo),
+		).toMatchObject({ quantity: 5.5, macro: "protein" });
+		// 2 pães = 24 g C → 1,7 un do pão com 14 g C → 1,5.
+		expect(
+			equivalentQuantity(
+				{ id: "i", quantity: 2, food: pao },
+				{
+					...pao,
+					carbs: 14,
+				},
+			),
+		).toMatchObject({ quantity: 1.5, macro: "carbs" });
+	});
+
+	it("sem o macro no alimento novo não sugere", () => {
+		expect(
+			equivalentQuantity({ id: "i", quantity: 100, food: arroz }, frango),
+		).toBeNull();
 	});
 });
