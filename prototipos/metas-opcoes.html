@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sálvia — Onde configurar objetivo e macros</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+	:root {
+		--bg: #f6f4ec;
+		--fg: #1e2a1f;
+		--card: #fcfbf7;
+		--primary: #3e6a3a;
+		--primary-fg: #f6f4ec;
+		--secondary: #dde8d0;
+		--secondary-fg: #2f4f2c;
+		--muted: #eeebe0;
+		--muted-fg: #6b7466;
+		--accent: #e6eedc;
+		--border: #e4e0d3;
+		--protein: #3e6a3a;
+		--carb: #c9a65b;
+		--fat: #c27c5a;
+		--warn: #b5523f;
+	}
+	* { box-sizing: border-box; margin: 0; padding: 0; }
+	body {
+		font-family: Inter, sans-serif;
+		background: #e9e6db;
+		color: var(--fg);
+		padding: 48px 56px 56px;
+		width: max-content;
+	}
+	h1, h2, h3, .num { font-family: Manrope, sans-serif; }
+	.page-title { font-size: 34px; font-weight: 700; }
+	.page-sub { color: var(--muted-fg); margin-top: 6px; font-size: 16px; }
+	.options { display: flex; gap: 40px; margin-top: 36px; }
+	.option { background: #f1eee4; border-radius: 32px; padding: 28px; width: 712px; }
+	.option-head { display: flex; align-items: baseline; gap: 12px; }
+	.badge-letter {
+		display: inline-flex; align-items: center; justify-content: center;
+		width: 36px; height: 36px; border-radius: 999px; background: var(--primary);
+		color: var(--primary-fg); font-family: Manrope; font-weight: 700; font-size: 18px;
+		flex-shrink: 0; transform: translateY(6px);
+	}
+	.option-title { font-size: 24px; font-weight: 700; }
+	.option-desc { color: var(--muted-fg); font-size: 15px; margin-top: 4px; }
+	.reco { display: inline-block; margin-top: 10px; font-size: 12px; font-weight: 600; background: var(--secondary); color: var(--secondary-fg); padding: 4px 10px; border-radius: 999px; }
+	.phones { display: flex; gap: 24px; margin-top: 24px; }
+	.phone-wrap { display: flex; flex-direction: column; gap: 10px; }
+	.phone-label { font-size: 13px; font-weight: 600; color: var(--muted-fg); text-transform: uppercase; letter-spacing: .04em; }
+	.phone {
+		width: 320px; height: 680px; background: var(--bg); border-radius: 40px;
+		outline: 8px solid #1e2a1f; position: relative; overflow: hidden;
+		padding: 18px 16px 0;
+	}
+	.pros { margin-top: 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 14px; }
+	.pros h4 { font-family: Manrope; font-size: 14px; margin-bottom: 6px; }
+	.pros ul { padding-left: 18px; color: #3d4a3c; line-height: 1.5; }
+	.pros .con h4 { color: var(--warn); }
+	.pros .pro h4 { color: var(--primary); }
+
+	/* ---------- App UI ---------- */
+	.topbar { display: flex; justify-content: space-between; align-items: center; }
+	.logo { display: flex; align-items: center; gap: 8px; font-family: Manrope; font-weight: 600; font-size: 15px; }
+	.logo i, .icon-circle { display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; background: var(--secondary); color: var(--primary); }
+	.logo i { width: 26px; height: 26px; }
+	.avatar { width: 26px; height: 26px; border-radius: 999px; background: #8a9a86; }
+	.h-page { font-size: 22px; font-weight: 600; margin-top: 18px; }
+	.sub { font-size: 12px; color: var(--muted-fg); margin-top: 2px; }
+	.section-title { font-family: Manrope; font-weight: 600; font-size: 15px; margin-top: 16px; }
+	.section-sub { font-size: 11px; color: var(--muted-fg); margin-top: 1px; margin-bottom: 8px; }
+	.card { background: var(--card); border-radius: 18px; padding: 12px; }
+	.row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+	.muted { color: var(--muted-fg); }
+	.xs { font-size: 10px; }
+	.sm { font-size: 12px; }
+	.semi { font-weight: 600; }
+
+	.hero { background: var(--primary); color: var(--primary-fg); border-radius: 22px; padding: 14px; }
+	.hero .label { font-size: 11px; opacity: .8; }
+	.hero .big { font-family: Manrope; font-weight: 600; font-size: 34px; line-height: 1.1; }
+	.hero .big small { font-size: 14px; font-weight: 400; opacity: .8; margin-left: 4px; }
+	.pill-status { font-size: 10px; background: rgba(246,244,236,.15); padding: 3px 8px; border-radius: 999px; font-weight: 500; }
+	.macro-bar { display: flex; height: 8px; border-radius: 999px; overflow: hidden; margin-top: 10px; gap: 2px; }
+	.macro-legend { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+	.macro-legend div { font-size: 10px; opacity: .85; }
+	.macro-legend b { display: block; font-family: Manrope; font-size: 14px; opacity: 1; }
+	.dot { display: inline-block; width: 7px; height: 7px; border-radius: 999px; margin-right: 4px; }
+
+	.choice-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+	.choice { background: var(--card); border-radius: 14px; padding: 9px 6px; text-align: center; font-size: 11px; font-weight: 500; border: 1px solid transparent; }
+	.choice.on { background: var(--secondary); border-color: rgba(62,106,58,.25); }
+	.choice .icon-circle { display: flex; width: 28px; height: 28px; margin: 0 auto 4px; background: var(--muted); color: var(--muted-fg); }
+	.choice.on .icon-circle { background: var(--primary); color: var(--primary-fg); }
+	.choice .hint { font-size: 9px; color: var(--muted-fg); margin-top: 2px; font-weight: 400; }
+
+	.macro-line { display: flex; align-items: center; gap: 8px; padding: 7px 0; }
+	.macro-line + .macro-line { border-top: 1px solid var(--border); }
+	.macro-line .name { flex: 1; font-size: 12px; font-weight: 500; }
+	.macro-line .name span { display: block; font-size: 10px; color: var(--muted-fg); font-weight: 400; }
+	.macro-line .val { font-family: Manrope; font-weight: 600; font-size: 14px; }
+	.collapse { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 12px; font-weight: 500; color: var(--primary); background: var(--card); border-radius: 14px; padding: 10px 12px; }
+
+	.progress { height: 6px; background: var(--muted); border-radius: 999px; overflow: hidden; margin-top: 4px; }
+	.progress > div { height: 100%; border-radius: 999px; }
+
+	.grid-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+	.grid-table th { text-align: right; color: var(--muted-fg); font-weight: 500; padding: 4px 3px; }
+	.grid-table th:first-child, .grid-table td:first-child { text-align: left; }
+	.grid-table td { text-align: right; padding: 5px 3px; border-top: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+	.grid-table tr.total td { font-weight: 600; background: var(--accent); }
+	.meal-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+	.meal-head b { font-family: Manrope; font-size: 13px; }
+
+	.tabbar {
+		position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+		display: flex; gap: 3px; padding: 5px; border-radius: 999px;
+		background: rgba(252,251,247,.9); outline: 1px solid rgba(30,42,31,.1);
+	}
+	.tab { display: flex; align-items: center; gap: 5px; height: 34px; padding: 0 11px; border-radius: 999px; color: var(--muted-fg); font-size: 12px; font-weight: 500; }
+	.tab.on { background: var(--primary); color: var(--primary-fg); }
+	.fade { position: absolute; left: 0; right: 0; bottom: 0; height: 90px; background: linear-gradient(transparent, var(--bg) 70%); }
+
+	.sheet-backdrop { position: absolute; inset: 0; background: rgba(30,42,31,.35); }
+	.sticky-slim { background: var(--primary); color: var(--primary-fg); border-radius: 16px; padding: 9px 12px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; }
+	.sticky-slim b { font-family: Manrope; font-size: 15px; }
+	.warn-note { font-size: 10px; color: var(--secondary-fg); background: var(--secondary); border-radius: 10px; padding: 6px 8px; margin-top: 8px; }
+	.stepper { display: flex; align-items: center; gap: 6px; }
+	.stepper span { width: 20px; height: 20px; border-radius: 999px; background: var(--secondary); color: var(--secondary-fg); display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; }
+	svg { display: block; }
+</style>
+</head>
+<body>
+
+<!-- Ícones (lucide) -->
+<svg width="0" height="0" style="position:absolute">
+	<symbol id="i-leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></symbol>
+	<symbol id="i-house" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+	<symbol id="i-flame" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></symbol>
+	<symbol id="i-salad" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 21h10"/><path d="M12 21a9 9 0 0 0 9-9H3a9 9 0 0 0 9 9Z"/><path d="M11.38 12a2.4 2.4 0 0 1-.4-4.77 2.4 2.4 0 0 1 3.2-2.77 2.4 2.4 0 0 1 3.47-.63 2.4 2.4 0 0 1 3.37 3.37 2.4 2.4 0 0 1-1.1 3.7 2.51 2.51 0 0 1 .03 1.1"/><path d="m13 12 4-4"/><path d="M10.9 7.25A3.99 3.99 0 0 0 4 10c0 .73.2 1.41.54 2"/></symbol>
+	<symbol id="i-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+	<symbol id="i-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 17h6v-6"/><path d="m22 17-8.5-8.5-5 5L2 7"/></symbol>
+	<symbol id="i-equal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" x2="19" y1="9" y2="9"/><line x1="5" x2="19" y1="15" y2="15"/></symbol>
+	<symbol id="i-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 7h6v6"/><path d="m22 7-8.5 8.5-5-5L2 17"/></symbol>
+	<symbol id="i-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></symbol>
+	<symbol id="i-chevdown" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></symbol>
+	<symbol id="i-pencil" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/></symbol>
+	<symbol id="i-sliders" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/></symbol>
+</svg>
+
+<h1 class="page-title">Onde configurar objetivo e macros?</h1>
+<p class="page-sub">Mesmos números nas 3 opções: GCD 2.596 kcal · Perder peso no ritmo recomendado (−500) · 70 kg → meta de 2.096 kcal · Proteína 2,2 g/kg · Gordura 0,9 g/kg · Carboidrato = o que sobra.</p>
+
+<div class="options">
+
+	<!-- ================= OPÇÃO A ================= -->
+	<section class="option">
+		<div class="option-head">
+			<span class="badge-letter">A</span>
+			<div>
+				<h2 class="option-title">Aba TMB expandida</h2>
+				<p class="option-desc">Configura tudo em um lugar só (corpo + objetivo + macros). A Dieta só mostra meta × planejado.</p>
+				<span class="reco">Recomendado</span>
+			</div>
+		</div>
+		<div class="phones">
+			<div class="phone-wrap">
+				<span class="phone-label">TMB · onde configura</span>
+				<div class="phone">
+					<div class="hero">
+						<div class="row"><span class="label">Meta diária</span><span class="pill-status">Salvo</span></div>
+						<div class="big">2.096<small>kcal</small></div>
+						<div class="label">Gasto 2.596 − 500 para perder peso</div>
+						<div class="macro-bar"><div style="flex:616;background:#a3c293"></div><div style="flex:913;background:var(--carb)"></div><div style="flex:567;background:var(--fat)"></div></div>
+						<div class="macro-legend">
+							<div><span class="dot" style="background:#a3c293"></span>Proteína<b>154 g</b></div>
+							<div><span class="dot" style="background:var(--carb)"></span>Carbo<b>228 g</b></div>
+							<div><span class="dot" style="background:var(--fat)"></span>Gordura<b>63 g</b></div>
+						</div>
+					</div>
+					<p class="xs muted" style="margin-top:10px">… Sobre você · Medidas · Rotina (acima)</p>
+					<h3 class="section-title">Objetivo</h3>
+					<p class="section-sub">O que você quer agora?</p>
+					<div class="choice-row">
+						<div class="choice on"><span class="icon-circle"><svg width="15" height="15"><use href="#i-down"/></svg></span>Perder peso</div>
+						<div class="choice"><span class="icon-circle"><svg width="15" height="15"><use href="#i-equal"/></svg></span>Manter</div>
+						<div class="choice"><span class="icon-circle"><svg width="15" height="15"><use href="#i-up"/></svg></span>Ganhar massa</div>
+					</div>
+					<p class="section-sub" style="margin-top:10px">Ritmo</p>
+					<div class="choice-row">
+						<div class="choice">Devagar<div class="hint">~0,25 kg/sem</div></div>
+						<div class="choice on">Recomendado<div class="hint">~0,5 kg/sem</div></div>
+						<div class="choice">Rápido<div class="hint">~0,75 kg/sem</div></div>
+					</div>
+					<h3 class="section-title">Macros</h3>
+					<p class="section-sub">Automático para perder peso</p>
+					<div class="card" style="padding:4px 12px">
+						<div class="macro-line"><span class="dot" style="background:var(--protein)"></span><div class="name">Proteína<span>2,2 g por kg</span></div><div class="val">154 g</div></div>
+						<div class="macro-line"><span class="dot" style="background:var(--fat)"></span><div class="name">Gordura<span>0,9 g por kg</span></div><div class="val">63 g</div></div>
+						<div class="macro-line"><span class="dot" style="background:var(--carb)"></span><div class="name">Carboidrato<span>o que sobra · 3,3 g/kg</span></div><div class="val">228 g</div></div>
+					</div>
+					<div class="collapse"><span style="display:flex;gap:6px;align-items:center"><svg width="14" height="14"><use href="#i-sliders"/></svg>Ajustar macros</span><svg width="14" height="14"><use href="#i-chevdown"/></svg></div>
+					<div class="fade"></div>
+					<div class="tabbar">
+						<span class="tab"><svg width="16" height="16"><use href="#i-house"/></svg></span>
+						<span class="tab on"><svg width="16" height="16"><use href="#i-flame"/></svg>TMB</span>
+						<span class="tab"><svg width="16" height="16"><use href="#i-salad"/></svg></span>
+					</div>
+				</div>
+			</div>
+
+			<div class="phone-wrap">
+				<span class="phone-label">Dieta · só consulta</span>
+				<div class="phone">
+					<div class="topbar"><span class="logo"><i><svg width="14" height="14"><use href="#i-leaf"/></svg></i>Sálvia</span><span class="avatar"></span></div>
+					<h3 class="h-page">Dieta</h3>
+					<p class="sub">Meta: perder peso · 2.096 kcal</p>
+					<div class="card" style="margin-top:12px">
+						<div class="row"><span class="sm semi">Planejado × meta</span><span class="xs" style="color:var(--primary);display:flex;gap:3px;align-items:center"><svg width="11" height="11"><use href="#i-pencil"/></svg>Ajustar meta</span></div>
+						<div style="margin-top:8px">
+							<div class="row sm"><span>Calorias</span><span class="num semi">1.706 <span class="muted" style="font-weight:400">/ 2.096</span></span></div>
+							<div class="progress"><div style="width:81%;background:var(--primary)"></div></div>
+						</div>
+						<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px">
+							<div><div class="xs muted">Proteína</div><div class="num semi sm">167/154g</div><div class="progress"><div style="width:100%;background:var(--protein)"></div></div><div class="xs" style="color:var(--primary)">+13 g</div></div>
+							<div><div class="xs muted">Carbo</div><div class="num semi sm">138/228g</div><div class="progress"><div style="width:60%;background:var(--carb)"></div></div><div class="xs muted">faltam 90 g</div></div>
+							<div><div class="xs muted">Gordura</div><div class="num semi sm">54/63g</div><div class="progress"><div style="width:86%;background:var(--fat)"></div></div><div class="xs muted">faltam 9 g</div></div>
+						</div>
+					</div>
+					<div class="card" style="margin-top:12px">
+						<div class="meal-head"><b>Refeição 1 · 9h</b><span class="xs muted">374 kcal</span></div>
+						<table class="grid-table">
+							<tr><th>Alimento</th><th>Qtd</th><th>P</th><th>C</th><th>G</th></tr>
+							<tr><td>Ovos inteiros</td><td>4 un</td><td>26</td><td>3</td><td>18</td></tr>
+							<tr><td>Mamão</td><td>200 g</td><td>1</td><td>23</td><td>0</td></tr>
+							<tr><td>Chia</td><td>15 g</td><td>—</td><td>—</td><td>—</td></tr>
+							<tr class="total"><td>Total</td><td></td><td>27</td><td>26</td><td>18</td></tr>
+						</table>
+					</div>
+					<div class="card" style="margin-top:12px">
+						<div class="meal-head"><b>Refeição 2 · 12h</b><span class="xs muted">374 kcal</span></div>
+						<table class="grid-table">
+							<tr><th>Alimento</th><th>Qtd</th><th>P</th><th>C</th><th>G</th></tr>
+							<tr><td>Frango grelhado</td><td>100 g</td><td>32</td><td>0</td><td>4</td></tr>
+						</table>
+					</div>
+					<div class="fade"></div>
+					<div class="tabbar">
+						<span class="tab"><svg width="16" height="16"><use href="#i-house"/></svg></span>
+						<span class="tab"><svg width="16" height="16"><use href="#i-flame"/></svg></span>
+						<span class="tab on"><svg width="16" height="16"><use href="#i-salad"/></svg>Dieta</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="pros">
+			<div class="pro"><h4>Prós</h4><ul><li>“Configura uma vez” num lugar só; a Dieta fica limpa para a grade</li><li>Meta reage ao vivo quando muda peso ou rotina</li><li>Mesmo padrão visual da TMB que você já aprovou</li></ul></div>
+			<div class="con"><h4>Contras</h4><ul><li>Aba TMB fica mais longa (talvez renomear para “Metas”)</li><li>Para ajustar macros, você sai da Dieta</li></ul></div>
+		</div>
+	</section>
+
+	<!-- ================= OPÇÃO B ================= -->
+	<section class="option">
+		<div class="option-head">
+			<span class="badge-letter">B</span>
+			<div>
+				<h2 class="option-title">Topo da aba Dieta</h2>
+				<p class="option-desc">Igual à planilha: o objetivo e os macros ficam junto da grade. A TMB continua só com dados corporais.</p>
+			</div>
+		</div>
+		<div class="phones">
+			<div class="phone-wrap">
+				<span class="phone-label">Dieta · topo aberto</span>
+				<div class="phone">
+					<div class="topbar"><span class="logo"><i><svg width="14" height="14"><use href="#i-leaf"/></svg></i>Sálvia</span><span class="avatar"></span></div>
+					<h3 class="h-page">Dieta</h3>
+					<p class="sub">Gasto diário 2.596 kcal (da aba TMB)</p>
+					<div class="hero" style="margin-top:12px">
+						<div class="row"><span class="label">Objetivo</span><span class="pill-status">Salvo</span></div>
+						<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:6px;background:rgba(246,244,236,.12);padding:3px;border-radius:999px">
+							<span style="text-align:center;font-size:11px;font-weight:600;background:var(--primary-fg);color:var(--primary);border-radius:999px;padding:5px 0">Perder</span>
+							<span style="text-align:center;font-size:11px;padding:5px 0;opacity:.85">Manter</span>
+							<span style="text-align:center;font-size:11px;padding:5px 0;opacity:.85">Ganhar</span>
+						</div>
+						<div class="row" style="margin-top:8px"><span class="label">Ritmo</span><span style="font-size:11px;font-weight:600">Recomendado · ~0,5 kg/sem ▾</span></div>
+						<div class="big" style="margin-top:4px">2.096<small>kcal/dia</small></div>
+					</div>
+					<div class="card" style="margin-top:10px;padding:4px 12px">
+						<div class="macro-line"><span class="dot" style="background:var(--protein)"></span><div class="name">Proteína<span>154 g</span></div><div class="stepper"><span>−</span><b class="num sm">2,2</b><span>+</span></div><span class="xs muted">g/kg</span></div>
+						<div class="macro-line"><span class="dot" style="background:var(--fat)"></span><div class="name">Gordura<span>63 g</span></div><div class="stepper"><span>−</span><b class="num sm">0,9</b><span>+</span></div><span class="xs muted">g/kg</span></div>
+						<div class="macro-line"><span class="dot" style="background:var(--carb)"></span><div class="name">Carboidrato<span>o que sobra</span></div><div class="val">228 g</div></div>
+					</div>
+					<div class="card" style="margin-top:10px">
+						<div class="row"><span class="sm semi">Planejado</span><span class="sm num semi">1.706 / 2.096</span></div>
+						<div class="progress"><div style="width:81%;background:var(--primary)"></div></div>
+					</div>
+					<div class="card" style="margin-top:10px">
+						<div class="meal-head"><b>Refeição 1 · 9h</b><span class="xs muted">374 kcal</span></div>
+						<table class="grid-table"><tr><th>Alimento</th><th>Qtd</th><th>P</th><th>C</th><th>G</th></tr><tr><td>Ovos inteiros</td><td>4 un</td><td>26</td><td>3</td><td>18</td></tr></table>
+					</div>
+					<div class="fade"></div>
+					<div class="tabbar">
+						<span class="tab"><svg width="16" height="16"><use href="#i-house"/></svg></span>
+						<span class="tab"><svg width="16" height="16"><use href="#i-flame"/></svg></span>
+						<span class="tab on"><svg width="16" height="16"><use href="#i-salad"/></svg>Dieta</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="phone-wrap">
+				<span class="phone-label">Dieta · rolando a grade</span>
+				<div class="phone">
+					<div class="sticky-slim"><span>Meta <b>2.096</b> kcal · Perder</span><span>P 154 · C 228 · G 63 ▾</span></div>
+					<div class="card" style="margin-top:12px">
+						<div class="meal-head"><b>Refeição 2 · 12h</b><span class="xs muted">374 kcal</span></div>
+						<table class="grid-table">
+							<tr><th>Alimento</th><th>Qtd</th><th>P</th><th>C</th><th>G</th></tr>
+							<tr><td>Frango grelhado</td><td>100 g</td><td>32</td><td>0</td><td>4</td></tr>
+							<tr><td>Azeite</td><td>10 ml</td><td>0</td><td>0</td><td>10</td></tr>
+							<tr><td>Arroz cozido</td><td>100 g</td><td>2</td><td>28</td><td>0</td></tr>
+							<tr class="total"><td>Total</td><td></td><td>34</td><td>28</td><td>14</td></tr>
+						</table>
+					</div>
+					<div class="card" style="margin-top:12px">
+						<div class="meal-head"><b>Refeição 3 · 15h</b><span class="xs muted">303 kcal</span></div>
+						<table class="grid-table">
+							<tr><th>Alimento</th><th>Qtd</th><th>P</th><th>C</th><th>G</th></tr>
+							<tr><td>Frango desfiado</td><td>100 g</td><td>32</td><td>0</td><td>4</td></tr>
+							<tr><td>Pão integral</td><td>2 fatias</td><td>4</td><td>24</td><td>3</td></tr>
+							<tr class="total"><td>Total</td><td></td><td>36</td><td>24</td><td>7</td></tr>
+						</table>
+					</div>
+					<div class="card" style="margin-top:12px">
+						<div class="meal-head"><b>Refeição 4 · 18h</b><span class="xs muted">284 kcal</span></div>
+						<table class="grid-table">
+							<tr><th>Alimento</th><th>Qtd</th><th>P</th><th>C</th><th>G</th></tr>
+							<tr><td>Frango grelhado</td><td>100 g</td><td>32</td><td>0</td><td>4</td></tr>
+						</table>
+					</div>
+					<div class="fade"></div>
+					<div class="tabbar">
+						<span class="tab"><svg width="16" height="16"><use href="#i-house"/></svg></span>
+						<span class="tab"><svg width="16" height="16"><use href="#i-flame"/></svg></span>
+						<span class="tab on"><svg width="16" height="16"><use href="#i-salad"/></svg>Dieta</span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="pros">
+			<div class="pro"><h4>Prós</h4><ul><li>Mais parecido com a planilha: meta e grade lado a lado</li><li>Ajusta macros vendo o efeito na dieta na hora</li></ul></div>
+			<div class="con"><h4>Contras</h4><ul><li>Topo da Dieta fica pesado; a grade começa mais abaixo</li><li>Configuração (rara) misturada com o uso diário</li></ul></div>
+		</div>
+	</section>
+
+	<!-- ================= OPÇÃO C ================= -->
+	<section class="option">
+		<div class="option-head">
+			<span class="badge-letter">C</span>
+			<div>
+				<h2 class="option-title">Nova aba “Meta”</h2>
+				<p class="option-desc">Quatro abas: Início · TMB · Meta · Dieta. Cada etapa da rotina tem sua tela.</p>
+			</div>
+		</div>
+		<div class="phones">
+			<div class="phone-wrap">
+				<span class="phone-label">Meta · onde configura</span>
+				<div class="phone">
+					<div class="topbar"><span class="logo"><i><svg width="14" height="14"><use href="#i-leaf"/></svg></i>Sálvia</span><span class="avatar"></span></div>
+					<h3 class="h-page">Meta</h3>
+					<p class="sub">Seu objetivo e quanto comer de cada macro.</p>
+					<div class="hero" style="margin-top:12px">
+						<div class="row"><span class="label">Meta diária</span><span class="pill-status">Salvo</span></div>
+						<div class="big">2.096<small>kcal</small></div>
+						<div class="label">Gasto 2.596 − 500 para perder peso</div>
+						<div class="macro-bar"><div style="flex:616;background:#a3c293"></div><div style="flex:913;background:var(--carb)"></div><div style="flex:567;background:var(--fat)"></div></div>
+					</div>
+					<h3 class="section-title">Objetivo</h3>
+					<p class="section-sub">O que você quer agora?</p>
+					<div class="choice-row">
+						<div class="choice on"><span class="icon-circle"><svg width="15" height="15"><use href="#i-down"/></svg></span>Perder peso</div>
+						<div class="choice"><span class="icon-circle"><svg width="15" height="15"><use href="#i-equal"/></svg></span>Manter</div>
+						<div class="choice"><span class="icon-circle"><svg width="15" height="15"><use href="#i-up"/></svg></span>Ganhar massa</div>
+					</div>
+					<p class="section-sub" style="margin-top:10px">Ritmo</p>
+					<div class="choice-row">
+						<div class="choice">Devagar<div class="hint">~0,25 kg/sem</div></div>
+						<div class="choice on">Recomendado<div class="hint">~0,5 kg/sem</div></div>
+						<div class="choice">Rápido<div class="hint">~0,75 kg/sem</div></div>
+					</div>
+					<h3 class="section-title">Macros</h3>
+					<div class="card" style="padding:4px 12px;margin-top:8px">
+						<div class="macro-line"><span class="dot" style="background:var(--protein)"></span><div class="name">Proteína<span>2,2 g por kg</span></div><div class="val">154 g</div></div>
+						<div class="macro-line"><span class="dot" style="background:var(--fat)"></span><div class="name">Gordura<span>0,9 g por kg</span></div><div class="val">63 g</div></div>
+						<div class="macro-line"><span class="dot" style="background:var(--carb)"></span><div class="name">Carboidrato<span>o que sobra</span></div><div class="val">228 g</div></div>
+					</div>
+					<div class="fade"></div>
+					<div class="tabbar">
+						<span class="tab"><svg width="16" height="16"><use href="#i-house"/></svg></span>
+						<span class="tab"><svg width="16" height="16"><use href="#i-flame"/></svg></span>
+						<span class="tab on"><svg width="16" height="16"><use href="#i-target"/></svg>Meta</span>
+						<span class="tab"><svg width="16" height="16"><use href="#i-salad"/></svg></span>
+					</div>
+				</div>
+			</div>
+
+			<div class="phone-wrap">
+				<span class="phone-label">TMB · continua igual</span>
+				<div class="phone">
+					<div class="topbar"><span class="logo"><i><svg width="14" height="14"><use href="#i-leaf"/></svg></i>Sálvia</span><span class="avatar"></span></div>
+					<h3 class="h-page">TMB</h3>
+					<p class="sub">Seus dados para calcular quantas calorias você gasta por dia.</p>
+					<div class="hero" style="margin-top:12px">
+						<div class="row"><span class="label">Gasto calórico diário</span><span class="pill-status">Salvo</span></div>
+						<div class="big">2.596<small>kcal</small></div>
+						<div style="background:rgba(246,244,236,.1);border-radius:14px;padding:2px 10px;margin-top:8px">
+							<div class="row" style="padding:7px 0;font-size:11px"><span style="opacity:.8">Em repouso (TMB)</span><b>1.675 kcal</b></div>
+							<div class="row" style="padding:7px 0;font-size:11px;border-top:1px solid rgba(246,244,236,.15)"><span style="opacity:.8">Rotina</span><b>Moderadamente ativo</b></div>
+						</div>
+					</div>
+					<h3 class="section-title">Sobre você</h3>
+					<div class="choice-row" style="grid-template-columns:1fr 1fr;margin-top:8px">
+						<div class="choice on">Masculino</div>
+						<div class="choice">Feminino</div>
+					</div>
+					<div class="card" style="margin-top:8px">
+						<div class="sm semi">Idade</div>
+						<div class="num" style="text-align:center;font-size:28px;font-weight:600">30 <span class="sm muted" style="font-weight:400">anos</span></div>
+						<div class="progress" style="height:6px"><div style="width:21%;background:var(--primary)"></div></div>
+					</div>
+					<div class="card" style="margin-top:8px">
+						<div class="sm semi">Peso</div>
+						<div class="num" style="text-align:center;font-size:28px;font-weight:600">70 <span class="sm muted" style="font-weight:400">kg</span></div>
+						<div class="progress" style="height:6px"><div style="width:23%;background:var(--primary)"></div></div>
+					</div>
+					<div class="fade"></div>
+					<div class="tabbar">
+						<span class="tab"><svg width="16" height="16"><use href="#i-house"/></svg></span>
+						<span class="tab on"><svg width="16" height="16"><use href="#i-flame"/></svg>TMB</span>
+						<span class="tab"><svg width="16" height="16"><use href="#i-target"/></svg></span>
+						<span class="tab"><svg width="16" height="16"><use href="#i-salad"/></svg></span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="pros">
+			<div class="pro"><h4>Prós</h4><ul><li>Cada tela com um assunto: corpo → meta → dieta</li><li>Fluxo didático para leigo (passo a passo)</li></ul></div>
+			<div class="con"><h4>Contras</h4><ul><li>Uma aba a mais na barra (4 itens)</li><li>Dados que mudam juntos (peso ↔ meta) ficam em telas separadas</li></ul></div>
+		</div>
+	</section>
+
+</div>
+</body>
+</html>
