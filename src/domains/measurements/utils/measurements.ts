@@ -249,3 +249,15 @@ export function latestValues(measurements: Measurement[]): MeasurementValues {
 	}
 	return values;
 }
+
+/** Dias entre duas datas "YYYY-MM-DD" (b − a), sem efeito de fuso. */
+export function daysBetween(a: string, b: string) {
+	const toUtc = (iso: string) => {
+		const [year, month, day] = iso.split("-").map(Number);
+		return Date.UTC(year, month - 1, day);
+	};
+	return Math.round((toUtc(b) - toUtc(a)) / 86_400_000);
+}
+
+/** A partir de quantos dias sem medir a Início sugere medir de novo. */
+export const REMEASURE_AFTER_DAYS = 30;

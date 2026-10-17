@@ -9,6 +9,7 @@ import { GOAL_WARNING_MESSAGES } from "~/domains/goal/components/goal-warnings";
 import { findGoalByUserId } from "~/domains/goal/services/goal-service";
 import { AttentionList } from "~/domains/home/components/attention-list";
 import { GoalCard } from "~/domains/home/components/goal-card";
+import { MeasurementsCard } from "~/domains/home/components/measurements-card";
 import { NextMealCard } from "~/domains/home/components/next-meal-card";
 import { PlanOverview } from "~/domains/home/components/plan-overview";
 import {
@@ -20,6 +21,7 @@ import {
 	emptyMealItems,
 	suspiciousFoods,
 } from "~/domains/home/utils/home";
+import { listMeasurements } from "~/domains/measurements/services/measurement-service";
 import { calculateBmr, calculateTdee } from "~/domains/profile";
 import { findProfileByUserId } from "~/domains/profile/services/profile-service";
 import { getSettingsByUserId } from "~/domains/settings/services/settings-service";
@@ -38,14 +40,16 @@ export default function HomePage() {
 
 async function HomeContent() {
 	const user = await getCurrentUser();
-	const [profile, goal, settings, meals, customFoods] = await Promise.all([
-		findProfileByUserId(user.id),
-		findGoalByUserId(user.id),
-		getSettingsByUserId(user.id),
-		// Só lê: quem cria as refeições em branco é a aba Dieta.
-		getDiet(user.id, { createIfEmpty: false }),
-		listCustomFoods(user.id),
-	]);
+	const [profile, goal, settings, meals, customFoods, measurements] =
+		await Promise.all([
+			findProfileByUserId(user.id),
+			findGoalByUserId(user.id),
+			getSettingsByUserId(user.id),
+			// Só lê: quem cria as refeições em branco é a aba Dieta.
+			getDiet(user.id, { createIfEmpty: false }),
+			listCustomFoods(user.id),
+			listMeasurements(user.id),
+		]);
 
 	const tdee = profile ? calculateTdee(profile, settings.bmrFormula) : null;
 	const targets =
@@ -114,6 +118,9 @@ async function HomeContent() {
 					<GoalCard goal={goal} targets={targets} tdee={tdee} />
 				)}
 				{meals.length > 0 && <NextMealCard meals={meals} />}
+				<div className="sm:col-span-2">
+					<MeasurementsCard measurements={measurements} />
+				</div>
 			</div>
 		</>
 	);
