@@ -18,7 +18,7 @@ Nome/tagline centralizados em `~/shared/lib/app-config.ts` (`APP_NAME`, `APP_TAG
   - Bordas leves: prefira separar por superfície (`bg-card` sobre `bg-background`, `bg-secondary` para destaque) em vez de bordas; quando precisar, `ring-1 ring-foreground/5`.
   - Títulos e números em `font-heading` (Manrope) com `tabular-nums`; corpo em Inter.
   - Componentes shadcn: não editar radius/border/shadow por arquivo; ajuste visual vem dos tokens.
-- Navegação: rotas logadas ficam em `src/app/(app)/` (header + barra de abas flutuante `~/shared/components/navigation/tab-bar.tsx`, abas Início `/`, TMB `/tmb`, Dieta `/dieta`). Páginas usam `container-wrapper` + `PageHeader`; o layout já reserva espaço inferior pra barra.
+- Navegação: rotas logadas ficam em `src/app/(app)/` (header + barra de abas flutuante `~/shared/components/navigation/tab-bar.tsx`, abas Início `/`, TMB `/tmb`, Meta `/meta`, Dieta `/dieta`). Páginas usam `container-wrapper` + `PageHeader`; o layout já reserva espaço inferior pra barra.
 - Auth (Better Auth + Google, Drizzle/Postgres):
   - Proteção em 2 camadas: `src/proxy.ts` só checa se o cookie existe (otimista); a checagem real é o DAL `getCurrentUser()` em `~/domains/auth/services/session-service`, obrigatório em toda página/ação que toque dados do usuário.
   - Cache Components: ler sessão (`getCurrentUser`, `headers()`) só dentro de `<Suspense>`, nunca com `await` no topo de layout/página.
@@ -28,6 +28,7 @@ Nome/tagline centralizados em `~/shared/lib/app-config.ts` (`APP_NAME`, `APP_TAG
 - Testes: importar `describe/it/expect/vi` de `vitest` explicitamente.
 - Edição estilo "salva sozinho" (ex.: aba TMB): estado local no client + `useAutosave` (`~/shared/hooks/use-autosave`, debounce + fila + flush ao sair) chamando uma Server Action que valida com Zod e checa o usuário via `getCurrentUser()`. Cálculos derivados rodam no client a partir do estado (funções puras em `domains/<x>/utils`), sem esperar o servidor.
 - UX pra leigos: valores técnicos (ex.: fator de atividade) nunca são digitados; o usuário escolhe uma opção descritiva (`ChoiceCard`) e o número aparece só como dica discreta. Medidas numéricas usam `MeasureSlider` (slider + botões −/+).
+- Domínios: `profile` (TMB: dados corporais, TMB/GCD) → `goal` (Meta: objetivo, ajuste de kcal, proteína ANIMAL e gordura em g/kg; carboidrato = resto) → dieta (próximo). A Dieta mostra o resumo estilo planilha (g · % · kcal · g/kg, total, excedente) e a diferença pra meta.
 - Formulários: Conform + Zod v4 (`import { parseWithZod } from "@conform-to/zod/v4"`).
 - Estado de URL: nuqs. Toasts: sonner. Tema: next-themes (padrão claro).
 - Regras de cálculo da dieta (migradas da planilha): `docs/planilha-calculos.md`.

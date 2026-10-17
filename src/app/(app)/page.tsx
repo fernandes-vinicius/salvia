@@ -7,13 +7,14 @@ import {
 	Flame,
 	type LucideIcon,
 	Salad,
+	Target,
 } from "~/shared/components/icons";
 import { Card } from "~/shared/components/ui/card";
 import { Skeleton } from "~/shared/components/ui/skeleton";
 import { APP_TAGLINE } from "~/shared/lib/app-config";
 
 const shortcuts: {
-	href: "/tmb" | "/dieta";
+	href: "/tmb" | "/meta" | "/dieta";
 	title: string;
 	description: string;
 	icon: LucideIcon;
@@ -23,6 +24,12 @@ const shortcuts: {
 		title: "TMB",
 		description: "Seus dados e o gasto calórico diário.",
 		icon: Flame,
+	},
+	{
+		href: "/meta",
+		title: "Meta",
+		description: "Objetivo, calorias e macros do dia.",
+		icon: Target,
 	},
 	{
 		href: "/dieta",
@@ -42,7 +49,7 @@ export default function HomePage() {
 				<p className="text-muted-foreground text-sm">{APP_TAGLINE}</p>
 			</header>
 
-			<nav aria-label="Atalhos" className="grid gap-3 sm:grid-cols-2">
+			<nav aria-label="Atalhos" className="grid gap-3">
 				{shortcuts.map(({ href, title, description, icon: Icon }) => (
 					<Link
 						key={href}

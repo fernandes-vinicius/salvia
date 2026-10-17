@@ -1,7 +1,7 @@
 "use client";
 
-import { ChoiceCard } from "~/domains/profile/components/choice-card";
 import { ACTIVITY_LEVELS } from "~/domains/profile/utils/energy";
+import { ChoiceCard } from "~/shared/components/choice-card";
 import {
 	Dumbbell,
 	Flame,

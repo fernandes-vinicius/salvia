@@ -45,6 +45,12 @@ alvo_g    = meta_g/kg × peso      // planilha: Ptn animal 2,2 · Carb 2,0
 diferença = g_macro_dia − alvo_g
 ```
 
+### No app (aba Meta)
+
+- Domínio `src/domains/goal` (tabela `goal`). Meta kcal = GCD + ajuste do objetivo (Perder: −250/−500/−750 ou personalizado; Manter: 0; Ganhar: +250/+500 ou personalizado).
+- Proteína **animal** e gordura em g/kg × peso; carboidrato = (meta − proteína×4 − gordura×9) ÷ 4. Avisos: meta abaixo da TMB, carboidrato negativo ou < 1 g/kg.
+- O resumo da planilha (G · % · Kcal · g/kg por macro, total, excedente) e a diferença pra meta vão ficar na aba Dieta.
+
 ## Plano de referência (planilha)
 
 | Refeição | Itens | kcal |

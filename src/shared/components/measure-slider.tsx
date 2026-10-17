@@ -1,6 +1,7 @@
 "use client";
 
 import { Slider as SliderPrimitive } from "@base-ui/react/slider";
+import type { ReactNode } from "react";
 
 import { type LucideIcon, Minus, Plus } from "~/shared/components/icons";
 import { Button } from "~/shared/components/ui/button";
@@ -18,6 +19,10 @@ interface MeasureSliderProps {
 	/** Passo dos botões −/+ (ajuste fino); padrão = `step`. */
 	buttonStep?: number;
 	fractionDigits?: number;
+	/** Mostra sempre `fractionDigits` casas (ex.: "1,0 g/kg"). */
+	fixedDigits?: boolean;
+	/** Texto de apoio abaixo do valor (ex.: "= 154 g por dia"). */
+	caption?: ReactNode;
 	onValueChange: (value: number) => void;
 }
 
@@ -33,9 +38,13 @@ export function MeasureSlider({
 	step,
 	buttonStep = step,
 	fractionDigits = 0,
+	fixedDigits = false,
+	caption,
 	onValueChange,
 }: MeasureSliderProps) {
-	const formatted = formatNumber(value, fractionDigits);
+	const minDigits = fixedDigits ? fractionDigits : 0;
+	const format = (n: number) => formatNumber(n, fractionDigits, minDigits);
+	const formatted = format(value);
 
 	function change(next: number) {
 		const rounded = Number(next.toFixed(fractionDigits));
@@ -61,15 +70,22 @@ export function MeasureSlider({
 				>
 					<Minus />
 				</Button>
-				<output
-					aria-live="polite"
-					className="font-heading font-semibold text-4xl tabular-nums"
-				>
-					{formatted}
-					<span className="ml-1 font-normal text-base text-muted-foreground">
-						{unit}
-					</span>
-				</output>
+				<div className="flex flex-col items-center gap-0.5">
+					<output
+						aria-live="polite"
+						className="font-heading font-semibold text-4xl tabular-nums"
+					>
+						{formatted}
+						<span className="ml-1 font-normal text-base text-muted-foreground">
+							{unit}
+						</span>
+					</output>
+					{caption && (
+						<span className="text-muted-foreground text-xs tabular-nums">
+							{caption}
+						</span>
+					)}
+				</div>
 				<Button
 					type="button"
 					variant="secondary"
@@ -97,9 +113,7 @@ export function MeasureSlider({
 					</SliderPrimitive.Track>
 					<SliderPrimitive.Thumb
 						getAriaLabel={() => label}
-						getAriaValueText={(_, current) =>
-							`${formatNumber(current, fractionDigits)} ${unit}`
-						}
+						getAriaValueText={(_, current) => `${format(current)} ${unit}`}
 						className="size-6 rounded-full bg-primary outline-none ring-4 ring-card transition-[box-shadow] focus-visible:ring-ring/50 data-dragging:ring-ring/50"
 					/>
 				</SliderPrimitive.Control>
@@ -107,10 +121,10 @@ export function MeasureSlider({
 
 			<div className="flex justify-between text-muted-foreground text-xs tabular-nums">
 				<span>
-					{formatNumber(min)} {unit}
+					{format(min)} {unit}
 				</span>
 				<span>
-					{formatNumber(max)} {unit}
+					{format(max)} {unit}
 				</span>
 			</div>
 		</div>

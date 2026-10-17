@@ -8,11 +8,12 @@ import {
 	House,
 	type LucideIcon,
 	Salad,
+	Target,
 } from "~/shared/components/icons";
 import { cn } from "~/shared/lib/utils";
 
 interface Tab {
-	href: "/" | "/tmb" | "/dieta";
+	href: "/" | "/tmb" | "/meta" | "/dieta";
 	label: string;
 	icon: LucideIcon;
 }
@@ -20,6 +21,7 @@ interface Tab {
 const tabs: Tab[] = [
 	{ href: "/", label: "Início", icon: House },
 	{ href: "/tmb", label: "TMB", icon: Flame },
+	{ href: "/meta", label: "Meta", icon: Target },
 	{ href: "/dieta", label: "Dieta", icon: Salad },
 ];
 
@@ -84,7 +86,7 @@ export function TabBarFallback() {
 	return (
 		<div
 			aria-hidden
-			className="fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] left-1/2 z-40 h-14 w-44 -translate-x-1/2 rounded-full bg-card/85 ring-1 ring-foreground/10 backdrop-blur-md"
+			className="fixed bottom-[calc(env(safe-area-inset-bottom)+1rem)] left-1/2 z-40 h-14 w-56 -translate-x-1/2 rounded-full bg-card/85 ring-1 ring-foreground/10 backdrop-blur-md"
 		/>
 	);
 }

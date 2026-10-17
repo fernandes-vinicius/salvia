@@ -1,7 +1,7 @@
 "use client";
 
-import { ChoiceCard } from "~/domains/profile/components/choice-card";
 import type { Sex } from "~/domains/profile/types/profile-types";
+import { ChoiceCard } from "~/shared/components/choice-card";
 import { Mars, Venus } from "~/shared/components/icons";
 import { RadioGroup } from "~/shared/components/ui/radio-group";
 

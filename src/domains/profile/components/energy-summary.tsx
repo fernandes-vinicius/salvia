@@ -1,10 +1,10 @@
-import { SaveStatus } from "~/domains/profile/components/save-status";
 import type { BodyProfile } from "~/domains/profile/types/profile-types";
 import {
 	calculateBmr,
 	calculateTdee,
 	findActivityLevel,
 } from "~/domains/profile/utils/energy";
+import { SaveStatus } from "~/shared/components/save-status";
 import type { AutosaveStatus } from "~/shared/hooks/use-autosave";
 import { formatNumber } from "~/shared/lib/format";
 import { cn } from "~/shared/lib/utils";

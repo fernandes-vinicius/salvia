@@ -15,6 +15,13 @@
 			"when": 1792247413560,
 			"tag": "0001_curly_katie_power",
 			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "7",
+			"when": 1792250525970,
+			"tag": "0002_funny_mandarin",
+			"breakpoints": true
 		}
 	]
 }
