@@ -25,6 +25,10 @@ export default function LoginPage() {
 						<p className="text-balance text-muted-foreground text-sm">
 							{APP_TAGLINE}
 						</p>
+						<p className="mt-1 text-balance text-muted-foreground text-sm">
+							Monte sua dieta e acompanhe calorias e macros: proteína,
+							carboidrato e gordura.
+						</p>
 					</div>
 				</div>
 
