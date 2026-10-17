@@ -64,7 +64,7 @@ function AddFoodFlow({ onAdd }: { onAdd: AddFoodSheetProps["onAdd"] }) {
 			<div className="flex-1 overflow-y-auto p-4">
 				<CustomFoodForm
 					defaultName={step.name}
-					onCreated={pick}
+					onSaved={pick}
 					onCancel={() => setStep({ kind: "search" })}
 				/>
 			</div>

@@ -15,6 +15,12 @@ export interface Food {
 	proteinSource: ProteinSource;
 }
 
+/** Alimento do usuário com o uso no plano (tela Configurações). */
+export interface CustomFoodSummary extends Food {
+	/** Em quantas refeições da dieta ele aparece. */
+	usedInMeals: number;
+}
+
 export interface Macros {
 	proteinAnimal: number;
 	proteinVegetal: number;

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { getCurrentUser } from "~/domains/auth/services/session-service";
+import { MyFoods } from "~/domains/food";
+import { listCustomFoods } from "~/domains/food/services/food-service";
 import { findProfileByUserId } from "~/domains/profile/services/profile-service";
 import { SettingsForm } from "~/domains/settings";
 import { getSettingsByUserId } from "~/domains/settings/services/settings-service";
@@ -15,7 +17,7 @@ export default function ConfiguracoesPage() {
 		<main className="container-wrapper flex flex-col gap-8">
 			<PageHeader
 				title="Configurações"
-				description="Ajustes de como o app faz os cálculos."
+				description="Como o app faz os cálculos e os alimentos que você cadastrou."
 			/>
 			<Suspense fallback={<SettingsSkeleton />}>
 				<SettingsContent />
@@ -26,12 +28,18 @@ export default function ConfiguracoesPage() {
 
 async function SettingsContent() {
 	const user = await getCurrentUser();
-	const [settings, profile] = await Promise.all([
+	const [settings, profile, foods] = await Promise.all([
 		getSettingsByUserId(user.id),
 		findProfileByUserId(user.id),
+		listCustomFoods(user.id),
 	]);
 
-	return <SettingsForm initialSettings={settings} profile={profile} />;
+	return (
+		<div className="flex flex-col gap-10">
+			<SettingsForm initialSettings={settings} profile={profile} />
+			<MyFoods initialFoods={foods} />
+		</div>
+	);
 }
 
 function SettingsSkeleton() {

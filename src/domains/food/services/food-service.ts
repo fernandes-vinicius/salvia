@@ -1,12 +1,22 @@
 import "server-only";
 
-import { and, asc, eq, ilike, isNull, or, type SQL, sql } from "drizzle-orm";
+import {
+	and,
+	asc,
+	countDistinct,
+	eq,
+	ilike,
+	isNull,
+	or,
+	type SQL,
+	sql,
+} from "drizzle-orm";
 
 import type { CustomFoodInput } from "~/domains/food/schemas/food-schema";
-import type { Food } from "~/domains/food/types/food-types";
+import type { CustomFoodSummary, Food } from "~/domains/food/types/food-types";
 import { normalizeSearchText } from "~/domains/food/utils/food";
 import { db } from "~/shared/db";
-import { food } from "~/shared/db/schema";
+import { dietItem, food } from "~/shared/db/schema";
 
 export const foodColumns = {
 	id: food.id,
@@ -79,4 +89,60 @@ export async function createCustomFood(
 		})
 		.returning(foodColumns);
 	return row;
+}
+
+/** Só alimentos cadastrados pelo próprio usuário (TACO não é editável). */
+function ownedCustom(userId: string, foodId: string) {
+	return and(
+		eq(food.id, foodId),
+		eq(food.userId, userId),
+		eq(food.source, "custom"),
+	);
+}
+
+export async function listCustomFoods(
+	userId: string,
+): Promise<CustomFoodSummary[]> {
+	return db
+		.select({ ...foodColumns, usedInMeals: countDistinct(dietItem.mealId) })
+		.from(food)
+		.leftJoin(dietItem, eq(dietItem.foodId, food.id))
+		.where(and(eq(food.userId, userId), eq(food.source, "custom")))
+		.groupBy(food.id)
+		.orderBy(asc(food.name));
+}
+
+export async function updateCustomFood(
+	userId: string,
+	foodId: string,
+	input: CustomFoodInput,
+): Promise<Food | "not-found" | "unit-in-use"> {
+	const [current] = await db
+		.select({ unit: food.unit, usedInMeals: countDistinct(dietItem.mealId) })
+		.from(food)
+		.leftJoin(dietItem, eq(dietItem.foodId, food.id))
+		.where(ownedCustom(userId, foodId))
+		.groupBy(food.id);
+	if (!current) return "not-found";
+	// Mudar a unidade de um alimento em uso mudaria o sentido das quantidades
+	// já salvas (100 g viraria 100 unidades).
+	if (current.unit !== input.unit && current.usedInMeals > 0) {
+		return "unit-in-use";
+	}
+
+	const [row] = await db
+		.update(food)
+		.set({ ...input, searchName: normalizeSearchText(input.name) })
+		.where(ownedCustom(userId, foodId))
+		.returning(foodColumns);
+	return row ?? "not-found";
+}
+
+/** Exclui o alimento; os itens da dieta que o usam saem junto (cascade). */
+export async function deleteCustomFood(userId: string, foodId: string) {
+	const rows = await db
+		.delete(food)
+		.where(ownedCustom(userId, foodId))
+		.returning({ id: food.id });
+	return rows.length > 0;
 }
