@@ -50,7 +50,12 @@ Revisão de out/2026: o cálculo atual (Mifflin-St Jeor + método fatorial + MET
 
 - Página "Como calculamos" com as fórmulas e referências, e nota de que o app não substitui acompanhamento profissional.
 
-## Aba Dieta (próximo)
+## Aba Dieta — próximos passos
 
-- Grade de refeições estilo planilha + cadastro de alimentos (macros por 100 g/ml/unidade × quantidade).
-- Resumo estilo planilha: Proteína (A), Proteína (V), Carboidrato, Gordura × g · % · kcal · g/kg; Total; Excedente/Déficit vs GCD; diferença pra meta.
+Feito (out/2026): grade de refeições, TACO + alimentos próprios, resumo estilo planilha, planejado × meta.
+
+- Trocar o alimento de um item mantendo a quantidade; reordenar itens dentro da refeição (drag).
+- Substituições ("ou 100 g de cuscuz" da planilha): alternativas equivalentes por item.
+- Editar/excluir alimentos próprios (hoje só cadastra).
+- Celular: resumo e meta ocupam a primeira tela; avaliar versão compacta/recolhível pra grade aparecer antes.
+- Porções caseiras na TACO (1 fatia, 1 colher) além de gramas.

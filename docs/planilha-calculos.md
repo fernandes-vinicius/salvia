@@ -37,6 +37,13 @@ MET cardio     = 5 · 6,25 · 7,5 · 8,75 · 10
 - Proteína **animal** e gordura em g/kg × peso. Carboidrato automático = (meta − proteína×4 − gordura×9) ÷ 4, ou fixado em g/kg pelo usuário (como na planilha); no manual, o app mostra quanto a soma dos macros fica acima/abaixo da meta. Avisos: meta abaixo da TMB; no automático, carboidrato negativo ou < 1 g/kg.
 - O resumo da planilha (G · % · Kcal · g/kg por macro, total, excedente) e a diferença pra meta vão ficar na aba Dieta.
 
+### No app (aba Dieta)
+
+- Alimentos: Tabela TACO (596 itens, por 100 g) + alimentos cadastrados pelo usuário (por 100 g/ml ou por unidade). Proteína de cada alimento é animal ou vegetal (TACO: pela categoria; em pratos mistos, por palavras-chave no nome).
+- Item = macros do alimento × quantidade ÷ 100 (ou × unidades). kcal = P×4 + C×4 + G×9, como na planilha.
+- Resumo do dia (legenda "OFF"): Proteína (A), Proteína (V), Carboidrato, Gordura × g · % · kcal · g/kg; total planejado; excedente/déficit = planejado − GCD.
+- Planejado × meta ("Protein e Carb / Kg"): calorias, proteína animal, carboidrato e gordura contra a aba Meta (±3% = "na meta").
+
 ## Plano de referência (planilha)
 
 | Refeição | Itens | kcal |

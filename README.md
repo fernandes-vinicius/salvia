@@ -13,6 +13,7 @@ bun install
 cp .env.example .env          # preencha conforme abaixo
 bun run db:up                 # Postgres local (docker compose)
 bun run db:migrate            # aplica as migrations em ./drizzle
+bun run db:seed:taco          # importa a Tabela TACO (alimentos)
 bun run dev                   # http://localhost:3000
 ```
 
@@ -50,6 +51,7 @@ bun run db:generate # gera migration a partir do schema Drizzle
 bun run db:migrate  # aplica migrations
 bun run db:studio   # Drizzle Studio
 bun run auth:generate # regenera o schema do Better Auth (após mudar plugins/campos)
+bun run db:seed:taco  # importa/atualiza a Tabela TACO (idempotente)
 ```
 
 ## Estrutura
