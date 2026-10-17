@@ -55,11 +55,21 @@ export function UserMenu({ user }: { user: User }) {
 					<AvatarFallback>{getInitials(user.name)}</AvatarFallback>
 				</Avatar>
 			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end">
+			{/* Por padrão o menu tem a largura do gatilho (o avatar); aqui ele
+			    acompanha o conteúdo, até caber na tela. */}
+			<DropdownMenuContent
+				align="end"
+				className="w-auto max-w-[min(20rem,calc(100vw-2rem))]"
+			>
 				<DropdownMenuGroup>
-					<DropdownMenuLabel className="flex flex-col">
-						<span className="font-medium text-foreground">{user.name}</span>
-						<span className="font-normal text-muted-foreground text-xs">
+					<DropdownMenuLabel className="flex min-w-0 flex-col">
+						<span className="truncate font-medium text-foreground">
+							{user.name}
+						</span>
+						<span
+							className="truncate font-normal text-muted-foreground text-xs"
+							title={user.email}
+						>
 							{user.email}
 						</span>
 					</DropdownMenuLabel>
