@@ -12,8 +12,9 @@ import { Skeleton } from "~/shared/components/ui/skeleton";
 
 export default function AppLayout({ children }: LayoutProps<"/">) {
 	return (
-		<div className="flex min-h-svh flex-col">
-			<header className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 pt-6 sm:px-6">
+		<div className="group/app flex min-h-svh flex-col">
+			{/* Acompanha páginas largas (`data-wide-page`) via CSS, sem usePathname. */}
+			<header className="mx-auto flex w-full max-w-3xl items-center justify-between px-4 pt-6 group-has-[[data-wide-page]]/app:max-w-[87rem] sm:px-6">
 				<Logo />
 				<div className="flex items-center gap-2">
 					<Button

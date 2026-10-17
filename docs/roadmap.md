@@ -57,5 +57,5 @@ Feito (out/2026): grade de refeições, TACO + alimentos próprios, resumo estil
 - Trocar o alimento de um item mantendo a quantidade; reordenar itens dentro da refeição (drag).
 - Substituições ("ou 100 g de cuscuz" da planilha): alternativas equivalentes por item.
 - Editar/excluir alimentos próprios (hoje só cadastra).
-- Celular: resumo e meta ocupam a primeira tela; avaliar versão compacta/recolhível pra grade aparecer antes.
+- Celular: resumo e meta ocupam a primeira tela; avaliar versão compacta/recolhível pra grade aparecer antes (desktop já resolvido com coluna lateral).
 - Porções caseiras na TACO (1 fatia, 1 colher) além de gramas.

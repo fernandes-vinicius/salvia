@@ -145,45 +145,51 @@ export function DietView({
 
 	return (
 		<div className="flex flex-col gap-6">
-			<div className="grid gap-4 md:grid-cols-2 md:items-start">
-				<DietSummaryCard summary={summary} tdee={tdee} />
-				{targets ? (
-					<GoalProgress summary={summary} targets={targets} />
-				) : (
-					<p className="rounded-3xl bg-card p-4 text-muted-foreground text-sm md:p-5">
-						Defina sua meta na aba Meta para comparar o planejado com ela.
-					</p>
-				)}
-			</div>
-
-			<div className="flex flex-col gap-4">
-				{meals.map((meal, index) => (
-					<MealCard
-						key={meal.id}
-						meal={meal}
-						isFirst={index === 0}
-						isLast={index === meals.length - 1}
-						canDelete={meals.length > 1}
-						onAddFood={() => setAddingTo(meal.id)}
-						onEditItem={setEditingItemId}
-						onEdit={() => setEditingMealId(meal.id)}
-						onMove={(direction) => handleMove(index, direction)}
-						onDelete={() => setDeletingMealId(meal.id)}
-					/>
-				))}
-				<Button
-					variant="secondary"
-					size="lg"
-					disabled={addingMeal}
-					onClick={handleAddMeal}
-				>
-					{addingMeal ? (
-						<Loader2Icon data-icon="inline-start" className="animate-spin" />
+			{/* Celular: resumo no topo e 1 coluna. Tablet: resumo e meta lado a
+			    lado no topo, 2 colunas. ≥ lg: coluna lateral fixa à direita (como
+			    a legenda da planilha) e a grade à esquerda (3 colunas em telas
+			    largas, ordem 1 · 2 · 3 e as seguintes abaixo). */}
+			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
+				<aside className="grid gap-4 md:grid-cols-2 md:items-start lg:sticky lg:top-6 lg:order-last lg:max-h-[calc(100svh-3rem)] lg:grid-cols-1 lg:overflow-y-auto lg:[scrollbar-width:thin]">
+					<DietSummaryCard summary={summary} tdee={tdee} />
+					{targets ? (
+						<GoalProgress summary={summary} targets={targets} />
 					) : (
-						<Plus data-icon="inline-start" />
+						<p className="rounded-3xl bg-card p-4 text-muted-foreground text-sm md:p-5">
+							Defina sua meta na aba Meta para comparar o planejado com ela.
+						</p>
 					)}
-					Adicionar refeição
-				</Button>
+				</aside>
+
+				<div className="grid gap-4 md:grid-cols-2 md:items-start min-[85rem]:grid-cols-3">
+					{meals.map((meal, index) => (
+						<MealCard
+							key={meal.id}
+							meal={meal}
+							isFirst={index === 0}
+							isLast={index === meals.length - 1}
+							canDelete={meals.length > 1}
+							onAddFood={() => setAddingTo(meal.id)}
+							onEditItem={setEditingItemId}
+							onEdit={() => setEditingMealId(meal.id)}
+							onMove={(direction) => handleMove(index, direction)}
+							onDelete={() => setDeletingMealId(meal.id)}
+						/>
+					))}
+					<button
+						type="button"
+						disabled={addingMeal}
+						onClick={handleAddMeal}
+						className="flex min-h-32 items-center justify-center gap-2 rounded-3xl border-2 border-border border-dashed font-medium text-primary text-sm outline-none transition-colors hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:opacity-60"
+					>
+						{addingMeal ? (
+							<Loader2Icon className="size-4 animate-spin" />
+						) : (
+							<Plus className="size-4" />
+						)}
+						Adicionar refeição
+					</button>
+				</div>
 			</div>
 
 			<AddFoodSheet

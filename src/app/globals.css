@@ -163,3 +163,9 @@
 @utility container-wrapper {
 	@apply mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10 md:py-14;
 }
+
+/* Páginas largas (Dieta: grade + coluna lateral). Marque o <main> com
+   `data-wide-page` pra o header do layout acompanhar a largura. */
+@utility container-wide {
+	@apply mx-auto w-full max-w-[87rem] px-4 py-8 sm:px-6 sm:py-10 md:py-14;
+}

@@ -16,7 +16,7 @@ export const metadata: Metadata = { title: "Dieta" };
 
 export default function DietaPage() {
 	return (
-		<main className="container-wrapper flex flex-col gap-8">
+		<main data-wide-page className="container-wide flex flex-col gap-8">
 			<PageHeader
 				title="Dieta"
 				description="Suas refeições e o total do dia comparado com a sua meta."
@@ -64,13 +64,16 @@ async function DietContent() {
 
 function DietSkeleton() {
 	return (
-		<div className="flex flex-col gap-6">
-			<div className="grid gap-4 md:grid-cols-2">
+		<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+			<div className="grid gap-4 md:grid-cols-2 lg:order-last lg:grid-cols-1">
 				<Skeleton className="h-64 rounded-3xl" />
 				<Skeleton className="h-64 rounded-3xl" />
 			</div>
-			<Skeleton className="h-40 rounded-3xl" />
-			<Skeleton className="h-40 rounded-3xl" />
+			<div className="grid gap-4 md:grid-cols-2 min-[85rem]:grid-cols-3">
+				<Skeleton className="h-48 rounded-3xl" />
+				<Skeleton className="h-48 rounded-3xl" />
+				<Skeleton className="h-48 rounded-3xl" />
+			</div>
 		</div>
 	);
 }

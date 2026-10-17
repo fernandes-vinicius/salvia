@@ -45,7 +45,7 @@ export function DietSummaryCard({ summary, tdee }: DietSummaryCardProps) {
 						return (
 							<tr key={key}>
 								<th scope="row" className="py-2 text-left font-normal">
-									<span className="flex items-center gap-2">
+									<span className="flex items-center gap-2 whitespace-nowrap">
 										<span
 											className={cn(
 												"size-2 shrink-0 rounded-full",
