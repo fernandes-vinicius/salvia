@@ -16,4 +16,8 @@ export default defineConfig({
 		// próximo no mesmo arquivo.
 		globals: true,
 	},
+	server: {
+		host: true,
+		port: 3000,
+	},
 });

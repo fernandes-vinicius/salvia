@@ -17,7 +17,8 @@
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio",
-		"auth:generate": "bunx auth@latest generate --config src/domains/auth/lib/auth-cli-config.ts --output src/shared/db/schema/auth-schema.ts -y"
+		"auth:generate": "bunx auth@latest generate --config src/domains/auth/lib/auth-cli-config.ts --output src/shared/db/schema/auth-schema.ts -y",
+		"db:seed:taco": "bun scripts/seed-taco.ts"
 	},
 	"dependencies": {
 		"@base-ui/react": "^1.9.0",
