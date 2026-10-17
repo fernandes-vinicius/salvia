@@ -21,6 +21,11 @@ export const goalSchema = z
 			.number()
 			.min(MACRO_RANGES.fatPerKg.min)
 			.max(MACRO_RANGES.fatPerKg.max),
+		carbsPerKg: z
+			.number()
+			.min(MACRO_RANGES.carbsPerKg.min)
+			.max(MACRO_RANGES.carbsPerKg.max)
+			.nullable(),
 	})
 	// O sinal do ajuste tem que bater com o objetivo.
 	.refine(

@@ -12,17 +12,27 @@ import {
 	Wheat,
 } from "~/shared/components/icons";
 import { MeasureSlider } from "~/shared/components/measure-slider";
+import { Switch } from "~/shared/components/ui/switch";
 import { formatFixed, formatNumber } from "~/shared/lib/format";
 import { cn } from "~/shared/lib/utils";
+
+type MacroFields = Pick<Goal, "proteinPerKg" | "fatPerKg" | "carbsPerKg">;
 
 interface MacroTargetsProps {
 	goal: Goal;
 	targets: GoalTargets;
-	onChange: (macros: Pick<Goal, "proteinPerKg" | "fatPerKg">) => void;
+	onChange: (macros: Partial<MacroFields>) => void;
+}
+
+/** Arredonda pro passo do slider (0,1 g/kg) e mantém dentro da faixa. */
+function roundToStep(perKg: number) {
+	const { min, max } = MACRO_RANGES.carbsPerKg;
+	return Math.min(max, Math.max(min, Math.round(perKg * 10) / 10));
 }
 
 export function MacroTargets({ goal, targets, onChange }: MacroTargetsProps) {
 	const [isAdjusting, setIsAdjusting] = useState(false);
+	const isCarbsAuto = goal.carbsPerKg === null;
 
 	const rows = [
 		{
@@ -39,7 +49,9 @@ export function MacroTargets({ goal, targets, onChange }: MacroTargetsProps) {
 		},
 		{
 			label: "Carboidrato",
-			hint: `O que sobra das calorias · ${formatFixed(targets.carbs.perKg)} g/kg`,
+			hint: isCarbsAuto
+				? `O que sobra das calorias · ${formatFixed(targets.carbs.perKg)} g/kg`
+				: `${formatFixed(targets.carbs.perKg)} g por kg de peso · definido por você`,
 			grams: targets.carbs.grams,
 			dot: "bg-macro-carb",
 		},
@@ -91,9 +103,7 @@ export function MacroTargets({ goal, targets, onChange }: MacroTargetsProps) {
 						fractionDigits={1}
 						fixedDigits
 						caption={`= ${formatNumber(targets.protein.grams)} g por dia`}
-						onValueChange={(proteinPerKg) =>
-							onChange({ proteinPerKg, fatPerKg: goal.fatPerKg })
-						}
+						onValueChange={(proteinPerKg) => onChange({ proteinPerKg })}
 					/>
 					<MeasureSlider
 						label="Gordura"
@@ -104,17 +114,52 @@ export function MacroTargets({ goal, targets, onChange }: MacroTargetsProps) {
 						fractionDigits={1}
 						fixedDigits
 						caption={`= ${formatNumber(targets.fat.grams)} g por dia`}
-						onValueChange={(fatPerKg) =>
-							onChange({ proteinPerKg: goal.proteinPerKg, fatPerKg })
-						}
+						onValueChange={(fatPerKg) => onChange({ fatPerKg })}
 					/>
-					<p className="flex items-start gap-2 px-1 text-muted-foreground text-xs">
-						<Wheat className="mt-0.5 size-3.5 shrink-0" />
-						<span>
-							Proteína animal: carnes, ovos, laticínios e whey. A vegetal
-							(feijão, grãos, pão) entra nas calorias, mas não conta para essa
-							meta. O carboidrato se ajusta sozinho com o que sobrar.
+
+					{/* Carboidrato: automático (o que sobra) por padrão; desligando,
+					    vira g/kg fixo como na planilha. Começa no valor que o
+					    automático estava dando, pra não dar salto. */}
+					<label className="flex cursor-pointer items-center gap-3 rounded-2xl bg-card p-4">
+						<span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
+							<Wheat className="size-5" aria-hidden />
 						</span>
+						<span className="flex min-w-0 flex-1 flex-col gap-0.5">
+							<span className="font-medium text-sm">
+								Carboidrato automático
+							</span>
+							<span className="text-muted-foreground text-xs">
+								{isCarbsAuto
+									? "Ajusta sozinho com o que sobrar das calorias."
+									: "Desligado: você escolhe os g/kg abaixo."}
+							</span>
+						</span>
+						<Switch
+							checked={isCarbsAuto}
+							onCheckedChange={(auto) =>
+								onChange({
+									carbsPerKg: auto ? null : roundToStep(targets.carbs.perKg),
+								})
+							}
+						/>
+					</label>
+					{!isCarbsAuto && (
+						<MeasureSlider
+							label="Carboidrato"
+							icon={Wheat}
+							unit="g/kg"
+							value={goal.carbsPerKg ?? 0}
+							{...MACRO_RANGES.carbsPerKg}
+							fractionDigits={1}
+							fixedDigits
+							caption={`= ${formatNumber(targets.carbs.grams)} g por dia`}
+							onValueChange={(carbsPerKg) => onChange({ carbsPerKg })}
+						/>
+					)}
+
+					<p className="px-1 text-muted-foreground text-xs">
+						Proteína animal: carnes, ovos, laticínios e whey. A vegetal (feijão,
+						grãos, pão) entra nas calorias, mas não conta para essa meta.
 					</p>
 				</div>
 			)}

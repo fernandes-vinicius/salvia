@@ -22,6 +22,13 @@
 			"when": 1792250525970,
 			"tag": "0002_funny_mandarin",
 			"breakpoints": true
+		},
+		{
+			"idx": 3,
+			"version": "7",
+			"when": 1792251066836,
+			"tag": "0003_bent_loki",
+			"breakpoints": true
 		}
 	]
 }

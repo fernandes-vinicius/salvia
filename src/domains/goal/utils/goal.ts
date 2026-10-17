@@ -59,16 +59,17 @@ export const CUSTOM_ADJUSTMENT_RANGE = { min: 50, max: 1000 };
 export const MACRO_RANGES = {
 	proteinPerKg: { min: 1, max: 3, step: 0.1 },
 	fatPerKg: { min: 0.5, max: 1.5, step: 0.1 },
+	carbsPerKg: { min: 0.5, max: 6, step: 0.1 },
 } as const;
 
 /** Macros sugeridos pra cada objetivo (proteína animal + gordura, g/kg). */
 export const MACRO_DEFAULTS: Record<
 	Objective,
-	Pick<Goal, "proteinPerKg" | "fatPerKg">
+	Pick<Goal, "proteinPerKg" | "fatPerKg" | "carbsPerKg">
 > = {
-	lose: { proteinPerKg: 2.2, fatPerKg: 0.9 },
-	maintain: { proteinPerKg: 1.8, fatPerKg: 1 },
-	gain: { proteinPerKg: 2, fatPerKg: 1 },
+	lose: { proteinPerKg: 2.2, fatPerKg: 0.9, carbsPerKg: null },
+	maintain: { proteinPerKg: 1.8, fatPerKg: 1, carbsPerKg: null },
+	gain: { proteinPerKg: 2, fatPerKg: 1, carbsPerKg: null },
 };
 
 /** Meta padrão de um objetivo: ritmo recomendado + macros sugeridos. */
@@ -105,15 +106,24 @@ export function calculateTargets(
 	const proteinKcal = proteinGrams * KCAL_PER_GRAM.protein;
 	const fatKcal = fatGrams * KCAL_PER_GRAM.fat;
 
-	// Carboidrato = o que sobra (como na planilha). Pode ficar negativo se
-	// proteína + gordura passarem da meta; aí vira aviso e mostramos 0.
-	const carbsKcal = calories - proteinKcal - fatKcal;
-	const carbsGrams = carbsKcal / KCAL_PER_GRAM.carbs;
+	// Automático: carboidrato = o que sobra da meta (pode ficar negativo se
+	// proteína + gordura passarem dela; aí vira aviso e mostramos 0).
+	// Manual: g/kg fixado pelo usuário, como na planilha; a soma dos macros
+	// pode então não fechar com a meta (`calorieGap`).
+	const isCarbsAuto = goal.carbsPerKg === null;
+	const carbsGrams = isCarbsAuto
+		? (calories - proteinKcal - fatKcal) / KCAL_PER_GRAM.carbs
+		: (goal.carbsPerKg ?? 0) * weightKg;
+	const safeCarbsGrams = Math.max(0, carbsGrams);
+	const carbsKcal = safeCarbsGrams * KCAL_PER_GRAM.carbs;
+	const macroCalories = proteinKcal + fatKcal + carbsKcal;
 
 	const warnings: GoalWarning[] = [];
 	if (calories < bmr) warnings.push("below-bmr");
-	if (carbsGrams < 0) warnings.push("carbs-negative");
-	else if (carbsGrams / weightKg < MIN_CARBS_PER_KG) warnings.push("carbs-low");
+	if (isCarbsAuto && carbsGrams < 0) warnings.push("carbs-negative");
+	else if (isCarbsAuto && carbsGrams / weightKg < MIN_CARBS_PER_KG) {
+		warnings.push("carbs-low");
+	}
 
 	return {
 		calories,
@@ -124,10 +134,12 @@ export function calculateTargets(
 		},
 		fat: { grams: fatGrams, kcal: fatKcal, perKg: goal.fatPerKg },
 		carbs: {
-			grams: Math.max(0, carbsGrams),
-			kcal: Math.max(0, carbsKcal),
-			perKg: Math.max(0, carbsGrams / weightKg),
+			grams: safeCarbsGrams,
+			kcal: carbsKcal,
+			perKg: safeCarbsGrams / weightKg,
 		},
+		macroCalories,
+		calorieGap: macroCalories - calories,
 		weeklyChangeKg: weeklyChangeKg(goal.calorieAdjustment),
 		warnings,
 	};

@@ -95,6 +95,19 @@ export function TargetSummary({
 				))}
 			</dl>
 
+			{/* Só com carboidrato manual: a soma dos macros pode não fechar com
+			    a meta (o "Excedente" da planilha). */}
+			{Math.abs(targets.calorieGap) >= 1 && (
+				<p className="mt-2 text-xs opacity-90">
+					Seus macros somam{" "}
+					<span className="font-semibold tabular-nums">
+						{formatNumber(targets.macroCalories)} kcal
+					</span>{" "}
+					· {formatNumber(Math.abs(targets.calorieGap))}{" "}
+					{targets.calorieGap < 0 ? "abaixo" : "acima"} da meta
+				</p>
+			)}
+
 			{isExample && (
 				<p className="mt-2 text-xs opacity-80">
 					Meta de exemplo. Escolha seu objetivo: salvamos sozinhos a cada

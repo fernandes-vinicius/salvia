@@ -8,6 +8,8 @@ export interface Goal {
 	proteinPerKg: number;
 	/** Gordura, g por kg de peso. */
 	fatPerKg: number;
+	/** Carboidrato fixado em g/kg; `null` = automático (o que sobra). */
+	carbsPerKg: number | null;
 }
 
 export interface MacroTarget {
@@ -21,6 +23,10 @@ export interface GoalTargets {
 	protein: MacroTarget;
 	fat: MacroTarget;
 	carbs: MacroTarget;
+	/** Soma das kcal dos três macros. */
+	macroCalories: number;
+	/** `macroCalories − calories`: ≠ 0 só com carboidrato manual. */
+	calorieGap: number;
 	/** Variação estimada de peso por semana (kg; negativo = perda). */
 	weeklyChangeKg: number;
 	warnings: GoalWarning[];

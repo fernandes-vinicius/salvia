@@ -1,0 +1,1 @@
+ALTER TABLE "goal" ADD COLUMN "carbs_per_kg" double precision;

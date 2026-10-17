@@ -13,6 +13,7 @@ export async function findGoalByUserId(userId: string): Promise<Goal | null> {
 			calorieAdjustment: goal.calorieAdjustment,
 			proteinPerKg: goal.proteinPerKg,
 			fatPerKg: goal.fatPerKg,
+			carbsPerKg: goal.carbsPerKg,
 		})
 		.from(goal)
 		.where(eq(goal.userId, userId))

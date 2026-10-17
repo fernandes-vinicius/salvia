@@ -11,8 +11,7 @@ import { user } from "~/shared/db/schema/auth-schema";
 
 export const objectiveEnum = pgEnum("objective", ["lose", "maintain", "gain"]);
 
-// Meta nutricional (aba Meta). Um por usuário. Carboidrato não é guardado:
-// é sempre o que sobra da meta de calorias.
+// Meta nutricional (aba Meta). Um por usuário.
 export const goal = pgTable("goal", {
 	userId: text("user_id")
 		.primaryKey()
@@ -23,6 +22,8 @@ export const goal = pgTable("goal", {
 	/** Meta de proteína ANIMAL em g/kg (igual à planilha). */
 	proteinPerKg: doublePrecision("protein_per_kg").notNull(),
 	fatPerKg: doublePrecision("fat_per_kg").notNull(),
+	/** g/kg fixado pelo usuário; `null` = automático (o que sobra da meta). */
+	carbsPerKg: doublePrecision("carbs_per_kg"),
 	updatedAt: timestamp("updated_at")
 		.defaultNow()
 		.$onUpdate(() => new Date())

@@ -17,6 +17,7 @@ describe("calculateTargets", () => {
 			calorieAdjustment: -500,
 			proteinPerKg: 2.2,
 			fatPerKg: 0.9,
+			carbsPerKg: null,
 		};
 		const targets = calculateTargets(goal, body);
 
@@ -45,6 +46,7 @@ describe("calculateTargets", () => {
 				calorieAdjustment: -1000,
 				proteinPerKg: 3,
 				fatPerKg: 1.5,
+				carbsPerKg: null,
 			},
 			{ ...body, tdee: 1800 },
 		);
@@ -59,10 +61,38 @@ describe("calculateTargets", () => {
 				calorieAdjustment: -750,
 				proteinPerKg: 2.5,
 				fatPerKg: 1.5,
+				carbsPerKg: null,
 			},
 			body,
 		);
 		expect(targets.warnings).toContain("carbs-low");
+	});
+});
+
+describe("carboidrato manual", () => {
+	it("usa o g/kg fixado e mostra a diferença pra meta", () => {
+		const targets = calculateTargets(
+			{
+				objective: "lose",
+				calorieAdjustment: -500,
+				proteinPerKg: 2.2,
+				fatPerKg: 0.9,
+				carbsPerKg: 2,
+			},
+			body,
+		);
+
+		expect(targets.carbs.grams).toBeCloseTo(140);
+		expect(targets.carbs.kcal).toBeCloseTo(560);
+		expect(targets.macroCalories).toBeCloseTo(616 + 567 + 560);
+		expect(targets.calorieGap).toBeCloseTo(1743 - 2096);
+		// Avisos de carboidrato só valem no automático.
+		expect(targets.warnings).toEqual([]);
+	});
+
+	it("no automático a soma fecha com a meta", () => {
+		const targets = calculateTargets(defaultGoalFor("lose"), body);
+		expect(targets.calorieGap).toBeCloseTo(0);
 	});
 });
 
