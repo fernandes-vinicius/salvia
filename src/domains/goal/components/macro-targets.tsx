@@ -12,7 +12,7 @@ import {
 	Wheat,
 } from "~/shared/components/icons";
 import { MeasureSlider } from "~/shared/components/measure-slider";
-import { Switch } from "~/shared/components/ui/switch";
+import { SwitchCard } from "~/shared/components/switch-card";
 import { formatFixed, formatNumber } from "~/shared/lib/format";
 import { cn } from "~/shared/lib/utils";
 
@@ -120,30 +120,21 @@ export function MacroTargets({ goal, targets, onChange }: MacroTargetsProps) {
 					{/* Carboidrato: automático (o que sobra) por padrão; desligando,
 					    vira g/kg fixo como na planilha. Começa no valor que o
 					    automático estava dando, pra não dar salto. */}
-					{/* biome-ignore lint/a11y/noLabelWithoutControl: o controle é o Switch (Base UI) dentro do label */}
-					<label className="flex cursor-pointer items-center gap-3 rounded-2xl bg-card p-4">
-						<span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
-							<Wheat className="size-5" aria-hidden />
-						</span>
-						<span className="flex min-w-0 flex-1 flex-col gap-0.5">
-							<span className="font-medium text-sm">
-								Carboidrato automático
-							</span>
-							<span className="text-muted-foreground text-xs">
-								{isCarbsAuto
-									? "Ajusta sozinho com o que sobrar das calorias."
-									: "Desligado: você escolhe os g/kg abaixo."}
-							</span>
-						</span>
-						<Switch
-							checked={isCarbsAuto}
-							onCheckedChange={(auto) =>
-								onChange({
-									carbsPerKg: auto ? null : roundToStep(targets.carbs.perKg),
-								})
-							}
-						/>
-					</label>
+					<SwitchCard
+						icon={Wheat}
+						title="Carboidrato automático"
+						description={
+							isCarbsAuto
+								? "Ajusta sozinho com o que sobrar das calorias."
+								: "Desligado: você escolhe os g/kg abaixo."
+						}
+						checked={isCarbsAuto}
+						onCheckedChange={(auto) =>
+							onChange({
+								carbsPerKg: auto ? null : roundToStep(targets.carbs.perKg),
+							})
+						}
+					/>
 					{!isCarbsAuto && (
 						<MeasureSlider
 							label="Carboidrato"

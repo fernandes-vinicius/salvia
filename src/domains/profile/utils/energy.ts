@@ -1,52 +1,122 @@
-import type { BodyProfile, Sex } from "~/domains/profile/types/profile-types";
+import type {
+	BodyProfile,
+	EnergyBreakdown,
+	Sex,
+	TrainingRoutine,
+} from "~/domains/profile/types/profile-types";
 
-export interface ActivityLevel {
-	factor: number;
+// Método fatorial: GCD = (TMB × NEAT + treinos) × (1 + digestão).
+// O NEAT cobre só o dia a dia; treinos entram à parte por MET. Evita contar
+// o treino duas vezes (o que os fatores clássicos 1,2–1,9 faziam e
+// superestimavam o gasto — ver docs/roadmap.md).
+
+export interface Option {
+	value: number;
 	label: string;
 	description: string;
-	/** Resumo escaneável: como é o trabalho e o exercício nesse nível. */
-	tags: string[];
+	tags?: string[];
 }
 
-// Fatores de atividade (FA) de Harris-Benedict pela frequência/intensidade
-// de exercício (tabela de referência adotada em out/2026).
-export const ACTIVITY_LEVELS: ActivityLevel[] = [
+export const NEAT_LEVELS: Option[] = [
 	{
-		factor: 1.2,
+		value: 1.1,
 		label: "Sedentário",
-		description: "Pouco ou nenhum exercício.",
-		tags: ["Sem treino"],
+		description: "Passa a maior parte do dia sentado ou deitado.",
+		tags: ["Home office", "Estudo"],
 	},
 	{
-		factor: 1.375,
-		label: "Pouco ativo",
-		description: "Exercícios ou esportes leves, de 1 a 3 vezes por semana.",
-		tags: ["Leve", "1 a 3× por semana"],
+		value: 1.15,
+		label: "Levemente ativo",
+		description: "Alterna o tempo sentado com pequenas caminhadas e tarefas.",
+		tags: ["Escritório", "Tarefas de casa"],
 	},
 	{
-		factor: 1.55,
-		label: "Moderado",
-		description: "Exercícios ou esportes moderados, de 3 a 5 vezes por semana.",
-		tags: ["Moderado", "3 a 5× por semana"],
+		value: 1.2,
+		label: "Moderadamente ativo",
+		description: "Fica em pé boa parte do dia e caminha com frequência.",
+		tags: ["Professor", "Vendedor"],
 	},
 	{
-		factor: 1.725,
-		label: "Muito ativo",
-		description: "Exercícios ou esportes pesados, de 6 a 7 vezes por semana.",
-		tags: ["Pesado", "6 a 7× por semana"],
+		value: 1.25,
+		label: "Bastante ativo",
+		description: "Em pé quase o dia todo, em movimento constante.",
+		tags: ["Garçom", "Enfermagem"],
 	},
 	{
-		factor: 1.9,
+		value: 1.3,
 		label: "Extremamente ativo",
-		description: "Exercício, esporte ou trabalho intenso todos os dias.",
-		tags: ["Intenso", "Todos os dias"],
+		description: "Trabalho físico pesado e ritmo intenso o dia todo.",
+		tags: ["Obra", "Carga e descarga"],
 	},
 ];
 
-export function findActivityLevel(factor: number) {
-	return ACTIVITY_LEVELS.find(
-		(level) => Math.abs(level.factor - factor) < 0.001,
-	);
+export const STRENGTH_INTENSITIES: Option[] = [
+	{
+		value: 3.5,
+		label: "Muito leve",
+		description: "Sem cargas ou para reabilitação.",
+	},
+	{
+		value: 4.5,
+		label: "Leve",
+		description: "Com cargas, mas sem desconforto.",
+	},
+	{
+		value: 5.5,
+		label: "Moderado",
+		description: "Há desafio, mas o desconforto é tolerável.",
+	},
+	{
+		value: 6.5,
+		label: "Pesado",
+		description: "Carga máxima, perto do limite.",
+	},
+	{
+		value: 7.5,
+		label: "Muito pesado",
+		description: "Muito volume e técnicas avançadas.",
+	},
+];
+
+export const CARDIO_INTENSITIES: Option[] = [
+	{
+		value: 5,
+		label: "Muito leve",
+		description: "Caminhada no parque.",
+	},
+	{
+		value: 6.25,
+		label: "Leve",
+		description: "Caminhada acelerada ou com inclinação.",
+	},
+	{
+		value: 7.5,
+		label: "Moderado",
+		description: "Ainda dá para manter uma conversa.",
+	},
+	{
+		value: 8.75,
+		label: "Intenso",
+		description: "Sem fôlego para manter uma conversa.",
+	},
+	{
+		value: 10,
+		label: "Muito intenso",
+		description: "Tiros (sprints) e HIIT no limite.",
+	},
+];
+
+export const TRAINING_RANGES = {
+	daysPerWeek: { min: 1, max: 7, step: 1 },
+	strengthMinutes: { min: 20, max: 180, step: 5 },
+	cardioMinutes: { min: 10, max: 120, step: 5 },
+} as const;
+
+/** Efeito térmico dos alimentos: ~10% do gasto vai para a digestão. */
+export const DIGESTION_RATE = 0.1;
+
+export function findOption(options: Option[], value: number) {
+	return options.find((option) => Math.abs(option.value - value) < 0.001);
 }
 
 // Harris-Benedict original — a mesma fórmula da planilha (versão masculina);
@@ -70,17 +140,54 @@ export function calculateBmr({
 	return c.base + c.weight * weightKg + c.height * heightCm - c.age * ageYears;
 }
 
-/** Gasto calórico diário (kcal/dia) = TMB × fator de atividade. */
-export function calculateTdee(profile: BodyProfile) {
-	return calculateBmr(profile) * profile.activityFactor;
+/**
+ * Média diária (kcal/dia) de um treino. Usa MET líquido (MET − 1) porque o
+ * repouso daquele tempo já está na TMB.
+ */
+export function calculateTrainingKcalPerDay(
+	routine: TrainingRoutine,
+	weightKg: number,
+) {
+	if (!routine.enabled) return 0;
+	const perSession =
+		(routine.met - 1) * weightKg * (routine.minutesPerSession / 60);
+	return (perSession * routine.daysPerWeek) / 7;
 }
 
-// Ponto de partida pra quem ainda não salvou nada (mesmos valores da
-// planilha original). A tela deixa claro que são valores de exemplo.
+export function calculateEnergy(profile: BodyProfile): EnergyBreakdown {
+	const bmr = calculateBmr(profile);
+	const daily = bmr * (profile.neatFactor - 1);
+	const strength = calculateTrainingKcalPerDay(
+		profile.strength,
+		profile.weightKg,
+	);
+	const cardio = calculateTrainingKcalPerDay(profile.cardio, profile.weightKg);
+	const beforeDigestion = bmr + daily + strength + cardio;
+	const digestion = beforeDigestion * DIGESTION_RATE;
+
+	return {
+		bmr,
+		daily,
+		strength,
+		cardio,
+		digestion,
+		tdee: beforeDigestion + digestion,
+	};
+}
+
+/** Gasto calórico diário (kcal/dia). */
+export function calculateTdee(profile: BodyProfile) {
+	return calculateEnergy(profile).tdee;
+}
+
+// Ponto de partida pra quem ainda não salvou nada. A tela deixa claro que
+// são valores de exemplo.
 export const EXAMPLE_PROFILE: BodyProfile = {
 	sex: "male",
 	ageYears: 30,
 	weightKg: 70,
 	heightCm: 170,
-	activityFactor: 1.375,
+	neatFactor: 1.15,
+	strength: { enabled: false, daysPerWeek: 3, minutesPerSession: 60, met: 5.5 },
+	cardio: { enabled: false, daysPerWeek: 3, minutesPerSession: 30, met: 7.5 },
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { saveGoal } from "~/domains/goal/actions/save-goal";
@@ -17,6 +17,7 @@ import {
 } from "~/domains/goal/utils/goal";
 import type { BodyProfile } from "~/domains/profile/types/profile-types";
 import { calculateBmr, calculateTdee } from "~/domains/profile/utils/energy";
+import { FormSection } from "~/shared/components/form-section";
 import { useAutosave } from "~/shared/hooks/use-autosave";
 
 interface GoalFormProps {
@@ -123,25 +124,5 @@ export function GoalForm({ profile, initialGoal, isExample }: GoalFormProps) {
 				</FormSection>
 			</div>
 		</div>
-	);
-}
-
-function FormSection({
-	title,
-	description,
-	children,
-}: {
-	title: string;
-	description: string;
-	children: ReactNode;
-}) {
-	return (
-		<section className="flex flex-col gap-3">
-			<div className="flex flex-col gap-0.5">
-				<h2 className="font-heading font-semibold text-lg">{title}</h2>
-				<p className="text-muted-foreground text-sm">{description}</p>
-			</div>
-			{children}
-		</section>
 	);
 }

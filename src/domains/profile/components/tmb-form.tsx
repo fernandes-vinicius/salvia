@@ -1,17 +1,40 @@
 "use client";
 
-import { type ReactNode, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { saveProfile } from "~/domains/profile/actions/save-profile";
-import { ActivityLevelPicker } from "~/domains/profile/components/activity-level-picker";
 import { EnergySummary } from "~/domains/profile/components/energy-summary";
+import { OptionPicker } from "~/domains/profile/components/option-picker";
 import { SexPicker } from "~/domains/profile/components/sex-picker";
+import { TrainingFields } from "~/domains/profile/components/training-fields";
 import { BODY_RANGES } from "~/domains/profile/schemas/profile-schema";
 import type { BodyProfile } from "~/domains/profile/types/profile-types";
-import { Cake, Ruler, Weight } from "~/shared/components/icons";
+import {
+	CARDIO_INTENSITIES,
+	calculateEnergy,
+	NEAT_LEVELS,
+	STRENGTH_INTENSITIES,
+	TRAINING_RANGES,
+} from "~/domains/profile/utils/energy";
+import { FormSection } from "~/shared/components/form-section";
+import {
+	Cake,
+	Dumbbell,
+	Footprints,
+	HardHat,
+	HeartPulse,
+	Laptop,
+	PersonStanding,
+	Ruler,
+	Sofa,
+	Weight,
+} from "~/shared/components/icons";
 import { MeasureSlider } from "~/shared/components/measure-slider";
 import { useAutosave } from "~/shared/hooks/use-autosave";
+import { formatFixed } from "~/shared/lib/format";
+
+const NEAT_ICONS = [Sofa, Laptop, PersonStanding, Footprints, HardHat];
 
 interface TmbFormProps {
 	initialProfile: BodyProfile;
@@ -46,7 +69,7 @@ export function TmbForm({ initialProfile, isExample }: TmbFormProps) {
 	return (
 		<div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_20rem] md:items-start">
 			<EnergySummary
-				profile={profile}
+				energy={calculateEnergy(profile)}
 				status={status}
 				isExample={!hasSaved}
 				className="sticky top-3 z-10 md:top-6 md:order-2"
@@ -96,35 +119,49 @@ export function TmbForm({ initialProfile, isExample }: TmbFormProps) {
 				</FormSection>
 
 				<FormSection
-					title="Rotina"
-					description="Com que frequência e intensidade você se exercita, pensando nas últimas semanas. Na dúvida entre dois, escolha o menor: a fórmula costuma superestimar o gasto."
+					title="Dia a dia"
+					description="Como é a sua rotina SEM contar os treinos: trabalho, deslocamento, tarefas."
 				>
-					<ActivityLevelPicker
-						value={profile.activityFactor}
-						onValueChange={(value) => update("activityFactor", value)}
+					<OptionPicker
+						label="Movimento do dia a dia"
+						options={NEAT_LEVELS}
+						value={profile.neatFactor}
+						icons={NEAT_ICONS}
+						formatHint={(option) => `Fator × ${formatFixed(option.value, 2)}`}
+						onValueChange={(value) => update("neatFactor", value)}
+					/>
+				</FormSection>
+
+				<FormSection
+					title="Musculação"
+					description="Treino com pesos ou peso do corpo. Pense na média das últimas semanas."
+				>
+					<TrainingFields
+						question="Faz musculação?"
+						icon={Dumbbell}
+						routine={profile.strength}
+						weightKg={profile.weightKg}
+						minutesRange={TRAINING_RANGES.strengthMinutes}
+						intensities={STRENGTH_INTENSITIES}
+						onChange={(routine) => update("strength", routine)}
+					/>
+				</FormSection>
+
+				<FormSection
+					title="Cardio"
+					description="Caminhada, corrida, bike, esportes e afins."
+				>
+					<TrainingFields
+						question="Faz cardio?"
+						icon={HeartPulse}
+						routine={profile.cardio}
+						weightKg={profile.weightKg}
+						minutesRange={TRAINING_RANGES.cardioMinutes}
+						intensities={CARDIO_INTENSITIES}
+						onChange={(routine) => update("cardio", routine)}
 					/>
 				</FormSection>
 			</div>
 		</div>
-	);
-}
-
-function FormSection({
-	title,
-	description,
-	children,
-}: {
-	title: string;
-	description: string;
-	children: ReactNode;
-}) {
-	return (
-		<section className="flex flex-col gap-3">
-			<div className="flex flex-col gap-0.5">
-				<h2 className="font-heading font-semibold text-lg">{title}</h2>
-				<p className="text-muted-foreground text-sm">{description}</p>
-			</div>
-			{children}
-		</section>
 	);
 }

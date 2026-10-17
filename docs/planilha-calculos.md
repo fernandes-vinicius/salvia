@@ -13,37 +13,21 @@ GCD = FA × (66,47 + 13,75×peso + 5×altura − 6,8×idade)   // Harris-Benedic
 Exemplo: 70 kg, 170 cm, 30 anos, FA 1,3 → 2177,46 kcal.
 Feminino (não existia na planilha): `655,1 + 9,563×peso + 1,85×altura − 4,676×idade`.
 
-### No app (aba TMB)
+### No app (aba TMB) — método fatorial
 
-- Domínio `src/domains/profile` (tabela `profile`, 1 por usuário). Fórmulas em `utils/energy.ts`, testadas contra os valores da planilha.
-- O fator de atividade segue a tabela de frequência de exercício: Sedentário 1,2 · Pouco ativo 1,375 (leve, 1–3×/sem) · Moderado 1,55 (3–5×/sem) · Muito ativo 1,725 (pesado, 6–7×/sem) · Extremamente ativo 1,9 (intenso todo dia). O servidor só aceita esses valores; o 1,3 da planilha não é opção. A UI orienta escolher o menor na dúvida (a fórmula tende a superestimar — ver `docs/roadmap.md`).
-
-## Refeição
-
-Cada item: quantidade, nome, gramas de Ptn animal, Ptn vegetal, Carb, Gordura.
+A planilha usava GCD = TMB × FA (fator único 1,2–1,9). Na prática isso superestimou o gasto de quem treina mas passa o dia sentado (1,55 pela tabela vs 1,375 que funcionou). O app usa o método fatorial (referência: calculadora do hipertrofia.org):
 
 ```
-g_macro(refeição) = Σ g_macro(itens)
-kcal_ptnA = g × 4 · kcal_ptnV = g × 4 · kcal_carb = g × 4 · kcal_fat = g × 9
-kcal(refeição) = Σ kcal dos 4 macros
+GCD = (TMB × NEAT + musculação + cardio) × 1,10        // +10% digestão (efeito térmico)
+NEAT  = 1,10 · 1,15 · 1,20 · 1,25 · 1,30               // dia a dia SEM treino
+treino (kcal/dia) = (MET − 1) × peso × horas × dias/semana ÷ 7
+MET musculação = 3,5 · 4,5 · 5,5 · 6,5 · 7,5           // muito leve → muito pesado
+MET cardio     = 5 · 6,25 · 7,5 · 8,75 · 10
 ```
 
-## Totais do dia
-
-```
-g_macro_dia = Σ g_macro(refeições)
-kcal_total  = Σ kcal_macro
-%_macro     = kcal_macro × 100 / kcal_total
-g/kg_macro  = g_macro_dia / peso
-saldo       = kcal_total − GCD          // negativo = déficit (planilha chamava de "Excedente")
-```
-
-## Metas g/kg
-
-```
-alvo_g    = meta_g/kg × peso      // planilha: Ptn animal 2,2 · Carb 2,0
-diferença = g_macro_dia − alvo_g
-```
+- MET líquido (MET − 1) porque o repouso daquele tempo já está na TMB.
+- Exemplo: 70 kg, 170 cm, 30 anos, NEAT 1,15, musculação 4×/sem 60 min moderada → (1.675 × 1,15 + 180) × 1,1 ≈ 2.317 kcal (≈ fator 1,375 da planilha, que funcionou).
+- Domínio `src/domains/profile` (tabela `profile`). Fórmulas em `utils/energy.ts`, testadas. O servidor só aceita os valores de NEAT/MET das opções.
 
 ### No app (aba Meta)
 

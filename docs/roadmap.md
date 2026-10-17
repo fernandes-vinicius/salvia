@@ -2,7 +2,9 @@
 
 ## Calibração da meta pelo peso real
 
-**Problema:** o fator de atividade (FA) e a fórmula de Harris-Benedict são médias populacionais e costumam superestimar o gasto de quem treina mas passa o resto do dia sentado. Caso real (out/2026): pela tabela, musculação 3–5×/semana = 1,55, mas o que funcionou na prática foi 1,375 (~300 kcal/dia de diferença).
+**Status:** mitigado em out/2026 trocando o FA único pelo método fatorial (NEAT + treinos por MET + digestão) na aba TMB. A calibração pelo peso continua útil como ajuste fino.
+
+**Problema original:** o fator de atividade (FA) e a fórmula de Harris-Benedict são médias populacionais e costumam superestimar o gasto de quem treina mas passa o resto do dia sentado. Caso real (out/2026): pela tabela, musculação 3–5×/semana = 1,55, mas o que funcionou na prática foi 1,375 (~300 kcal/dia de diferença).
 
 **Ideia:** com histórico de peso, o app compara a variação real com a esperada pela meta e sugere um ajuste.
 

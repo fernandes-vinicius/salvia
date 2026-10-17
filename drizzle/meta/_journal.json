@@ -29,6 +29,20 @@
 			"when": 1792251066836,
 			"tag": "0003_bent_loki",
 			"breakpoints": true
+		},
+		{
+			"idx": 4,
+			"version": "7",
+			"when": 1792252629962,
+			"tag": "0004_lean_deathstrike",
+			"breakpoints": true
+		},
+		{
+			"idx": 5,
+			"version": "7",
+			"when": 1792252634777,
+			"tag": "0005_simple_silver_surfer",
+			"breakpoints": true
 		}
 	]
 }

@@ -1,4 +1,5 @@
 import {
+	boolean,
 	doublePrecision,
 	integer,
 	pgEnum,
@@ -20,7 +21,17 @@ export const profile = pgTable("profile", {
 	ageYears: integer("age_years").notNull(),
 	weightKg: doublePrecision("weight_kg").notNull(),
 	heightCm: integer("height_cm").notNull(),
-	activityFactor: doublePrecision("activity_factor").notNull(),
+	/** Movimento do dia a dia SEM treino (NEAT), multiplica a TMB. */
+	neatFactor: doublePrecision("neat_factor").notNull().default(1.15),
+	// Treinos somados à parte, por MET (calorias = (MET − 1) × kg × horas).
+	strengthEnabled: boolean("strength_enabled").notNull().default(false),
+	strengthDays: integer("strength_days").notNull().default(3),
+	strengthMinutes: integer("strength_minutes").notNull().default(60),
+	strengthMet: doublePrecision("strength_met").notNull().default(5.5),
+	cardioEnabled: boolean("cardio_enabled").notNull().default(false),
+	cardioDays: integer("cardio_days").notNull().default(3),
+	cardioMinutes: integer("cardio_minutes").notNull().default(30),
+	cardioMet: doublePrecision("cardio_met").notNull().default(7.5),
 	updatedAt: timestamp("updated_at")
 		.defaultNow()
 		.$onUpdate(() => new Date())

@@ -1,30 +1,30 @@
-import type { BodyProfile } from "~/domains/profile/types/profile-types";
-import {
-	calculateBmr,
-	calculateTdee,
-	findActivityLevel,
-} from "~/domains/profile/utils/energy";
+import type { EnergyBreakdown } from "~/domains/profile/types/profile-types";
 import { SaveStatus } from "~/shared/components/save-status";
 import type { AutosaveStatus } from "~/shared/hooks/use-autosave";
 import { formatNumber } from "~/shared/lib/format";
 import { cn } from "~/shared/lib/utils";
 
 interface EnergySummaryProps {
-	profile: BodyProfile;
+	energy: EnergyBreakdown;
 	status: AutosaveStatus;
 	isExample: boolean;
 	className?: string;
 }
 
 export function EnergySummary({
-	profile,
+	energy,
 	status,
 	isExample,
 	className,
 }: EnergySummaryProps) {
-	const bmr = calculateBmr(profile);
-	const tdee = calculateTdee(profile);
-	const level = findActivityLevel(profile.activityFactor);
+	// Composição do gasto, na ordem em que soma. Treinos desligados somem.
+	const rows = [
+		{ label: "Em repouso (TMB)", kcal: energy.bmr, isBase: true },
+		{ label: "Dia a dia", kcal: energy.daily },
+		{ label: "Musculação", kcal: energy.strength },
+		{ label: "Cardio", kcal: energy.cardio },
+		{ label: "Digestão", kcal: energy.digestion },
+	].filter((row) => row.isBase || row.kcal > 0);
 
 	return (
 		<section
@@ -40,29 +40,27 @@ export function EnergySummary({
 			</div>
 
 			<p className="font-heading font-semibold text-4xl tabular-nums md:text-5xl">
-				{formatNumber(tdee)}
+				{formatNumber(energy.tdee)}
 				<span className="ml-1.5 font-normal text-lg opacity-80">kcal</span>
 			</p>
 
 			<p className="hidden text-sm opacity-80 md:block">
-				É quanto seu corpo gasta por dia, contando a sua rotina.
+				É quanto seu corpo gasta por dia, somando tudo abaixo.
 			</p>
 
-			{/* Linhas rótulo/valor: cabem na coluna estreita do desktop sem
-			    quebrar nomes longos como "Moderadamente ativo". */}
 			<dl className="mt-3 flex flex-col divide-y divide-primary-foreground/15 rounded-2xl bg-primary-foreground/10 px-4">
-				<div className="flex items-center justify-between gap-4 py-3">
-					<dt className="shrink-0 text-sm opacity-80">Em repouso (TMB)</dt>
-					<dd className="font-heading font-semibold tabular-nums">
-						{formatNumber(bmr)} kcal
-					</dd>
-				</div>
-				<div className="flex items-center justify-between gap-4 py-3">
-					<dt className="shrink-0 text-sm opacity-80">Rotina</dt>
-					<dd className="text-right font-heading font-semibold">
-						{level?.label ?? "—"}
-					</dd>
-				</div>
+				{rows.map((row) => (
+					<div
+						key={row.label}
+						className="flex items-center justify-between gap-4 py-2.5"
+					>
+						<dt className="shrink-0 text-sm opacity-80">{row.label}</dt>
+						<dd className="font-heading font-semibold tabular-nums">
+							{row.isBase ? "" : "+"}
+							{formatNumber(row.kcal)} kcal
+						</dd>
+					</div>
+				))}
 			</dl>
 
 			{isExample && (

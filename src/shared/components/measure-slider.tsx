@@ -10,7 +10,8 @@ import { formatNumber } from "~/shared/lib/format";
 interface MeasureSliderProps {
 	label: string;
 	icon: LucideIcon;
-	unit: string;
+	/** Texto fixo ou função pra singular/plural (ex.: 1 dia, 3 dias). */
+	unit: string | ((value: number) => string);
 	value: number;
 	min: number;
 	max: number;
@@ -45,6 +46,7 @@ export function MeasureSlider({
 	const minDigits = fixedDigits ? fractionDigits : 0;
 	const format = (n: number) => formatNumber(n, fractionDigits, minDigits);
 	const formatted = format(value);
+	const unitFor = (n: number) => (typeof unit === "function" ? unit(n) : unit);
 
 	function change(next: number) {
 		const rounded = Number(next.toFixed(fractionDigits));
@@ -77,7 +79,7 @@ export function MeasureSlider({
 					>
 						{formatted}
 						<span className="ml-1 font-normal text-base text-muted-foreground">
-							{unit}
+							{unitFor(value)}
 						</span>
 					</output>
 					{caption && (
@@ -113,7 +115,9 @@ export function MeasureSlider({
 					</SliderPrimitive.Track>
 					<SliderPrimitive.Thumb
 						getAriaLabel={() => label}
-						getAriaValueText={(_, current) => `${format(current)} ${unit}`}
+						getAriaValueText={(_, current) =>
+							`${format(current)} ${unitFor(current)}`
+						}
 						className="size-6 rounded-full bg-primary outline-none ring-4 ring-card transition-[box-shadow] focus-visible:ring-ring/50 data-dragging:ring-ring/50"
 					/>
 				</SliderPrimitive.Control>
@@ -121,10 +125,10 @@ export function MeasureSlider({
 
 			<div className="flex justify-between text-muted-foreground text-xs tabular-nums">
 				<span>
-					{format(min)} {unit}
+					{format(min)} {unitFor(min)}
 				</span>
 				<span>
-					{format(max)} {unit}
+					{format(max)} {unitFor(max)}
 				</span>
 			</div>
 		</div>
