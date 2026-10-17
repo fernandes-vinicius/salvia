@@ -4,7 +4,10 @@ import { WifiOff } from "~/shared/components/icons";
 import { Card, CardContent } from "~/shared/components/ui/card";
 import { APP_NAME } from "~/shared/lib/app-config";
 
-export const metadata: Metadata = { title: "Sem conexão" };
+export const metadata: Metadata = {
+	title: "Sem conexão",
+	robots: { index: false, follow: false },
+};
 
 // Mostrada pelo service worker quando uma página é aberta sem internet.
 // Estática e sem dados do usuário (fica pré-cacheada no aparelho).

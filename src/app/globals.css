@@ -85,7 +85,9 @@
 	--secondary: oklch(0.916 0.034 127.2); /* #DDE8D0 sálvia claro */
 	--secondary-foreground: oklch(0.393 0.069 142.2); /* #2F4F2C */
 	--muted: oklch(0.939 0.015 94.2); /* #EEEBE0 creme escuro */
-	--muted-foreground: oklch(0.547 0.024 134.2); /* #6B7466 */
+	--muted-foreground: oklch(
+		0.5 0.024 134.2
+	); /* #5E6659 — ≥ 4,5:1 sobre creme, card, muted e secondary */
 	--accent: oklch(0.938 0.025 126.6); /* #E6EEDC */
 	--accent-foreground: oklch(0.393 0.069 142.2);
 	--destructive: oklch(0.56 0.133 32.5); /* #B5523F terracota */

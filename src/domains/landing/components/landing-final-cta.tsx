@@ -10,7 +10,7 @@ export function LandingFinalCta() {
 				<h2 className="max-w-2xl text-balance font-heading font-semibold text-3xl tracking-tight sm:text-4xl">
 					Bora tirar a dieta do papel?
 				</h2>
-				<p className="max-w-xl text-pretty text-primary-foreground/80">
+				<p className="max-w-xl text-pretty text-primary-foreground/90">
 					Em 5 minutos você tem o gasto calculado, a meta definida e a primeira
 					refeição montada.
 				</p>

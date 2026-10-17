@@ -48,15 +48,15 @@ export function TargetSummary({
 			)}
 		>
 			<div className="flex items-center justify-between gap-2">
-				<p className="text-sm opacity-80">Meta diária</p>
+				<p className="text-sm opacity-90">Meta diária</p>
 				<SaveStatus status={status} isExample={isExample} />
 			</div>
 
 			<p className="font-heading font-semibold text-4xl tabular-nums md:text-5xl">
 				{formatNumber(targets.calories)}
-				<span className="ml-1.5 font-normal text-lg opacity-80">kcal</span>
+				<span className="ml-1.5 font-normal text-lg opacity-90">kcal</span>
 			</p>
-			<p className="text-sm opacity-80">
+			<p className="text-sm opacity-90">
 				Gasto {formatNumber(tdee)} {formatAdjustment(calorieAdjustment)}
 			</p>
 
@@ -79,7 +79,7 @@ export function TargetSummary({
 						key={macro.label}
 						className="flex items-center justify-between gap-4 py-2.5"
 					>
-						<dt className="flex shrink-0 items-center gap-2 text-sm opacity-90">
+						<dt className="flex shrink-0 items-center gap-2 text-sm">
 							<span className={cn("size-2 rounded-full", macro.swatch)} />
 							{macro.label}
 						</dt>
@@ -87,7 +87,7 @@ export function TargetSummary({
 							<span className="font-heading font-semibold tabular-nums">
 								{formatNumber(macro.target.grams)} g
 							</span>
-							<span className="ml-1.5 text-xs tabular-nums opacity-70">
+							<span className="ml-1.5 text-xs tabular-nums">
 								{formatFixed(macro.target.perKg)} g/kg
 							</span>
 						</dd>
@@ -109,7 +109,7 @@ export function TargetSummary({
 			)}
 
 			{isExample && (
-				<p className="mt-2 text-xs opacity-80">
+				<p className="mt-2 text-xs opacity-90">
 					Meta de exemplo. Escolha seu objetivo: salvamos sozinhos a cada
 					mudança.
 				</p>

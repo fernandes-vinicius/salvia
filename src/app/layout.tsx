@@ -2,7 +2,12 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Manrope } from "next/font/google";
 
 import { AppProviders } from "~/providers/app-providers";
-import { APP_NAME, APP_TAGLINE } from "~/shared/lib/app-config";
+import {
+	APP_DESCRIPTION,
+	APP_NAME,
+	APP_TAGLINE,
+	SITE_URL,
+} from "~/shared/lib/app-config";
 import { cn } from "~/shared/lib/utils";
 
 import "./globals.css";
@@ -11,13 +16,33 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 const manrope = Manrope({ subsets: ["latin"], variable: "--font-heading" });
 
 export const metadata: Metadata = {
+	metadataBase: SITE_URL,
 	title: {
 		default: `${APP_NAME} · ${APP_TAGLINE}`,
 		template: `%s — ${APP_NAME}`,
 	},
-	description:
-		"Planeje e acompanhe sua dieta: refeições, macros e gasto calórico.",
+	description: APP_DESCRIPTION,
 	applicationName: APP_NAME,
+	keywords: [
+		"dieta",
+		"macros",
+		"calculadora de macros",
+		"TMB",
+		"gasto calórico",
+		"cutting",
+		"bulking",
+		"tabela TACO",
+		"proteína",
+	],
+	openGraph: {
+		type: "website",
+		locale: "pt_BR",
+		siteName: APP_NAME,
+		title: `${APP_NAME} · ${APP_TAGLINE}`,
+		description: APP_DESCRIPTION,
+		url: "/",
+	},
+	twitter: { card: "summary_large_image" },
 	// iOS: abre em tela cheia quando adicionado à Tela de Início.
 	appleWebApp: { capable: true, title: APP_NAME, statusBarStyle: "default" },
 	icons: { apple: "/apple-touch-icon-180x180.png" },

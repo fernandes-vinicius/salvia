@@ -10,7 +10,12 @@ import { Leaf } from "~/shared/components/icons";
 import { Card, CardContent } from "~/shared/components/ui/card";
 import { APP_NAME, APP_TAGLINE } from "~/shared/lib/app-config";
 
-export const metadata: Metadata = { title: "Entrar" };
+export const metadata: Metadata = {
+	title: "Entrar",
+	description:
+		"Entre com sua conta Google pra montar sua dieta e acompanhar calorias e macros.",
+	alternates: { canonical: "/login" },
+};
 
 export default function LoginPage() {
 	return (

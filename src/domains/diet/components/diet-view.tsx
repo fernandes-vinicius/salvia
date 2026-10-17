@@ -572,7 +572,7 @@ export function DietView({
 				</aside>
 
 				{preview ? (
-					<DietPreview meals={meals} />
+					<DietPreview meals={meals} printable />
 				) : (
 					<DndContext
 						id={dndId}

@@ -7,13 +7,14 @@ import {
 	LandingHero,
 	LandingHowItWorks,
 	LandingPainPoints,
+	LandingStructuredData,
 } from "~/domains/landing";
-import { APP_NAME } from "~/shared/lib/app-config";
+import { APP_DESCRIPTION, APP_NAME } from "~/shared/lib/app-config";
 
 export const metadata: Metadata = {
 	title: { absolute: `${APP_NAME} · Sua dieta e seus macros, sem planilha` },
-	description:
-		"Calcule seu gasto calórico, defina a meta em g/kg e monte a dieta batendo proteína, carboidrato e gordura, com a tabela TACO. Grátis.",
+	description: APP_DESCRIPTION,
+	alternates: { canonical: "/" },
 };
 
 export default function LandingPage() {
@@ -25,6 +26,7 @@ export default function LandingPage() {
 			<LandingHowItWorks />
 			<LandingFaq />
 			<LandingFinalCta />
+			<LandingStructuredData />
 		</main>
 	);
 }

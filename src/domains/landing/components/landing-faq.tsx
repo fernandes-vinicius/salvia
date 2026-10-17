@@ -1,7 +1,7 @@
 import { ChevronDown } from "~/shared/components/icons";
 import { APP_NAME } from "~/shared/lib/app-config";
 
-const QUESTIONS = [
+export const FAQ_QUESTIONS = [
 	{
 		question: "É grátis?",
 		answer: "Sim. Entra com a conta Google e usa tudo, sem cartão de crédito.",
@@ -42,7 +42,7 @@ export function LandingFaq() {
 				Dúvidas frequentes
 			</h2>
 			<div className="flex flex-col gap-3">
-				{QUESTIONS.map(({ question, answer }) => (
+				{FAQ_QUESTIONS.map(({ question, answer }) => (
 					<details
 						key={question}
 						className="group rounded-3xl bg-card px-5 py-4 [&_summary::-webkit-details-marker]:hidden"

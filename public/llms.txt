@@ -1,0 +1,12 @@
+# Sálvia · Dieta e Nutrição
+
+> App web gratuito (pt-BR) para quem treina e conta macros: calcula a TMB e o gasto calórico diário, define a meta (cutting, manutenção ou bulking) em g/kg e monta a dieta por refeição, com a tabela TACO e alimentos próprios. Não substitui nutricionista.
+
+## Páginas públicas
+
+- [Página inicial](https://salvia-dieta.vercel.app/): o que o app faz, como funciona e dúvidas frequentes.
+- [Entrar](https://salvia-dieta.vercel.app/login): login com conta Google.
+
+## Observações
+
+- As demais páginas exigem login e trazem dados pessoais do usuário; não devem ser acessadas por agentes.

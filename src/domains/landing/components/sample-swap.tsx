@@ -1,5 +1,8 @@
 import { equivalentQuantity } from "~/domains/diet/utils/diet";
-import { MacroLine, macrosFor } from "~/domains/food";
+// Imports diretos (não pelo barrel `~/domains/food`): o barrel também
+// exporta os formulários de alimento e levaria zod/conform pro JS da landing.
+import { MacroLine } from "~/domains/food/components/macro-line";
+import { macrosFor } from "~/domains/food/utils/food";
 import { arroz, batataDoce } from "~/domains/landing/utils/sample-data";
 import { ArrowLeftRight, Copy } from "~/shared/components/icons";
 import { Button } from "~/shared/components/ui/button";

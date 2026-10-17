@@ -1,36 +1,25 @@
-"use client";
-
-import { useEffect, useState } from "react";
-
+import { PrintHeader } from "~/domains/diet/components/print-header";
 import type { DietMeal } from "~/domains/diet/types/diet-types";
 import { itemMacros, mealMacros } from "~/domains/diet/utils/diet";
 import { kcalFor, UNIT_LABELS } from "~/domains/food/utils/food";
 import { Clock } from "~/shared/components/icons";
-import { usePrintSetup } from "~/shared/hooks/use-print-setup";
-import { APP_NAME } from "~/shared/lib/app-config";
 import { formatNumber } from "~/shared/lib/format";
 import { cn } from "~/shared/lib/utils";
 
 // Modo "Visualizar": a dieta só pra leitura, uma refeição abaixo da outra,
 // com o nome completo de cada alimento e a quantidade. É também o que vai
-// pro PDF (impressão do navegador).
-export function DietPreview({ meals }: { meals: DietMeal[] }) {
-	// Data só no navegador: `new Date()` na renderização quebra páginas
-	// estáticas (Cache Components), como a landing que usa este componente.
-	const [today, setToday] = useState("");
-	useEffect(() => setToday(new Date().toLocaleDateString("pt-BR")), []);
-	// Nome sugerido do PDF: "Dieta 17-10-2026".
-	usePrintSetup(`Dieta ${today.replaceAll("/", "-")}`.trim());
-
+// pro PDF (impressão do navegador). Sem estado: renderiza no servidor (a
+// landing usa sem JS); o cabeçalho/ajuste do PDF só entra com `printable`.
+export function DietPreview({
+	meals,
+	printable = false,
+}: {
+	meals: DietMeal[];
+	printable?: boolean;
+}) {
 	return (
 		<div className="flex flex-col gap-4">
-			{/* Cabeçalho só do PDF (na tela já existe o da página). */}
-			<header className="hidden print:mb-2 print:flex print:flex-col print:gap-0.5">
-				<h1 className="font-heading font-semibold text-2xl">Plano alimentar</h1>
-				<p className="text-muted-foreground text-sm">
-					{APP_NAME} · {today}
-				</p>
-			</header>
+			{printable && <PrintHeader />}
 			{meals.map((meal) => (
 				<PreviewMeal key={meal.id} meal={meal} />
 			))}

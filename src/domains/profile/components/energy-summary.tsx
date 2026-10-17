@@ -35,16 +35,16 @@ export function EnergySummary({
 			)}
 		>
 			<div className="flex items-center justify-between gap-2">
-				<p className="text-sm opacity-80">Gasto calórico diário</p>
+				<p className="text-sm opacity-90">Gasto calórico diário</p>
 				<SaveStatus status={status} isExample={isExample} />
 			</div>
 
 			<p className="font-heading font-semibold text-4xl tabular-nums md:text-5xl">
 				{formatNumber(energy.tdee)}
-				<span className="ml-1.5 font-normal text-lg opacity-80">kcal</span>
+				<span className="ml-1.5 font-normal text-lg opacity-90">kcal</span>
 			</p>
 
-			<p className="hidden text-sm opacity-80 md:block">
+			<p className="hidden text-sm opacity-90 md:block">
 				É quanto seu corpo gasta por dia, somando tudo abaixo.
 			</p>
 
@@ -54,7 +54,7 @@ export function EnergySummary({
 						key={row.label}
 						className="flex items-center justify-between gap-4 py-2.5"
 					>
-						<dt className="shrink-0 text-sm opacity-80">{row.label}</dt>
+						<dt className="shrink-0 text-sm">{row.label}</dt>
 						<dd className="font-heading font-semibold tabular-nums">
 							{row.isBase ? "" : "+"}
 							{formatNumber(row.kcal)} kcal
@@ -64,7 +64,7 @@ export function EnergySummary({
 			</dl>
 
 			{isExample && (
-				<p className="mt-2 text-xs opacity-80">
+				<p className="mt-2 text-xs opacity-90">
 					Valores de exemplo. Ajuste com os seus dados: salvamos sozinhos a cada
 					mudança.
 				</p>

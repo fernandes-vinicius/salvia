@@ -44,7 +44,7 @@ export function PlanOverview({ summary, targets }: PlanOverviewProps) {
 			className="flex flex-col gap-4 rounded-3xl bg-primary p-4 text-primary-foreground md:p-5"
 		>
 			<div className="flex items-center justify-between gap-2">
-				<p className="text-sm opacity-80">Seu plano do dia</p>
+				<p className="text-sm opacity-90">Seu plano do dia</p>
 				<Link
 					href="/dieta"
 					className="flex items-center gap-1 font-medium text-xs opacity-90 hover:opacity-100"
@@ -57,7 +57,7 @@ export function PlanOverview({ summary, targets }: PlanOverviewProps) {
 			<div className="flex flex-col gap-2">
 				<p className="font-heading font-semibold text-4xl tabular-nums md:text-5xl">
 					{formatNumber(summary.kcal)}
-					<span className="ml-1.5 font-normal text-lg opacity-80">
+					<span className="ml-1.5 font-normal text-lg opacity-90">
 						/ {formatNumber(targets.calories)} kcal
 					</span>
 				</p>
@@ -84,12 +84,12 @@ export function PlanOverview({ summary, targets }: PlanOverviewProps) {
 					return (
 						<li key={macro.label} className="flex flex-col gap-1.5">
 							<div className="flex items-baseline justify-between gap-2 text-sm">
-								<span className="opacity-90">{macro.label}</span>
+								<span>{macro.label}</span>
 								<span className="tabular-nums">
 									<span className="font-heading font-semibold">
 										{formatNumber(macro.planned)}
 									</span>
-									<span className="text-xs opacity-70">
+									<span className="text-xs">
 										/{formatNumber(macro.target)} g
 									</span>
 								</span>
