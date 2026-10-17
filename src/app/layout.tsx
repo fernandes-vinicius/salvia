@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Manrope } from "next/font/google";
 
 import { AppProviders } from "~/providers/app-providers";
@@ -18,6 +18,16 @@ export const metadata: Metadata = {
 	description:
 		"Planeje e acompanhe sua dieta: refeições, macros e gasto calórico.",
 	applicationName: APP_NAME,
+};
+
+// `viewport-fit=cover` libera o `env(safe-area-inset-*)` usado pela barra de
+// abas flutuante (home indicator do iOS). Cores = `--background` de cada tema.
+export const viewport: Viewport = {
+	viewportFit: "cover",
+	themeColor: [
+		{ media: "(prefers-color-scheme: light)", color: "#F6F4EC" },
+		{ media: "(prefers-color-scheme: dark)", color: "#131813" },
+	],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

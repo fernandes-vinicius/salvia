@@ -4,6 +4,7 @@ import { UserMenu } from "~/domains/auth";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { Logo } from "~/shared/components/logo";
 import { ModeToggle } from "~/shared/components/mode-toggle";
+import { TabBar, TabBarFallback } from "~/shared/components/navigation/tab-bar";
 import { Skeleton } from "~/shared/components/ui/skeleton";
 
 export default function AppLayout({ children }: LayoutProps<"/">) {
@@ -20,7 +21,13 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
 					</Suspense>
 				</div>
 			</header>
-			{children}
+			{/* Espaço no fim pra barra de abas flutuante não cobrir conteúdo. */}
+			<div className="flex flex-1 flex-col pb-[calc(env(safe-area-inset-bottom)+6rem)]">
+				{children}
+			</div>
+			<Suspense fallback={<TabBarFallback />}>
+				<TabBar />
+			</Suspense>
 		</div>
 	);
 }

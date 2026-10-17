@@ -1,9 +1,11 @@
 export type { LucideIcon } from "lucide-react";
 export {
 	CheckIcon,
+	ChevronRight,
 	ChevronRightIcon,
 	CircleCheckIcon,
 	Flame,
+	House,
 	InfoIcon,
 	Leaf,
 	Loader2Icon,
@@ -12,6 +14,8 @@ export {
 	Moon,
 	OctagonXIcon,
 	Plus,
+	Salad,
 	Sun,
 	TriangleAlertIcon,
+	UtensilsCrossed,
 } from "lucide-react";

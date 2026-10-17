@@ -18,6 +18,7 @@ Nome/tagline centralizados em `~/shared/lib/app-config.ts` (`APP_NAME`, `APP_TAG
   - Bordas leves: prefira separar por superfície (`bg-card` sobre `bg-background`, `bg-secondary` para destaque) em vez de bordas; quando precisar, `ring-1 ring-foreground/5`.
   - Títulos e números em `font-heading` (Manrope) com `tabular-nums`; corpo em Inter.
   - Componentes shadcn: não editar radius/border/shadow por arquivo; ajuste visual vem dos tokens.
+- Navegação: rotas logadas ficam em `src/app/(app)/` (header + barra de abas flutuante `~/shared/components/navigation/tab-bar.tsx`, abas Início `/`, TMB `/tmb`, Dieta `/dieta`). Páginas usam `container-wrapper` + `PageHeader`; o layout já reserva espaço inferior pra barra.
 - Auth (Better Auth + Google, Drizzle/Postgres):
   - Proteção em 2 camadas: `src/proxy.ts` só checa se o cookie existe (otimista); a checagem real é o DAL `getCurrentUser()` em `~/domains/auth/services/session-service`, obrigatório em toda página/ação que toque dados do usuário.
   - Cache Components: ler sessão (`getCurrentUser`, `headers()`) só dentro de `<Suspense>`, nunca com `await` no topo de layout/página.
