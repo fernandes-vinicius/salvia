@@ -117,9 +117,9 @@ export function MealCard({
 							<th className="pb-1 text-left font-normal text-muted-foreground">
 								Alimento
 							</th>
-							<th className="w-10 pb-1 text-right font-medium text-macro-protein-ink">
-								<abbr title="Proteína" className="no-underline">
-									P
+							<th className="w-11 pb-1 text-right font-medium text-macro-protein-ink">
+								<abbr title="Proteína animal" className="no-underline">
+									P(A)
 								</abbr>
 							</th>
 							<th className="w-10 pb-1 text-right font-medium text-macro-carb-ink">
