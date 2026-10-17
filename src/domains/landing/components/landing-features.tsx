@@ -1,43 +1,43 @@
+import type { ReactNode } from "react";
+
+import { DietSummaryCard } from "~/domains/diet/components/diet-summary";
+import { SampleMeasurements } from "~/domains/landing/components/sample-screens";
+import { SampleSwap } from "~/domains/landing/components/sample-swap";
+import { ShowcaseFrame } from "~/domains/landing/components/showcase-frame";
 import {
-	ArrowLeftRight,
-	Calculator,
-	ChartLine,
+	SAMPLE_ENERGY,
+	SAMPLE_SUMMARY,
+} from "~/domains/landing/utils/sample-data";
+import {
+	Check,
 	FileDown,
 	type LucideIcon,
 	Salad,
-	Target,
+	Smartphone,
+	Wheat,
 } from "~/shared/components/icons";
+import { cn } from "~/shared/lib/utils";
 
-const FEATURES: { icon: LucideIcon; title: string; text: string }[] = [
+const EXTRAS: { icon: LucideIcon; title: string; text: string }[] = [
 	{
-		icon: Calculator,
-		title: "Gasto calórico de verdade",
-		text: "TMB por Mifflin-St Jeor (ou Harris-Benedict), rotina do dia a dia e o seu treino de musculação e cardio entrando na conta.",
-	},
-	{
-		icon: Target,
-		title: "Meta em g/kg",
-		text: "Cutting, manutenção ou bulking. Proteína animal e gordura em g/kg, carbo no que sobra ou fixado. Avisa se algo ficar fora da curva.",
+		icon: Wheat,
+		title: "TACO + seus alimentos",
+		text: "597 alimentos da tabela brasileira e os de rótulo que você cadastrar, como o seu whey.",
 	},
 	{
 		icon: Salad,
-		title: "Grade igual à planilha",
-		text: "Refeições com P(A) · C · G · kcal por alimento, total do dia, % e g/kg, e o planejado contra a meta lado a lado.",
-	},
-	{
-		icon: ArrowLeftRight,
-		title: "Troca sem refazer conta",
-		text: "Substitua um alimento e o app sugere a quantidade com o mesmo macro. Copie itens entre refeições com um toque.",
-	},
-	{
-		icon: ChartLine,
-		title: "Medidas e evolução",
-		text: "Peso, cintura, braço e o que mais você mede, com gráfico de evolução e lembrete pra medir de novo.",
+		title: "Próxima refeição",
+		text: "O início mostra o que comer agora e se o plano do dia fecha com a meta.",
 	},
 	{
 		icon: FileDown,
 		title: "Dieta em PDF",
-		text: "Modo leitura limpo pra consultar no mercado e exportar em PDF pra imprimir ou mandar pra quem quiser.",
+		text: "Modo leitura limpo pra consultar no mercado e exportar pra imprimir.",
+	},
+	{
+		icon: Smartphone,
+		title: "Instala no celular",
+		text: "Abre da tela inicial, em tela cheia, como um app. Sem loja e sem baixar nada.",
 	},
 ];
 
@@ -45,19 +45,69 @@ export function LandingFeatures() {
 	return (
 		<section
 			id="recursos"
-			className="mx-auto flex w-full max-w-6xl scroll-mt-20 flex-col gap-10 px-4 py-16 sm:px-6 lg:py-24"
+			className="mx-auto flex w-full max-w-6xl scroll-mt-20 flex-col gap-16 px-4 py-16 sm:px-6 lg:gap-24 lg:py-24"
 		>
 			<div className="flex max-w-2xl flex-col gap-3">
 				<h2 className="text-balance font-heading font-semibold text-3xl tracking-tight">
 					Tudo que a sua planilha fazia, e o que ela nunca fez
 				</h2>
 				<p className="text-pretty text-muted-foreground">
-					Com a tabela TACO (597 alimentos) e os seus alimentos de rótulo, como
-					o seu whey.
+					As telas abaixo são do app de verdade, com o dia de um marombeiro de
+					80 kg em cutting.
 				</p>
 			</div>
-			<ul className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
-				{FEATURES.map(({ icon: Icon, title, text }) => (
+
+			<FeatureRow
+				eyebrow="Igual à planilha"
+				title="O resumo do dia que você já conhece"
+				points={[
+					"P(A) · C · G · kcal por alimento e por refeição",
+					"Total do dia em gramas, %, kcal e g/kg",
+					"Excedente ou déficit contra o seu gasto, na hora",
+				]}
+				visual={
+					<ShowcaseFrame label="Resumo do dia no app">
+						<DietSummaryCard
+							summary={SAMPLE_SUMMARY}
+							tdee={SAMPLE_ENERGY.tdee}
+						/>
+					</ShowcaseFrame>
+				}
+			/>
+
+			<FeatureRow
+				reverse
+				eyebrow="Troca inteligente"
+				title="Trocou o arroz? A conta vem pronta"
+				points={[
+					"Substitua um alimento e receba a quantidade com o mesmo macro",
+					"Copie um item pra outra refeição com um toque",
+					"Arraste pra reordenar ou mudar de refeição",
+				]}
+				visual={
+					<ShowcaseFrame label="Substituir e copiar alimento no app">
+						<SampleSwap />
+					</ShowcaseFrame>
+				}
+			/>
+
+			<FeatureRow
+				eyebrow="Evolução"
+				title="Veja o cutting funcionando"
+				points={[
+					"Peso, cintura, braço e mais 12 medidas",
+					"Gráfico com o tempo real entre as medições",
+					"Lembrete quando passar um mês sem medir",
+				]}
+				visual={
+					<ShowcaseFrame label="Medidas e gráfico de evolução no app">
+						<SampleMeasurements />
+					</ShowcaseFrame>
+				}
+			/>
+
+			<ul className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+				{EXTRAS.map(({ icon: Icon, title, text }) => (
 					<li key={title} className="flex flex-col gap-3">
 						<span className="flex size-10 items-center justify-center rounded-full bg-secondary text-primary">
 							<Icon className="size-5" aria-hidden />
@@ -68,5 +118,42 @@ export function LandingFeatures() {
 				))}
 			</ul>
 		</section>
+	);
+}
+
+function FeatureRow({
+	eyebrow,
+	title,
+	points,
+	visual,
+	reverse = false,
+}: {
+	eyebrow: string;
+	title: string;
+	points: string[];
+	visual: ReactNode;
+	reverse?: boolean;
+}) {
+	return (
+		<div className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
+			<div className={cn("flex flex-col gap-4", reverse && "lg:order-last")}>
+				<p className="font-medium text-primary text-sm">{eyebrow}</p>
+				<h3 className="text-balance font-heading font-semibold text-2xl tracking-tight sm:text-3xl">
+					{title}
+				</h3>
+				<ul className="flex flex-col gap-2.5">
+					{points.map((point) => (
+						<li key={point} className="flex gap-2.5 text-muted-foreground">
+							<Check
+								className="mt-1 size-4 shrink-0 text-primary"
+								aria-hidden
+							/>
+							{point}
+						</li>
+					))}
+				</ul>
+			</div>
+			<div className="mx-auto w-full min-w-0 max-w-lg">{visual}</div>
+		</div>
 	);
 }

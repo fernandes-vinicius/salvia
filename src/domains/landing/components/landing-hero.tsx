@@ -1,7 +1,8 @@
 import Link from "next/link";
 
 import { DietPreview } from "~/domains/diet/components/diet-preview";
-import { SAMPLE_MEALS } from "~/domains/landing/utils/sample-diet";
+import { ShowcaseFrame } from "~/domains/landing/components/showcase-frame";
+import { SAMPLE_MEALS } from "~/domains/landing/utils/sample-data";
 import { ArrowLeftRight, ArrowRight, Check } from "~/shared/components/icons";
 import { Badge } from "~/shared/components/ui/badge";
 import { Button } from "~/shared/components/ui/button";
@@ -51,19 +52,10 @@ export function LandingHero() {
 				</ul>
 			</div>
 
-			{/* A tela de verdade (componentes do app) com um dia de exemplo. */}
-			<div
-				aria-label="Exemplo de refeição no app"
-				className="flex flex-col gap-3 rounded-[2rem] bg-secondary/60 p-3 sm:p-4"
-				role="img"
-			>
-				<div aria-hidden className="pointer-events-none select-none">
-					<DietPreview meals={lunch} />
-				</div>
-				<div
-					aria-hidden
-					className="flex items-center gap-3 rounded-3xl bg-card p-4 text-sm"
-				>
+			{/* A tela de verdade (componentes do app) com o dia de exemplo. */}
+			<ShowcaseFrame label="Exemplo de refeição no app">
+				<DietPreview meals={lunch} />
+				<div className="flex items-center gap-3 rounded-3xl bg-card p-4 text-sm">
 					<span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-secondary text-primary">
 						<ArrowLeftRight className="size-4" />
 					</span>
@@ -76,7 +68,7 @@ export function LandingHero() {
 						</span>
 					</p>
 				</div>
-			</div>
+			</ShowcaseFrame>
 		</section>
 	);
 }
