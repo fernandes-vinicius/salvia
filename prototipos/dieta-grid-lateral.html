@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Sálvia — Dieta em grade com coluna lateral</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+	:root {
+		--bg: #f6f4ec; --fg: #1e2a1f; --card: #fcfbf7; --primary: #3e6a3a; --primary-fg: #f6f4ec;
+		--secondary: #dde8d0; --muted: #eeebe0; --muted-fg: #6b7466; --accent: #e6eedc; --border: #e4e0d3;
+		--protein: #3e6a3a; --protein-v: #a3bf94; --carb: #c9a65b; --fat: #c27c5a;
+	}
+	* { box-sizing: border-box; margin: 0; padding: 0; }
+	body { font-family: Inter, sans-serif; background: #e9e6db; color: var(--fg); padding: 40px 48px; width: max-content; }
+	h1, h2, h3, .num { font-family: Manrope, sans-serif; }
+	.page-title { font-size: 30px; font-weight: 700; }
+	.page-sub { color: var(--muted-fg); margin-top: 6px; font-size: 15px; max-width: 1100px; }
+	.stage { display: flex; gap: 40px; margin-top: 28px; align-items: flex-start; }
+	.label { font-size: 13px; font-weight: 600; color: var(--muted-fg); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 10px; }
+
+	/* Desktop frame */
+	.desktop { width: 1440px; height: 1010px; background: var(--bg); border-radius: 20px; outline: 1px solid #d6d2c4; overflow: hidden; position: relative; }
+	.browserbar { height: 34px; background: #ebe8de; display: flex; align-items: center; gap: 6px; padding: 0 14px; }
+	.browserbar i { width: 10px; height: 10px; border-radius: 999px; background: #cfcabb; display: inline-block; }
+	.browserbar span { margin-left: 16px; font-size: 12px; color: var(--muted-fg); background: #f6f4ec; padding: 3px 12px; border-radius: 999px; }
+	.wrap { max-width: 1392px; margin: 0 auto; padding: 20px 24px 0; }
+	.topbar { display: flex; justify-content: space-between; align-items: center; }
+	.logo { display: flex; align-items: center; gap: 8px; font-family: Manrope; font-weight: 600; font-size: 16px; }
+	.logo i { width: 28px; height: 28px; border-radius: 999px; background: var(--secondary); display: inline-flex; align-items: center; justify-content: center; color: var(--primary); font-style: normal; font-size: 13px; }
+	.icons { display: flex; gap: 8px; }
+	.icons b { width: 28px; height: 28px; border-radius: 999px; background: var(--muted); display: inline-block; }
+	.h-page { font-size: 26px; font-weight: 600; margin-top: 18px; }
+	.sub { font-size: 13px; color: var(--muted-fg); margin-top: 2px; }
+
+	.card { background: var(--card); border-radius: 22px; padding: 14px 16px; }
+	.summary-row { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px; margin-top: 16px; }
+	.card h2 { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+
+	table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+	.sum th { font-size: 10px; color: var(--muted-fg); font-weight: 400; text-align: right; padding: 0 0 4px 8px; }
+	.sum th:first-child, .sum td:first-child { text-align: left; padding-left: 0; }
+	.sum td { font-size: 12px; text-align: right; padding: 5px 0 5px 8px; border-top: 1px solid var(--border); }
+	.sum td.m { color: var(--muted-fg); }
+	.dot { display: inline-block; width: 7px; height: 7px; border-radius: 999px; margin-right: 6px; vertical-align: middle; }
+	.totals { display: flex; justify-content: space-between; gap: 10px; background: var(--muted); border-radius: 14px; padding: 8px 12px; margin-top: 8px; font-size: 12px; }
+	.totals b { font-family: Manrope; }
+
+	.goal li { list-style: none; margin-bottom: 9px; }
+	.goal .row { display: flex; justify-content: space-between; font-size: 12px; }
+	.bar { height: 6px; border-radius: 999px; background: var(--muted); overflow: hidden; margin: 4px 0 2px; }
+	.bar div { height: 100%; border-radius: 999px; }
+	.hint { font-size: 10px; color: var(--muted-fg); }
+
+	/* Layout: grade à esquerda, cards informativos à direita (sticky) */
+	.layout { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; margin-top: 16px; align-items: start; }
+	.aside { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 16px; }
+	.aside .totals { flex-wrap: wrap; }
+	/* Meal grid — 3 colunas, ordem de leitura como a planilha */
+	.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: start; }
+	.meal { background: var(--card); border-radius: 22px; padding: 12px 14px 8px; }
+	.meal-head { display: flex; justify-content: space-between; align-items: flex-start; }
+	.meal-head h3 { font-size: 14px; font-weight: 600; }
+	.meal-head p { font-size: 10.5px; color: var(--muted-fg); margin-top: 1px; }
+	.kebab { color: var(--muted-fg); font-size: 16px; line-height: 1; }
+	.meal table { margin-top: 6px; }
+	.meal th { font-size: 10px; color: var(--muted-fg); font-weight: 400; text-align: right; padding-bottom: 3px; }
+	.meal th:first-child { text-align: left; }
+	.meal td { font-size: 11.5px; text-align: right; padding: 5px 0 5px 6px; border-top: 1px solid var(--border); vertical-align: top; }
+	.meal td:first-child { text-align: left; padding-left: 0; }
+	.meal td small { display: block; font-size: 10px; color: var(--muted-fg); }
+	.meal td sup { font-size: 8px; color: var(--muted-fg); margin-left: 1px; vertical-align: baseline; }
+	.meal td.k { color: var(--muted-fg); }
+	.meal tr.total td { font-weight: 600; }
+	.add { color: var(--primary); font-size: 11.5px; font-weight: 500; padding: 7px 0 2px; }
+	.add-meal { border: 1.5px dashed #cfd9c4; background: transparent; border-radius: 22px; min-height: 120px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 13px; font-weight: 500; }
+
+	.tabbar { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 3px; padding: 5px; border-radius: 999px; background: rgba(252,251,247,.92); outline: 1px solid rgba(30,42,31,.1); }
+	.tab { height: 32px; padding: 0 12px; border-radius: 999px; color: var(--muted-fg); font-size: 12px; font-weight: 500; display: flex; align-items: center; }
+	.tab.on { background: var(--primary); color: var(--primary-fg); }
+
+	/* Mobile */
+	.phone { width: 340px; height: 700px; background: var(--bg); border-radius: 40px; outline: 8px solid #1e2a1f; overflow: hidden; position: relative; padding: 18px 14px 0; }
+	.phone .meal { margin-top: 12px; }
+	.notes { margin-top: 24px; width: 1440px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; font-size: 13.5px; line-height: 1.5; color: #3d4a3c; }
+	.notes div { background: #f1eee4; border-radius: 16px; padding: 14px 16px; }
+	.notes h4 { font-family: Manrope; font-size: 14px; color: var(--primary); margin-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<h1 class="page-title">Dieta em grade + coluna lateral com os cards informativos</h1>
+<p class="page-sub">Grade de refeições à esquerda (3 colunas, 1 · 2 · 3 e as seguintes abaixo) e, à direita, Resumo do dia e Planejado × meta numa coluna fixa que acompanha a rolagem — como a legenda ao lado da grade na planilha. Página larga (simulando tela de 1440 px).</p>
+
+<div class="stage">
+	<div>
+		<p class="label">Desktop (tela de 1440 px, container largo)</p>
+		<div class="desktop">
+			<div class="browserbar"><i></i><i></i><i></i><span>localhost:3000/dieta</span></div>
+			<div class="wrap">
+				<div class="topbar"><span class="logo"><i>❦</i>Sálvia</span><span class="icons"><b></b><b></b><b></b></span></div>
+				<h1 class="h-page">Dieta</h1>
+				<p class="sub">Suas refeições e o total do dia comparado com a sua meta.</p>
+
+				<div class="layout">
+				<div class="grid">
+					<!-- Refeição 1 -->
+					<section class="meal">
+						<div class="meal-head"><div><h3>Refeição 1</h3><p>9:00 · 374 kcal</p></div><span class="kebab">⋮</span></div>
+						<table>
+							<tr><th>Alimento</th><th>P</th><th>C</th><th>G</th><th>kcal</th></tr>
+							<tr><td>Ovo inteiro<small>4 un</small></td><td>26<sup>A</sup></td><td>3</td><td>18</td><td class="k">278</td></tr>
+							<tr><td>Mamão<small>200 g</small></td><td>1<sup>V</sup></td><td>23</td><td>0</td><td class="k">96</td></tr>
+							<tr><td>Chia<small>15 g</small></td><td>0</td><td>0</td><td>0</td><td class="k">0</td></tr>
+							<tr class="total"><td>Total</td><td>27</td><td>26</td><td>18</td><td>374</td></tr>
+						</table>
+						<div class="add">+ Adicionar alimento</div>
+					</section>
+					<!-- Refeição 2 -->
+					<section class="meal">
+						<div class="meal-head"><div><h3>Refeição 2</h3><p>12:00 · 374 kcal</p></div><span class="kebab">⋮</span></div>
+						<table>
+							<tr><th>Alimento</th><th>P</th><th>C</th><th>G</th><th>kcal</th></tr>
+							<tr><td>Frango grelhado<small>100 g</small></td><td>32<sup>A</sup></td><td>0</td><td>4</td><td class="k">164</td></tr>
+							<tr><td>Azeite<small>10 ml</small></td><td>0</td><td>0</td><td>10</td><td class="k">90</td></tr>
+							<tr><td>Arroz cozido<small>100 g</small></td><td>2<sup>V</sup></td><td>28</td><td>0</td><td class="k">120</td></tr>
+							<tr><td>Salada + legumes<small>à vontade</small></td><td>0</td><td>0</td><td>0</td><td class="k">0</td></tr>
+							<tr class="total"><td>Total</td><td>34</td><td>28</td><td>14</td><td>374</td></tr>
+						</table>
+						<div class="add">+ Adicionar alimento</div>
+					</section>
+					<!-- Refeição 3 -->
+					<section class="meal">
+						<div class="meal-head"><div><h3>Refeição 3</h3><p>15:00 · 303 kcal</p></div><span class="kebab">⋮</span></div>
+						<table>
+							<tr><th>Alimento</th><th>P</th><th>C</th><th>G</th><th>kcal</th></tr>
+							<tr><td>Frango desfiado<small>100 g</small></td><td>32<sup>A</sup></td><td>0</td><td>4</td><td class="k">164</td></tr>
+							<tr><td>Pão integral<small>2 fatias</small></td><td>4<sup>V</sup></td><td>24</td><td>3</td><td class="k">139</td></tr>
+							<tr class="total"><td>Total</td><td>36</td><td>24</td><td>7</td><td>303</td></tr>
+						</table>
+						<div class="add">+ Adicionar alimento</div>
+					</section>
+					<!-- Refeição 4 -->
+					<section class="meal">
+						<div class="meal-head"><div><h3>Refeição 4</h3><p>18:00 · 284 kcal</p></div><span class="kebab">⋮</span></div>
+						<table>
+							<tr><th>Alimento</th><th>P</th><th>C</th><th>G</th><th>kcal</th></tr>
+							<tr><td>Frango grelhado<small>100 g</small></td><td>32<sup>A</sup></td><td>0</td><td>4</td><td class="k">164</td></tr>
+							<tr><td>Arroz cozido<small>100 g</small></td><td>2<sup>V</sup></td><td>28</td><td>0</td><td class="k">120</td></tr>
+							<tr><td>Salada + legumes<small>à vontade</small></td><td>0</td><td>0</td><td>0</td><td class="k">0</td></tr>
+							<tr class="total"><td>Total</td><td>34</td><td>28</td><td>4</td><td>284</td></tr>
+						</table>
+						<div class="add">+ Adicionar alimento</div>
+					</section>
+					<!-- Refeição 5 -->
+					<section class="meal">
+						<div class="meal-head"><div><h3>Refeição 5</h3><p>21:00 · 371 kcal</p></div><span class="kebab">⋮</span></div>
+						<table>
+							<tr><th>Alimento</th><th>P</th><th>C</th><th>G</th><th>kcal</th></tr>
+							<tr><td>Whey protein<small>30 g</small></td><td>25<sup>A</sup></td><td>2</td><td>1</td><td class="k">117</td></tr>
+							<tr><td>Leite integral<small>200 ml</small></td><td>7<sup>A</sup></td><td>10</td><td>7</td><td class="k">131</td></tr>
+							<tr><td>Aveia em flocos<small>30 g</small></td><td>4<sup>V</sup></td><td>20</td><td>3</td><td class="k">123</td></tr>
+							<tr class="total"><td>Total</td><td>36</td><td>32</td><td>11</td><td>371</td></tr>
+						</table>
+						<div class="add">+ Adicionar alimento</div>
+					</section>
+					<!-- Suplementação -->
+					<section class="meal">
+						<div class="meal-head"><div><h3>Suplementação</h3><p>0 kcal</p></div><span class="kebab">⋮</span></div>
+						<table>
+							<tr><th>Alimento</th><th>P</th><th>C</th><th>G</th><th>kcal</th></tr>
+							<tr><td>Creatina<small>7 g</small></td><td>0</td><td>0</td><td>0</td><td class="k">0</td></tr>
+							<tr><td>Multivitamínico<small>1 un</small></td><td>0</td><td>0</td><td>0</td><td class="k">0</td></tr>
+							<tr class="total"><td>Total</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+						</table>
+						<div class="add">+ Adicionar alimento</div>
+					</section>
+					<div class="add-meal">+ Adicionar refeição</div>
+				</div>
+				<aside class="aside">
+					<section class="card">
+						<h2>Resumo do dia</h2>
+						<table class="sum">
+							<tr><th></th><th>g</th><th>%</th><th>kcal</th><th>g/kg</th></tr>
+							<tr><td><span class="dot" style="background:var(--protein)"></span>Proteína (A)</td><td><b>154</b></td><td class="m">36</td><td>616</td><td class="m">2,2</td></tr>
+							<tr><td><span class="dot" style="background:var(--protein-v)"></span>Proteína (V)</td><td><b>13</b></td><td class="m">3</td><td>52</td><td class="m">0,2</td></tr>
+							<tr><td><span class="dot" style="background:var(--carb)"></span>Carboidrato</td><td><b>138</b></td><td class="m">32</td><td>552</td><td class="m">2,0</td></tr>
+							<tr><td><span class="dot" style="background:var(--fat)"></span>Gordura</td><td><b>54</b></td><td class="m">28</td><td>486</td><td class="m">0,8</td></tr>
+						</table>
+						<div class="totals"><span>Total <b>1.706 kcal</b></span><span>Gasto <b>2.331</b></span><span>Déficit <b>−625</b></span></div>
+					</section>
+					<section class="card goal">
+						<h2>Planejado × meta</h2>
+						<ul>
+							<li><div class="row"><span>Calorias</span><span><b>1.706</b> <span class="hint">/ 1.831 kcal</span></span></div><div class="bar"><div style="width:93%;background:var(--primary)"></div></div><span class="hint">Faltam 125 kcal</span></li>
+							<li><div class="row"><span>Proteína animal</span><span><b>154</b> <span class="hint">/ 154 g</span></span></div><div class="bar"><div style="width:100%;background:var(--protein)"></div></div><span class="hint">Na meta</span></li>
+							<li><div class="row"><span>Carboidrato</span><span><b>138</b> <span class="hint">/ 146 g</span></span></div><div class="bar"><div style="width:94%;background:var(--carb)"></div></div><span class="hint">Faltam 8 g</span></li>
+							<li><div class="row"><span>Gordura</span><span><b>54</b> <span class="hint">/ 70 g</span></span></div><div class="bar"><div style="width:77%;background:var(--fat)"></div></div><span class="hint">Faltam 16 g</span></li>
+						</ul>
+					</section>
+				</aside>
+				</div>
+			</div>
+			<div class="tabbar"><span class="tab">⌂</span><span class="tab">🔥</span><span class="tab">◎</span><span class="tab on">Dieta</span></div>
+		</div>
+	</div>
+
+	<div>
+		<p class="label">Celular (continua 1 coluna)</p>
+		<div class="phone">
+			<div class="topbar"><span class="logo"><i>❦</i>Sálvia</span><span class="icons"><b></b><b></b><b></b></span></div>
+			<section class="meal">
+				<div class="meal-head"><div><h3>Refeição 1</h3><p>9:00 · 374 kcal</p></div><span class="kebab">⋮</span></div>
+				<table>
+					<tr><th>Alimento</th><th>P</th><th>C</th><th>G</th><th>kcal</th></tr>
+					<tr><td>Ovo inteiro<small>4 un</small></td><td>26<sup>A</sup></td><td>3</td><td>18</td><td class="k">278</td></tr>
+					<tr><td>Mamão<small>200 g</small></td><td>1<sup>V</sup></td><td>23</td><td>0</td><td class="k">96</td></tr>
+					<tr><td>Chia<small>15 g</small></td><td>0</td><td>0</td><td>0</td><td class="k">0</td></tr>
+					<tr class="total"><td>Total</td><td>27</td><td>26</td><td>18</td><td>374</td></tr>
+				</table>
+				<div class="add">+ Adicionar alimento</div>
+			</section>
+			<section class="meal">
+				<div class="meal-head"><div><h3>Refeição 2</h3><p>12:00 · 374 kcal</p></div><span class="kebab">⋮</span></div>
+				<table>
+					<tr><th>Alimento</th><th>P</th><th>C</th><th>G</th><th>kcal</th></tr>
+					<tr><td>Frango grelhado<small>100 g</small></td><td>32<sup>A</sup></td><td>0</td><td>4</td><td class="k">164</td></tr>
+					<tr><td>Azeite<small>10 ml</small></td><td>0</td><td>0</td><td>10</td><td class="k">90</td></tr>
+					<tr><td>Arroz cozido<small>100 g</small></td><td>2<sup>V</sup></td><td>28</td><td>0</td><td class="k">120</td></tr>
+					<tr class="total"><td>Total</td><td>34</td><td>28</td><td>14</td><td>374</td></tr>
+				</table>
+				<div class="add">+ Adicionar alimento</div>
+			</section>
+			<div class="tabbar"><span class="tab">⌂</span><span class="tab">🔥</span><span class="tab">◎</span><span class="tab on">Dieta</span></div>
+		</div>
+	</div>
+</div>
+
+<div class="notes">
+	<div><h4>Grade sempre visível</h4>As refeições começam no topo da página, sem rolar por cima do resumo. A coluna da direita fica fixa enquanto você rola a grade.</div>
+	<div><h4>Container largo só na Dieta</h4>Até ~1400 px (ou 100% em telas menores): grade ~1030 px (3 × ~330 px) + lateral de 340 px. As outras abas continuam estreitas.</div>
+	<div><h4>Responsivo</h4>≥ 1280 px: 3 colunas + lateral · 1024–1280: 2 colunas + lateral · tablet: lateral vai pro topo · celular: 1 coluna (como hoje).</div>
+</div>
+
+</body>
+</html>
