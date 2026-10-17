@@ -9,6 +9,8 @@ interface ChoiceCardProps {
 	icon: LucideIcon;
 	title: ReactNode;
 	description?: ReactNode;
+	/** Etiquetas curtas pra bater o olho (ex.: "Musculação"). */
+	tags?: string[];
 	/** Detalhe técnico discreto (ex.: fator de atividade). */
 	hint?: ReactNode;
 	/** Esconde o círculo do radio (fica só pra leitor de tela) em cards compactos. */
@@ -23,6 +25,7 @@ export function ChoiceCard({
 	icon: Icon,
 	title,
 	description,
+	tags,
 	hint,
 	hideIndicator = false,
 	className,
@@ -43,8 +46,20 @@ export function ChoiceCard({
 				{description && (
 					<span className="text-muted-foreground text-xs">{description}</span>
 				)}
+				{tags && tags.length > 0 && (
+					<span className="mt-1 flex flex-wrap gap-1">
+						{tags.map((tag) => (
+							<span
+								key={tag}
+								className="rounded-full bg-muted px-2 py-0.5 font-medium text-[0.6875rem] text-muted-foreground transition-colors group-has-data-checked/choice:bg-primary/10 group-has-data-checked/choice:text-secondary-foreground"
+							>
+								{tag}
+							</span>
+						))}
+					</span>
+				)}
 				{hint && (
-					<span className="text-[0.6875rem] text-muted-foreground/70 tabular-nums">
+					<span className="mt-0.5 text-[0.6875rem] text-muted-foreground/70 tabular-nums">
 						{hint}
 					</span>
 				)}

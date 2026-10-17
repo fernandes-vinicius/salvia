@@ -4,34 +4,53 @@ export interface ActivityLevel {
 	factor: number;
 	label: string;
 	description: string;
+	/** Resumo escaneável: como é o trabalho e o exercício nesse nível. */
+	tags: string[];
 }
 
-// Fatores clássicos de Harris-Benedict, descritos em linguagem de leigo.
+// Fatores de atividade (FA) usados na dieta original, descritos pelo dia a
+// dia (trabalho + exercício) pra pessoa se encaixar sem saber o número.
 export const ACTIVITY_LEVELS: ActivityLevel[] = [
 	{
-		factor: 1.2,
+		factor: 1,
 		label: "Sedentário",
-		description: "Pouco ou nenhum exercício, trabalho sentado",
+		description: "Não trabalha e não pratica nenhuma atividade física.",
+		tags: ["Não trabalha", "Sem exercício"],
+	},
+	{
+		factor: 1.2,
+		label: "Muito pouco ativo",
+		description:
+			"Trabalho sem esforço físico (ex.: escritório) e nenhum exercício no dia.",
+		tags: ["Trabalho sem esforço", "Sem exercício"],
 	},
 	{
 		factor: 1.375,
-		label: "Levemente ativo",
-		description: "Exercício leve 1 a 3 vezes por semana",
+		label: "Pouco ativo",
+		description:
+			"Trabalho sem esforço físico e alguma atividade leve no dia, como uma caminhada.",
+		tags: ["Trabalho sem esforço", "Atividade leve"],
 	},
 	{
 		factor: 1.55,
 		label: "Moderadamente ativo",
-		description: "Exercício 3 a 5 vezes por semana",
+		description:
+			"Trabalho sem esforço físico, alguma atividade no dia e treino de musculação.",
+		tags: ["Trabalho sem esforço", "Atividade leve", "Musculação"],
 	},
 	{
 		factor: 1.725,
-		label: "Muito ativo",
-		description: "Exercício intenso 6 a 7 vezes por semana",
+		label: "Altamente ativo",
+		description:
+			"Musculação e trabalho que exige esforço físico. Ou trabalho sem esforço, mas com musculação e outro esporte intenso no mesmo dia.",
+		tags: ["Musculação", "Trabalho braçal ou esporte intenso"],
 	},
 	{
 		factor: 1.9,
 		label: "Extremamente ativo",
-		description: "Treino 2x por dia ou trabalho físico pesado",
+		description:
+			"Musculação e outro esporte intenso no mesmo dia, além de um trabalho que exige esforço físico.",
+		tags: ["Trabalho braçal", "Musculação", "Esporte intenso"],
 	},
 ];
 

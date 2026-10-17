@@ -16,7 +16,7 @@ Feminino (não existia na planilha): `655,1 + 9,563×peso + 1,85×altura − 4,6
 ### No app (aba TMB)
 
 - Domínio `src/domains/profile` (tabela `profile`, 1 por usuário). Fórmulas em `utils/energy.ts`, testadas contra os valores da planilha.
-- O fator de atividade é escolhido por nível (Sedentário 1,2 · Levemente ativo 1,375 · Moderadamente ativo 1,55 · Muito ativo 1,725 · Extremamente ativo 1,9); o servidor só aceita esses valores. O 1,3 usado na planilha não é uma opção.
+- O fator de atividade é escolhido por nível (Sedentário 1,0 · Muito pouco ativo 1,2 · Pouco ativo 1,375 · Moderadamente ativo 1,55 · Altamente ativo 1,725 · Extremamente ativo 1,9), descritos por trabalho + exercício; o servidor só aceita esses valores. O 1,3 usado na planilha não é uma opção.
 
 ## Refeição
 

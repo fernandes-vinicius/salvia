@@ -3,23 +3,32 @@
 import { ChoiceCard } from "~/domains/profile/components/choice-card";
 import { ACTIVITY_LEVELS } from "~/domains/profile/utils/energy";
 import {
-	Armchair,
-	Bike,
 	Dumbbell,
+	Flame,
 	Footprints,
+	HardHat,
+	Laptop,
 	type LucideIcon,
-	Zap,
+	Sofa,
 } from "~/shared/components/icons";
 import { RadioGroup } from "~/shared/components/ui/radio-group";
-import { formatNumber } from "~/shared/lib/format";
 
 const LEVEL_ICONS: Record<number, LucideIcon> = {
-	1.2: Armchair,
+	1: Sofa,
+	1.2: Laptop,
 	1.375: Footprints,
-	1.55: Bike,
-	1.725: Dumbbell,
-	1.9: Zap,
+	1.55: Dumbbell,
+	1.725: HardHat,
+	1.9: Flame,
 };
+
+// Sempre com ao menos 1 casa: "1,0", "1,2", "1,375".
+function formatFactor(factor: number) {
+	return factor.toLocaleString("pt-BR", {
+		minimumFractionDigits: 1,
+		maximumFractionDigits: 3,
+	});
+}
 
 interface ActivityLevelPickerProps {
 	value: number;
@@ -46,7 +55,8 @@ export function ActivityLevelPicker({
 					icon={LEVEL_ICONS[level.factor] ?? Footprints}
 					title={level.label}
 					description={level.description}
-					hint={`Fator de atividade × ${formatNumber(level.factor, 3)}`}
+					tags={level.tags}
+					hint={`Fator de atividade × ${formatFactor(level.factor)}`}
 				/>
 			))}
 		</RadioGroup>

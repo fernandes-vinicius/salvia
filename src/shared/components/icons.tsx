@@ -1,7 +1,5 @@
 export type { LucideIcon } from "lucide-react";
 export {
-	Armchair,
-	Bike,
 	Cake,
 	CheckIcon,
 	ChevronRight,
@@ -12,8 +10,10 @@ export {
 	Dumbbell,
 	Flame,
 	Footprints,
+	HardHat,
 	House,
 	InfoIcon,
+	Laptop,
 	Leaf,
 	Loader2Icon,
 	LogOut,
@@ -25,10 +25,10 @@ export {
 	Plus,
 	Ruler,
 	Salad,
+	Sofa,
 	Sun,
 	TriangleAlertIcon,
 	UtensilsCrossed,
 	Venus,
 	Weight,
-	Zap,
 } from "lucide-react";
