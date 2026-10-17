@@ -8,6 +8,13 @@
 			"when": 1792244290524,
 			"tag": "0000_oval_randall",
 			"breakpoints": true
+		},
+		{
+			"idx": 1,
+			"version": "7",
+			"when": 1792247413560,
+			"tag": "0001_curly_katie_power",
+			"breakpoints": true
 		}
 	]
 }

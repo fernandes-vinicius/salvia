@@ -1,14 +1,11 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
-import { Flame } from "~/shared/components/icons";
+import { getCurrentUser } from "~/domains/auth/services/session-service";
+import { EXAMPLE_PROFILE, TmbForm } from "~/domains/profile";
+import { findProfileByUserId } from "~/domains/profile/services/profile-service";
 import { PageHeader } from "~/shared/components/page-header";
-import {
-	Empty,
-	EmptyDescription,
-	EmptyHeader,
-	EmptyMedia,
-	EmptyTitle,
-} from "~/shared/components/ui/empty";
+import { Skeleton } from "~/shared/components/ui/skeleton";
 
 export const metadata: Metadata = { title: "TMB" };
 
@@ -17,23 +14,33 @@ export default function TmbPage() {
 		<main className="container-wrapper flex flex-col gap-8">
 			<PageHeader
 				title="TMB"
-				description="Seus dados para calcular a taxa metabólica e o gasto calórico diário."
+				description="Seus dados para calcular quantas calorias você gasta por dia."
 			/>
-			<Empty className="rounded-2xl bg-card">
-				<EmptyHeader>
-					<EmptyMedia
-						variant="icon"
-						className="rounded-full bg-secondary text-primary"
-					>
-						<Flame />
-					</EmptyMedia>
-					<EmptyTitle>Seus dados ainda não foram preenchidos</EmptyTitle>
-					<EmptyDescription>
-						Em breve: peso, altura, idade e fator de atividade para calcular seu
-						gasto calórico diário.
-					</EmptyDescription>
-				</EmptyHeader>
-			</Empty>
+			<Suspense fallback={<TmbFormSkeleton />}>
+				<TmbContent />
+			</Suspense>
 		</main>
+	);
+}
+
+async function TmbContent() {
+	const user = await getCurrentUser();
+	const profile = await findProfileByUserId(user.id);
+
+	return (
+		<TmbForm initialProfile={profile ?? EXAMPLE_PROFILE} isExample={!profile} />
+	);
+}
+
+function TmbFormSkeleton() {
+	return (
+		<div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_18rem]">
+			<Skeleton className="h-44 rounded-3xl md:order-2" />
+			<div className="flex flex-col gap-3 md:order-1">
+				<Skeleton className="h-20 rounded-2xl" />
+				<Skeleton className="h-44 rounded-2xl" />
+				<Skeleton className="h-44 rounded-2xl" />
+			</div>
+		</div>
 	);
 }

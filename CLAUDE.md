@@ -26,6 +26,8 @@ Nome/tagline centralizados em `~/shared/lib/app-config.ts` (`APP_NAME`, `APP_TAG
   - Mudou plugins ou campos do Better Auth? Atualize também `auth-cli-config.ts` e rode `bun run auth:generate && bun run db:generate`.
   - Tabelas novas da dieta: `src/shared/db/schema/<nome>-schema.ts` + export no `schema/index.ts`, com `userId` referenciando `user.id`.
 - Testes: importar `describe/it/expect/vi` de `vitest` explicitamente.
+- Edição estilo "salva sozinho" (ex.: aba TMB): estado local no client + `useAutosave` (`~/shared/hooks/use-autosave`, debounce + fila + flush ao sair) chamando uma Server Action que valida com Zod e checa o usuário via `getCurrentUser()`. Cálculos derivados rodam no client a partir do estado (funções puras em `domains/<x>/utils`), sem esperar o servidor.
+- UX pra leigos: valores técnicos (ex.: fator de atividade) nunca são digitados; o usuário escolhe uma opção descritiva (`ChoiceCard`) e o número aparece só como dica discreta. Medidas numéricas usam `MeasureSlider` (slider + botões −/+).
 - Formulários: Conform + Zod v4 (`import { parseWithZod } from "@conform-to/zod/v4"`).
 - Estado de URL: nuqs. Toasts: sonner. Tema: next-themes (padrão claro).
 - Regras de cálculo da dieta (migradas da planilha): `docs/planilha-calculos.md`.

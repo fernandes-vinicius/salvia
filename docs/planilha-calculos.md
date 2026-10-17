@@ -13,6 +13,11 @@ GCD = FA × (66,47 + 13,75×peso + 5×altura − 6,8×idade)   // Harris-Benedic
 Exemplo: 70 kg, 170 cm, 30 anos, FA 1,3 → 2177,46 kcal.
 Feminino (não existia na planilha): `655,1 + 9,563×peso + 1,85×altura − 4,676×idade`.
 
+### No app (aba TMB)
+
+- Domínio `src/domains/profile` (tabela `profile`, 1 por usuário). Fórmulas em `utils/energy.ts`, testadas contra os valores da planilha.
+- O fator de atividade é escolhido por nível (Sedentário 1,2 · Levemente ativo 1,375 · Moderadamente ativo 1,55 · Muito ativo 1,725 · Extremamente ativo 1,9); o servidor só aceita esses valores. O 1,3 usado na planilha não é uma opção.
+
 ## Refeição
 
 Cada item: quantidade, nome, gramas de Ptn animal, Ptn vegetal, Carb, Gordura.
