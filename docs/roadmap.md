@@ -8,7 +8,7 @@
 
 **Ideia:** com histórico de peso, o app compara a variação real com a esperada pela meta e sugere um ajuste.
 
-- Registrar peso (ex.: semanal) — novo domínio/tabela de histórico; a aba TMB passa a usar o peso mais recente.
+- Registrar peso: feito em Minhas medidas (`body_measurement`). Hoje é independente da TMB (escolha do usuário); a calibração pode ler o peso de lá.
 - Após 2–3 semanas, comparar a perda/ganho real com o ritmo do objetivo (`weeklyChangeKg` em `domains/goal/utils/goal.ts`).
 - Diferença ≈ excesso/falta de kcal: `Δkg × 7700 / dias`. Sugerir em passos pequenos (ex.: ±100–150 kcal), nunca automático.
 - Linguagem de leigo: "Seu peso caiu menos que o esperado. Que tal reduzir 150 kcal por dia?" com botão "Aplicar" (ajusta o déficit personalizado na aba Meta).
