@@ -27,6 +27,7 @@ export {
 	Flame,
 	FlaskConical,
 	Footprints,
+	GripVertical,
 	HardHat,
 	HeartPulse,
 	House,

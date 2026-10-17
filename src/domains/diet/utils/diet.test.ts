@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import type { DietMeal } from "~/domains/diet/types/diet-types";
 import {
+	changedLayouts,
 	mealMacros,
+	moveItemTo,
 	nextMealName,
 	summarizeDiet,
 } from "~/domains/diet/utils/diet";
@@ -103,5 +105,39 @@ describe("nextMealName", () => {
 		expect(nextMealName([{ name: "Café" }, { name: "Refeição 2" }])).toBe(
 			"Refeição 3",
 		);
+	});
+});
+
+describe("moveItemTo / changedLayouts", () => {
+	const ids = (list: DietMeal[]) =>
+		list.map((m) => `${m.id}:${m.items.map((i) => i.id).join("")}`);
+
+	it("reordena dentro da mesma refeição", () => {
+		const moved = moveItemTo(meals, "i2", "m1", 0);
+		expect(ids(moved)).toEqual(["m1:i2i1", "m2:i3", "m3:"]);
+		expect(changedLayouts(meals, moved)).toEqual([
+			{ mealId: "m1", itemIds: ["i2", "i1"] },
+		]);
+	});
+
+	it("move pra outra refeição (inclusive vazia)", () => {
+		const moved = moveItemTo(meals, "i1", "m3", 0);
+		expect(ids(moved)).toEqual(["m1:i2", "m2:i3", "m3:i1"]);
+		expect(changedLayouts(meals, moved)).toEqual([
+			{ mealId: "m1", itemIds: ["i2"] },
+			{ mealId: "m3", itemIds: ["i1"] },
+		]);
+	});
+
+	it("limita o índice ao tamanho da refeição", () => {
+		expect(ids(moveItemTo(meals, "i1", "m2", 99))).toEqual([
+			"m1:i2",
+			"m2:i3i1",
+			"m3:",
+		]);
+	});
+
+	it("sem mudança não gera layout", () => {
+		expect(changedLayouts(meals, meals)).toEqual([]);
 	});
 });

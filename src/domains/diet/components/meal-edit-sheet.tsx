@@ -29,14 +29,19 @@ const mealFormSchema = z.object({
 		.optional(),
 });
 
+export type MealEditFocus = "name" | "time";
+
 interface MealEditSheetProps {
 	meal: DietMeal | null;
+	/** Campo que recebe o foco ao abrir (Renomear × Definir horário). */
+	focus: MealEditFocus;
 	onOpenChange: (open: boolean) => void;
 	onSave: (data: { name: string; time: string | null }) => void;
 }
 
 export function MealEditSheet({
 	meal,
+	focus,
 	onOpenChange,
 	onSave,
 }: MealEditSheetProps) {
@@ -47,7 +52,7 @@ export function MealEditSheet({
 					<SheetTitle>Editar refeição</SheetTitle>
 					<SheetDescription>Nome e horário aparecem na grade.</SheetDescription>
 				</SheetHeader>
-				{meal && <MealEditForm meal={meal} onSave={onSave} />}
+				{meal && <MealEditForm meal={meal} focus={focus} onSave={onSave} />}
 			</BottomSheetContent>
 		</Sheet>
 	);
@@ -55,9 +60,11 @@ export function MealEditSheet({
 
 function MealEditForm({
 	meal,
+	focus,
 	onSave,
 }: {
 	meal: DietMeal;
+	focus: MealEditFocus;
 	onSave: MealEditSheetProps["onSave"];
 }) {
 	const [form, fields] = useForm({
@@ -89,6 +96,7 @@ function MealEditForm({
 					<FieldLabel htmlFor={fields.name.id}>Nome</FieldLabel>
 					<Input
 						{...getInputProps(fields.name, { type: "text" })}
+						autoFocus={focus === "name"}
 						placeholder="Ex.: Café da manhã"
 						autoComplete="off"
 					/>
@@ -96,7 +104,10 @@ function MealEditForm({
 				</Field>
 				<Field>
 					<FieldLabel htmlFor={fields.time.id}>Horário (opcional)</FieldLabel>
-					<Input {...getInputProps(fields.time, { type: "time" })} />
+					<Input
+						{...getInputProps(fields.time, { type: "time" })}
+						autoFocus={focus === "time"}
+					/>
 					<FieldError errors={errorsOf(fields.time.errors)} />
 				</Field>
 			</FieldGroup>

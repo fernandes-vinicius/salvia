@@ -1,7 +1,24 @@
 "use client";
 
+import {
+	type Announcements,
+	type CollisionDetection,
+	closestCenter,
+	DndContext,
+	type DragEndEvent,
+	type DragOverEvent,
+	DragOverlay,
+	type DragStartEvent,
+	KeyboardSensor,
+	PointerSensor,
+	pointerWithin,
+	type UniqueIdentifier,
+	useSensor,
+	useSensors,
+} from "@dnd-kit/core";
+import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -10,7 +27,7 @@ import {
 	addMealAction,
 	deleteItemAction,
 	deleteMealAction,
-	reorderMealsAction,
+	placeItemsAction,
 	updateMealAction,
 } from "~/domains/diet/actions/diet-actions";
 import { AddFoodSheet } from "~/domains/diet/components/add-food-sheet";
@@ -18,12 +35,22 @@ import { DietSummaryCard } from "~/domains/diet/components/diet-summary";
 import { GoalProgress } from "~/domains/diet/components/goal-progress";
 import { ItemSheet } from "~/domains/diet/components/item-sheet";
 import { MealCard } from "~/domains/diet/components/meal-card";
-import { MealEditSheet } from "~/domains/diet/components/meal-edit-sheet";
-import type { DietMeal } from "~/domains/diet/types/diet-types";
-import { nextMealName, summarizeDiet } from "~/domains/diet/utils/diet";
-import type { Food } from "~/domains/food";
+import {
+	type MealEditFocus,
+	MealEditSheet,
+} from "~/domains/diet/components/meal-edit-sheet";
+import { TRASH_ID, TrashZone } from "~/domains/diet/components/trash-zone";
+import type { DietItem, DietMeal } from "~/domains/diet/types/diet-types";
+import {
+	changedLayouts,
+	findMealOfItem,
+	moveItemTo,
+	nextMealName,
+	summarizeDiet,
+} from "~/domains/diet/utils/diet";
+import { type Food, MacroLine, macrosFor, UNIT_LABELS } from "~/domains/food";
 import type { GoalTargets } from "~/domains/goal/types/goal-types";
-import { Loader2Icon, Plus } from "~/shared/components/icons";
+import { GripVertical, Loader2Icon, Plus } from "~/shared/components/icons";
 import {
 	AlertDialog,
 	AlertDialogCancel,
@@ -34,6 +61,7 @@ import {
 	AlertDialogTitle,
 } from "~/shared/components/ui/alert-dialog";
 import { Button } from "~/shared/components/ui/button";
+import { formatNumber } from "~/shared/lib/format";
 
 interface DietViewProps {
 	initialMeals: DietMeal[];
@@ -58,19 +86,37 @@ export function DietView({
 	targets,
 }: DietViewProps) {
 	const router = useRouter();
-	const [meals, setMeals] = useState(initialMeals);
+	const [meals, setMealsState] = useState(initialMeals);
+	// dnd-kit dispara `onDragEnd` logo depois do último `onDragOver`, antes do
+	// re-render comitar: a ref espelhada (atualizada de forma síncrona) garante
+	// que o fim do arrasto leia a posição mais recente (mesmo padrão do listify).
+	const mealsRef = useRef(meals);
+	const dragSnapshot = useRef<DietMeal[]>(meals);
+
 	const [addingTo, setAddingTo] = useState<string | null>(null);
 	const [editingItemId, setEditingItemId] = useState<string | null>(null);
-	const [editingMealId, setEditingMealId] = useState<string | null>(null);
+	const [editingMeal, setEditingMeal] = useState<{
+		id: string;
+		focus: MealEditFocus;
+	} | null>(null);
 	const [deletingMealId, setDeletingMealId] = useState<string | null>(null);
 	const [addingMeal, setAddingMeal] = useState(false);
+	const [activeItemId, setActiveItemId] = useState<string | null>(null);
+
+	function setMeals(next: DietMeal[] | ((current: DietMeal[]) => DietMeal[])) {
+		const value = typeof next === "function" ? next(mealsRef.current) : next;
+		mealsRef.current = value;
+		setMealsState(value);
+	}
 
 	const summary = summarizeDiet(meals, { weightKg, tdee });
+	const mealIds = new Set(meals.map((meal) => meal.id));
 	const findMeal = (id: string | null) =>
 		meals.find((meal) => meal.id === id) ?? null;
-	const editingItem =
-		meals.flatMap((meal) => meal.items).find((i) => i.id === editingItemId) ??
-		null;
+	const findItem = (id: string | null) =>
+		meals.flatMap((meal) => meal.items).find((item) => item.id === id) ?? null;
+	const editingItem = findItem(editingItemId);
+	const activeItem = findItem(activeItemId);
 
 	/**
 	 * Erro "stale" = a dieta mudou em outra aba/aparelho (refeição ou item não
@@ -92,14 +138,63 @@ export function DietView({
 	async function optimistic(
 		next: (current: DietMeal[]) => DietMeal[],
 		request: () => Promise<ActionResult<unknown>>,
+		previous: DietMeal[] = mealsRef.current,
 	) {
-		const previous = meals;
 		setMeals(next);
 		const result = await request();
 		if (!result.ok) {
 			setMeals(previous);
 			handleError(result);
 		}
+		return result.ok;
+	}
+
+	/** Remove o alimento com opção de desfazer (recria na mesma posição). */
+	async function removeItem(itemId: string, from: DietMeal[] = meals) {
+		const meal = findMealOfItem(from, itemId);
+		const index = meal?.items.findIndex((item) => item.id === itemId) ?? -1;
+		const item = meal?.items[index];
+		if (!meal || !item) return;
+
+		const ok = await optimistic(
+			(current) =>
+				current.map((m) => ({
+					...m,
+					items: m.items.filter((i) => i.id !== itemId),
+				})),
+			() => deleteItemAction(itemId),
+			from,
+		);
+		if (!ok) return;
+
+		toast(`${item.food.name} removido de ${meal.name}.`, {
+			// Tempo extra pra dar tempo de desfazer.
+			duration: 8000,
+			action: {
+				label: "Desfazer",
+				onClick: () => restoreItem(meal.id, item, index),
+			},
+		});
+	}
+
+	async function restoreItem(mealId: string, item: DietItem, index: number) {
+		const result = await addItemAction({
+			mealId,
+			foodId: item.food.id,
+			quantity: item.quantity,
+			index,
+		});
+		if (!result.ok) {
+			handleError(result);
+			return;
+		}
+		setMeals((current) =>
+			mapMeal(current, mealId, (meal) => {
+				const items = [...meal.items];
+				items.splice(Math.min(index, items.length), 0, result.data);
+				return { ...meal, items };
+			}),
+		);
 	}
 
 	async function handleAddMeal() {
@@ -129,19 +224,133 @@ export function DietView({
 		return true;
 	}
 
-	function handleMove(index: number, direction: -1 | 1) {
-		const target = index + direction;
-		if (target < 0 || target >= meals.length) return;
-		const reordered = [...meals];
-		[reordered[index], reordered[target]] = [
-			reordered[target],
-			reordered[index],
-		];
-		optimistic(
-			() => reordered,
-			() => reorderMealsAction(reordered.map((meal) => meal.id)),
+	// --- Arrastar e soltar ----------------------------------------------------
+
+	const sensors = useSensors(
+		useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+		useSensor(KeyboardSensor, {
+			coordinateGetter: sortableKeyboardCoordinates,
+		}),
+	);
+
+	/**
+	 * Lixeira tem prioridade (ponteiro em cima dela). Fora dela, prefere a linha
+	 * sob o ponteiro; sobre o card mas fora das linhas, a própria refeição (vai
+	 * pro fim). Sem nada sob o ponteiro (ex.: teclado), o mais próximo.
+	 */
+	const collisionDetection: CollisionDetection = (args) => {
+		const trash = args.droppableContainers.filter((c) => c.id === TRASH_ID);
+		const others = args.droppableContainers.filter((c) => c.id !== TRASH_ID);
+
+		const overTrash = pointerWithin({ ...args, droppableContainers: trash });
+		if (overTrash.length > 0) return overTrash;
+
+		const hits = pointerWithin({ ...args, droppableContainers: others });
+		if (hits.length > 0) {
+			const itemHits = hits.filter((hit) => !mealIds.has(String(hit.id)));
+			return itemHits.length > 0 ? itemHits : hits;
+		}
+		return closestCenter({ ...args, droppableContainers: others });
+	};
+
+	/** Refeição de destino: o id é de uma refeição ou de um item dentro dela. */
+	function targetMealId(overId: UniqueIdentifier) {
+		const id = String(overId);
+		if (mealIds.has(id)) return id;
+		return findMealOfItem(mealsRef.current, id)?.id;
+	}
+
+	function handleDragStart({ active }: DragStartEvent) {
+		dragSnapshot.current = mealsRef.current;
+		setActiveItemId(String(active.id));
+	}
+
+	function handleDragOver({ active, over }: DragOverEvent) {
+		if (!over || over.id === TRASH_ID) return;
+		const itemId = String(active.id);
+		const from = findMealOfItem(mealsRef.current, itemId);
+		const toId = targetMealId(over.id);
+		if (!from || !toId || from.id === toId) return;
+
+		// Troca de refeição durante o arrasto: entra na posição do item sob o
+		// ponteiro (ou no fim, se estiver sobre o card).
+		const to = mealsRef.current.find((meal) => meal.id === toId);
+		const overIndex =
+			to?.items.findIndex((item) => item.id === String(over.id)) ?? -1;
+		setMeals(
+			moveItemTo(
+				mealsRef.current,
+				itemId,
+				toId,
+				overIndex >= 0 ? overIndex : (to?.items.length ?? 0),
+			),
 		);
 	}
+
+	function handleDragEnd({ active, over }: DragEndEvent) {
+		setActiveItemId(null);
+		const itemId = String(active.id);
+		const snapshot = dragSnapshot.current;
+
+		if (!over) {
+			setMeals(snapshot);
+			return;
+		}
+
+		if (over.id === TRASH_ID) {
+			setMeals(snapshot);
+			removeItem(itemId, snapshot);
+			return;
+		}
+
+		// Reordenar dentro da mesma refeição (a troca entre refeições já
+		// aconteceu no onDragOver).
+		const meal = findMealOfItem(mealsRef.current, itemId);
+		const overIndex =
+			meal?.items.findIndex((item) => item.id === String(over.id)) ?? -1;
+		if (meal && overIndex >= 0) {
+			setMeals(moveItemTo(mealsRef.current, itemId, meal.id, overIndex));
+		}
+
+		const layout = changedLayouts(snapshot, mealsRef.current);
+		if (layout.length === 0) return;
+		optimistic(
+			() => mealsRef.current,
+			() => placeItemsAction(layout),
+			snapshot,
+		);
+	}
+
+	function handleDragCancel() {
+		setActiveItemId(null);
+		setMeals(dragSnapshot.current);
+	}
+
+	const nameOf = (id: UniqueIdentifier) =>
+		findItem(String(id))?.food.name ?? "alimento";
+	const placeOf = (id: UniqueIdentifier) => {
+		if (id === TRASH_ID) return "a lixeira";
+		const mealId = targetMealId(id);
+		return mealIds.has(String(mealId))
+			? (findMeal(mealId ?? null)?.name ?? "a refeição")
+			: "a refeição";
+	};
+	const announcements: Announcements = {
+		onDragStart: ({ active }) =>
+			`Arrastando ${nameOf(active.id)}. Use as setas pra mover e espaço pra soltar.`,
+		onDragOver: ({ active, over }) =>
+			over
+				? `${nameOf(active.id)} sobre ${placeOf(over.id)}.`
+				: `${nameOf(active.id)} fora das refeições.`,
+		onDragEnd: ({ active, over }) =>
+			over
+				? over.id === TRASH_ID
+					? `${nameOf(active.id)} removido.`
+					: `${nameOf(active.id)} movido para ${placeOf(over.id)}.`
+				: `${nameOf(active.id)} voltou ao lugar.`,
+		onDragCancel: ({ active }) =>
+			`Arrasto cancelado. ${nameOf(active.id)} voltou ao lugar.`,
+	};
 
 	return (
 		<div className="flex flex-col gap-6">
@@ -161,35 +370,56 @@ export function DietView({
 					)}
 				</aside>
 
-				<div className="grid gap-4 md:grid-cols-2 md:items-start min-[85rem]:grid-cols-3">
-					{meals.map((meal, index) => (
-						<MealCard
-							key={meal.id}
-							meal={meal}
-							isFirst={index === 0}
-							isLast={index === meals.length - 1}
-							canDelete={meals.length > 1}
-							onAddFood={() => setAddingTo(meal.id)}
-							onEditItem={setEditingItemId}
-							onEdit={() => setEditingMealId(meal.id)}
-							onMove={(direction) => handleMove(index, direction)}
-							onDelete={() => setDeletingMealId(meal.id)}
-						/>
-					))}
-					<button
-						type="button"
-						disabled={addingMeal}
-						onClick={handleAddMeal}
-						className="flex min-h-32 items-center justify-center gap-2 rounded-3xl border-2 border-border border-dashed font-medium text-primary text-sm outline-none transition-colors hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:opacity-60"
-					>
-						{addingMeal ? (
-							<Loader2Icon className="size-4 animate-spin" />
-						) : (
-							<Plus className="size-4" />
-						)}
-						Adicionar refeição
-					</button>
-				</div>
+				<DndContext
+					sensors={sensors}
+					collisionDetection={collisionDetection}
+					accessibility={{
+						announcements,
+						screenReaderInstructions: {
+							draggable:
+								"Pra mover este alimento, aperte espaço, use as setas e aperte espaço de novo pra soltar. Esc cancela.",
+						},
+					}}
+					onDragStart={handleDragStart}
+					onDragOver={handleDragOver}
+					onDragEnd={handleDragEnd}
+					onDragCancel={handleDragCancel}
+				>
+					<div className="grid gap-4 md:grid-cols-2 md:items-start min-[85rem]:grid-cols-3">
+						{meals.map((meal) => (
+							<MealCard
+								key={meal.id}
+								meal={meal}
+								canDelete={meals.length > 1}
+								onAddFood={() => setAddingTo(meal.id)}
+								onEditItem={setEditingItemId}
+								onRename={() => setEditingMeal({ id: meal.id, focus: "name" })}
+								onEditTime={() =>
+									setEditingMeal({ id: meal.id, focus: "time" })
+								}
+								onDelete={() => setDeletingMealId(meal.id)}
+							/>
+						))}
+						<button
+							type="button"
+							disabled={addingMeal}
+							onClick={handleAddMeal}
+							className="flex min-h-32 items-center justify-center gap-2 rounded-3xl border-2 border-border border-dashed font-medium text-primary text-sm outline-none transition-colors hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:opacity-60"
+						>
+							{addingMeal ? (
+								<Loader2Icon className="size-4 animate-spin" />
+							) : (
+								<Plus className="size-4" />
+							)}
+							Adicionar refeição
+						</button>
+					</div>
+
+					<DragOverlay dropAnimation={null}>
+						{activeItem && <DraggedItem item={activeItem} />}
+					</DragOverlay>
+					<TrashZone visible={activeItem !== null} />
+				</DndContext>
 			</div>
 
 			<AddFoodSheet
@@ -217,24 +447,18 @@ export function DietView({
 				}
 				onDelete={(itemId) => {
 					setEditingItemId(null);
-					optimistic(
-						(current) =>
-							current.map((meal) => ({
-								...meal,
-								items: meal.items.filter((item) => item.id !== itemId),
-							})),
-						() => deleteItemAction(itemId),
-					);
+					removeItem(itemId);
 				}}
 			/>
 
 			<MealEditSheet
-				meal={findMeal(editingMealId)}
-				onOpenChange={(open) => !open && setEditingMealId(null)}
+				meal={findMeal(editingMeal?.id ?? null)}
+				focus={editingMeal?.focus ?? "name"}
+				onOpenChange={(open) => !open && setEditingMeal(null)}
 				onSave={(data) => {
-					const mealId = editingMealId;
+					const mealId = editingMeal?.id;
 					if (!mealId) return;
-					setEditingMealId(null);
+					setEditingMeal(null);
 					optimistic(
 						(current) =>
 							mapMeal(current, mealId, (meal) => ({ ...meal, ...data })),
@@ -275,6 +499,22 @@ export function DietView({
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
+		</div>
+	);
+}
+
+// Cópia flutuante do alimento sob o dedo/cursor durante o arrasto.
+function DraggedItem({ item }: { item: DietItem }) {
+	return (
+		<div className="flex cursor-grabbing items-center gap-2 rounded-2xl bg-card px-3 py-2.5 ring-2 ring-primary/40">
+			<GripVertical className="size-4 shrink-0 text-muted-foreground" />
+			<div className="flex min-w-0 flex-col">
+				<span className="truncate font-medium text-sm">{item.food.name}</span>
+				<span className="flex flex-wrap items-center gap-x-2 text-muted-foreground text-xs">
+					{formatNumber(item.quantity, 1)} {UNIT_LABELS[item.food.unit].short}
+					<MacroLine macros={macrosFor(item.food, item.quantity)} />
+				</span>
+			</div>
 		</div>
 	);
 }

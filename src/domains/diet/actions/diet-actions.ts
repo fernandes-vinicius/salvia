@@ -8,7 +8,7 @@ import {
 	addMeal,
 	deleteItem,
 	deleteMeal,
-	reorderMeals,
+	placeItems,
 	updateItemQuantity,
 	updateMeal,
 } from "~/domains/diet/services/diet-service";
@@ -58,15 +58,6 @@ export async function updateMealAction(
 		: stale("Refeição não encontrada.");
 }
 
-export async function reorderMealsAction(ids: unknown): Promise<ActionResult> {
-	const user = await getCurrentUser();
-	const parsed = z.array(id).safeParse(ids);
-	if (!parsed.success) return fail("Ordem inválida.");
-	return (await reorderMeals(user.id, parsed.data))
-		? done(null)
-		: stale("Não foi possível reordenar.");
-}
-
 export async function deleteMealAction(mealId: unknown): Promise<ActionResult> {
 	const user = await getCurrentUser();
 	const parsed = id.safeParse(mealId);
@@ -82,7 +73,13 @@ export async function addItemAction(
 ): Promise<ActionResult<DietItem>> {
 	const user = await getCurrentUser();
 	const parsed = z
-		.object({ mealId: id, foodId: id, quantity })
+		.object({
+			mealId: id,
+			foodId: id,
+			quantity,
+			// Posição exata (usada pelo "Desfazer"); sem ela, vai pro fim.
+			index: z.number().int().min(0).optional(),
+		})
 		.safeParse(input);
 	if (!parsed.success) return fail("Dados inválidos.");
 
@@ -94,6 +91,7 @@ export async function addItemAction(
 		parsed.data.mealId,
 		food.id,
 		parsed.data.quantity,
+		parsed.data.index,
 	);
 	return row ? done({ ...row, food }) : stale("Refeição não encontrada.");
 }
@@ -118,4 +116,17 @@ export async function deleteItemAction(itemId: unknown): Promise<ActionResult> {
 	return (await deleteItem(user.id, parsed.data))
 		? done(null)
 		: stale("Alimento não encontrado.");
+}
+
+/** Nova ordem dos itens nas refeições afetadas por um arrastar e soltar. */
+export async function placeItemsAction(layout: unknown): Promise<ActionResult> {
+	const user = await getCurrentUser();
+	const parsed = z
+		.array(z.object({ mealId: id, itemIds: z.array(id) }))
+		.min(1)
+		.safeParse(layout);
+	if (!parsed.success) return fail("Ordem inválida.");
+	return (await placeItems(user.id, parsed.data))
+		? done(null)
+		: stale("Não foi possível mover o alimento.");
 }

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, count, eq, inArray } from "drizzle-orm";
+import { and, asc, count, eq, gte, inArray, max, sql } from "drizzle-orm";
 
 import type { DietMeal } from "~/domains/diet/types/diet-types";
 import { foodColumns } from "~/domains/food/services/food-service";
@@ -108,24 +108,6 @@ export async function updateMeal(
 	return true;
 }
 
-/** Reescreve as posições na ordem recebida (só ids do próprio usuário). */
-export async function reorderMeals(userId: string, orderedIds: string[]) {
-	const current = await mealPositions(userId);
-	const owned = new Set(current.map((meal) => meal.id));
-	if (
-		orderedIds.length !== current.length ||
-		!orderedIds.every((id) => owned.has(id))
-	) {
-		return false;
-	}
-	await db.transaction(async (tx) => {
-		for (const [position, id] of orderedIds.entries()) {
-			await tx.update(dietMeal).set({ position }).where(eq(dietMeal.id, id));
-		}
-	});
-	return true;
-}
-
 /** Remove a refeição (e seus itens); mantém ao menos uma. */
 export async function deleteMeal(
 	userId: string,
@@ -141,22 +123,83 @@ export async function deleteMeal(
 	return "deleted";
 }
 
+/**
+ * Adiciona um item no fim da refeição ou, com `index`, numa posição exata
+ * (ex.: "Desfazer" depois de remover), empurrando os seguintes.
+ */
 export async function addItem(
 	userId: string,
 	mealId: string,
 	foodId: string,
 	quantity: number,
+	index?: number,
 ) {
 	if (!(await ownedMeal(userId, mealId))) return null;
-	const [{ total }] = await db
-		.select({ total: count() })
-		.from(dietItem)
-		.where(eq(dietItem.mealId, mealId));
-	const [row] = await db
-		.insert(dietItem)
-		.values({ mealId, foodId, quantity, position: total })
-		.returning({ id: dietItem.id, quantity: dietItem.quantity });
-	return row;
+
+	return db.transaction(async (tx) => {
+		let position: number;
+		if (index === undefined) {
+			const [{ last }] = await tx
+				.select({ last: max(dietItem.position) })
+				.from(dietItem)
+				.where(eq(dietItem.mealId, mealId));
+			position = (last ?? -1) + 1;
+		} else {
+			position = index;
+			await tx
+				.update(dietItem)
+				.set({ position: sql`${dietItem.position} + 1` })
+				.where(and(eq(dietItem.mealId, mealId), gte(dietItem.position, index)));
+		}
+
+		const [row] = await tx
+			.insert(dietItem)
+			.values({ mealId, foodId, quantity, position })
+			.returning({ id: dietItem.id, quantity: dietItem.quantity });
+		return row;
+	});
+}
+
+export interface MealLayout {
+	mealId: string;
+	itemIds: string[];
+}
+
+/**
+ * Grava a ordem (e a refeição) dos itens depois de arrastar: cada item vai
+ * pra `mealId` na posição do array. Só aceita refeições e itens do usuário.
+ */
+export async function placeItems(userId: string, layout: MealLayout[]) {
+	const mealIds = layout.map((entry) => entry.mealId);
+	const itemIds = layout.flatMap((entry) => entry.itemIds);
+	if (new Set(itemIds).size !== itemIds.length) return false;
+
+	const ownedMeals = await db
+		.select({ id: dietMeal.id })
+		.from(dietMeal)
+		.where(and(eq(dietMeal.userId, userId), inArray(dietMeal.id, mealIds)));
+	if (ownedMeals.length !== new Set(mealIds).size) return false;
+
+	if (itemIds.length > 0) {
+		const ownedItems = await db
+			.select({ id: dietItem.id })
+			.from(dietItem)
+			.innerJoin(dietMeal, eq(dietMeal.id, dietItem.mealId))
+			.where(and(eq(dietMeal.userId, userId), inArray(dietItem.id, itemIds)));
+		if (ownedItems.length !== itemIds.length) return false;
+	}
+
+	await db.transaction(async (tx) => {
+		for (const { mealId, itemIds: ids } of layout) {
+			for (const [position, id] of ids.entries()) {
+				await tx
+					.update(dietItem)
+					.set({ mealId, position })
+					.where(eq(dietItem.id, id));
+			}
+		}
+	});
+	return true;
 }
 
 export async function updateItemQuantity(

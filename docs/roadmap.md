@@ -54,7 +54,8 @@ Revisão de out/2026: o cálculo atual (Mifflin-St Jeor + método fatorial + MET
 
 Feito (out/2026): grade de refeições, TACO + alimentos próprios, resumo estilo planilha, planejado × meta.
 
-- Trocar o alimento de um item mantendo a quantidade; reordenar itens dentro da refeição (drag).
+- Trocar o alimento de um item mantendo a quantidade.
+- Reordenar as próprias refeições arrastando (hoje só os alimentos se movem).
 - Substituições ("ou 100 g de cuscuz" da planilha): alternativas equivalentes por item.
 - Celular: resumo e meta ocupam a primeira tela; avaliar versão compacta/recolhível pra grade aparecer antes (desktop já resolvido com coluna lateral).
 - Porções caseiras na TACO (1 fatia, 1 colher) além de gramas.

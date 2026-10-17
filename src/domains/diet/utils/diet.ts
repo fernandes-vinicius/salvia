@@ -67,3 +67,46 @@ export function nextMealName(meals: Pick<DietMeal, "name">[]) {
 	while (used.has(`Refeição ${n}`)) n++;
 	return `Refeição ${n}`;
 }
+
+// --- Arrastar e soltar ------------------------------------------------------
+
+export function findMealOfItem(meals: DietMeal[], itemId: string) {
+	return meals.find((meal) => meal.items.some((item) => item.id === itemId));
+}
+
+/** Move o item pra `toMealId` na posição `toIndex` (limitada ao tamanho). */
+export function moveItemTo(
+	meals: DietMeal[],
+	itemId: string,
+	toMealId: string,
+	toIndex: number,
+): DietMeal[] {
+	const from = findMealOfItem(meals, itemId);
+	const item = from?.items.find((i) => i.id === itemId);
+	if (!from || !item) return meals;
+
+	const withoutItem = meals.map((meal) =>
+		meal.id === from.id
+			? { ...meal, items: meal.items.filter((i) => i.id !== itemId) }
+			: meal,
+	);
+	return withoutItem.map((meal) => {
+		if (meal.id !== toMealId) return meal;
+		const index = Math.max(0, Math.min(toIndex, meal.items.length));
+		const items = [...meal.items];
+		items.splice(index, 0, item);
+		return { ...meal, items };
+	});
+}
+
+/** Refeições cuja lista de itens mudou entre `before` e `after`. */
+export function changedLayouts(before: DietMeal[], after: DietMeal[]) {
+	const idsOf = (meal: DietMeal) => meal.items.map((item) => item.id).join(",");
+	const previous = new Map(before.map((meal) => [meal.id, idsOf(meal)]));
+	return after
+		.filter((meal) => previous.get(meal.id) !== idsOf(meal))
+		.map((meal) => ({
+			mealId: meal.id,
+			itemIds: meal.items.map((item) => item.id),
+		}));
+}
