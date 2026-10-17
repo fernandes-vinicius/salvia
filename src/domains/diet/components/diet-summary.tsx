@@ -5,7 +5,7 @@ import { cn } from "~/shared/lib/utils";
 
 export const MACRO_LABELS: Record<MacroKey, { label: string; dot: string }> = {
 	proteinAnimal: { label: "Proteína (A)", dot: "bg-macro-protein" },
-	proteinVegetal: { label: "Proteína (V)", dot: "bg-chart-3" },
+	proteinVegetal: { label: "Proteína (V)", dot: "bg-macro-protein-vegetal" },
 	carbs: { label: "Carboidrato", dot: "bg-macro-carb" },
 	fat: { label: "Gordura", dot: "bg-macro-fat" },
 };

@@ -21,6 +21,7 @@ import {
 	DropdownMenuTrigger,
 } from "~/shared/components/ui/dropdown-menu";
 import { formatNumber } from "~/shared/lib/format";
+import { cn } from "~/shared/lib/utils";
 
 interface MealCardProps {
 	meal: DietMeal;
@@ -112,9 +113,27 @@ export function MealCard({
 					<thead>
 						<tr className="text-muted-foreground text-xs">
 							<th className="pb-1 text-left font-normal">Alimento</th>
-							<th className="w-10 pb-1 text-right font-normal">P</th>
-							<th className="w-10 pb-1 text-right font-normal">C</th>
-							<th className="w-10 pb-1 text-right font-normal">G</th>
+							<th className="w-11 pb-1 text-right font-normal">
+								<abbr title="Proteína" className="no-underline">
+									P
+								</abbr>
+							</th>
+							<th className="w-10 pb-1 text-right font-normal">
+								<span className="inline-flex items-center gap-1">
+									<span className="size-1.5 rounded-full bg-macro-carb" />
+									<abbr title="Carboidrato" className="no-underline">
+										C
+									</abbr>
+								</span>
+							</th>
+							<th className="w-10 pb-1 text-right font-normal">
+								<span className="inline-flex items-center gap-1">
+									<span className="size-1.5 rounded-full bg-macro-fat" />
+									<abbr title="Gordura" className="no-underline">
+										G
+									</abbr>
+								</span>
+							</th>
 							<th className="w-12 pb-1 text-right font-normal">kcal</th>
 						</tr>
 					</thead>
@@ -131,6 +150,7 @@ export function MealCard({
 									<td className="max-w-0 py-2 pr-2">
 										<button
 											type="button"
+											title={item.food.name}
 											className="block w-full truncate text-left outline-none focus-visible:underline"
 											onClick={(event) => {
 												event.stopPropagation();
@@ -145,12 +165,30 @@ export function MealCard({
 										</span>
 									</td>
 									<td className="py-2 text-right">
-										{formatNumber(protein)}
-										{protein > 0 && (
-											<span className="ml-0.5 text-[0.625rem] text-muted-foreground">
-												{item.food.proteinSource === "animal" ? "A" : "V"}
-											</span>
-										)}
+										{/* Cor da origem no lugar da letra: verde-escuro = animal,
+										    sálvia claro = vegetal (mesmas cores do resumo). */}
+										<span
+											className="inline-flex items-center gap-1"
+											title={
+												protein > 0
+													? item.food.proteinSource === "animal"
+														? "Proteína animal"
+														: "Proteína vegetal"
+													: undefined
+											}
+										>
+											{protein > 0 && (
+												<span
+													className={cn(
+														"size-1.5 rounded-full",
+														item.food.proteinSource === "animal"
+															? "bg-macro-protein"
+															: "bg-macro-protein-vegetal",
+													)}
+												/>
+											)}
+											{formatNumber(protein)}
+										</span>
 									</td>
 									<td className="py-2 text-right">
 										{formatNumber(macros.carbs)}

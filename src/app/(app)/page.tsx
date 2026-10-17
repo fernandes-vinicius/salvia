@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Suspense } from "react";
 
 import { getCurrentUser } from "~/domains/auth/services/session-service";
@@ -24,24 +23,8 @@ import {
 import { calculateBmr, calculateTdee } from "~/domains/profile";
 import { findProfileByUserId } from "~/domains/profile/services/profile-service";
 import { getSettingsByUserId } from "~/domains/settings/services/settings-service";
-import {
-	Flame,
-	type LucideIcon,
-	Salad,
-	Target,
-} from "~/shared/components/icons";
 import { Skeleton } from "~/shared/components/ui/skeleton";
 import { APP_TAGLINE } from "~/shared/lib/app-config";
-
-const shortcuts: {
-	href: "/tmb" | "/meta" | "/dieta";
-	title: string;
-	icon: LucideIcon;
-}[] = [
-	{ href: "/tmb", title: "TMB", icon: Flame },
-	{ href: "/meta", title: "Meta", icon: Target },
-	{ href: "/dieta", title: "Dieta", icon: Salad },
-];
 
 export default function HomePage() {
 	return (
@@ -49,21 +32,6 @@ export default function HomePage() {
 			<Suspense fallback={<HomeSkeleton />}>
 				<HomeContent />
 			</Suspense>
-
-			<nav aria-label="Atalhos" className="grid grid-cols-3 gap-3">
-				{shortcuts.map(({ href, title, icon: Icon }) => (
-					<Link
-						key={href}
-						href={href}
-						className="flex flex-col items-center gap-2 rounded-2xl bg-card p-3 font-medium text-sm outline-none transition-colors hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50"
-					>
-						<span className="flex size-9 items-center justify-center rounded-full bg-secondary text-primary">
-							<Icon className="size-4" />
-						</span>
-						{title}
-					</Link>
-				))}
-			</nav>
 		</main>
 	);
 }

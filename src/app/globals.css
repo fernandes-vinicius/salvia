@@ -54,6 +54,7 @@
 	--color-card-foreground: var(--card-foreground);
 	--color-card: var(--card);
 	--color-macro-protein: var(--macro-protein);
+	--color-macro-protein-vegetal: var(--macro-protein-vegetal);
 	--color-macro-carb: var(--macro-carb);
 	--color-macro-fat: var(--macro-fat);
 	--radius-sm: calc(var(--radius) * 0.6);
@@ -95,6 +96,7 @@
 	--chart-5: oklch(0.789 0.059 89.6); /* #C9B98F bege */
 
 	--macro-protein: oklch(0.479 0.089 142.3); /* #3E6A3A */
+	--macro-protein-vegetal: oklch(0.772 0.067 134.8); /* #A3BF94 */
 	--macro-carb: oklch(0.741 0.103 84.8); /* #C9A65B trigo */
 	--macro-fat: oklch(0.652 0.1 46.4); /* #C27C5A terracota */
 
@@ -136,6 +138,7 @@
 	--chart-5: oklch(0.789 0.059 89.6); /* #C9B98F */
 
 	--macro-protein: oklch(0.779 0.073 135.1); /* #A3C293 */
+	--macro-protein-vegetal: oklch(0.57 0.087 139.5); /* #5C8452 */
 	--macro-carb: oklch(0.805 0.091 86.7); /* #D9BC7A */
 	--macro-fat: oklch(0.732 0.09 43.5); /* #D9967A */
 

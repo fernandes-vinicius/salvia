@@ -13,7 +13,7 @@ Nome/tagline centralizados em `~/shared/lib/app-config.ts` (`APP_NAME`, `APP_TAG
 - Ícones sempre via `~/shared/components/icons` (nunca direto de `lucide-react`).
 - Design system (tokens em `src/app/globals.css`, preview em `/design-system`):
   - Paleta verde-sálvia + creme, light (padrão) e dark. Use só tokens semânticos (`bg-primary`, `bg-secondary`, `text-muted-foreground`…), nunca cores cruas do Tailwind (`green-600`, `stone-100`).
-  - Cores de domínio: `macro-protein`, `macro-carb`, `macro-fat` (ex.: `bg-macro-carb`); séries de gráfico em `chart-1..5`.
+  - Cores de domínio: `macro-protein` (proteína animal), `macro-protein-vegetal`, `macro-carb`, `macro-fat` (ex.: `bg-macro-carb`); séries de gráfico em `chart-1..5`. Origem da proteína é mostrada por cor (bolinha), não por letra A/V.
   - Sem sombras: os namespaces `shadow`/`drop-shadow`/`inset-shadow`/`text-shadow` estão zerados no `@theme`, classes `shadow-*` não geram CSS.
   - Bordas leves: prefira separar por superfície (`bg-card` sobre `bg-background`, `bg-secondary` para destaque) em vez de bordas; quando precisar, `ring-1 ring-foreground/5`.
   - Títulos e números em `font-heading` (Manrope) com `tabular-nums`; corpo em Inter.
