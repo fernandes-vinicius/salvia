@@ -97,7 +97,7 @@ export function TmbForm({ initialProfile, isExample }: TmbFormProps) {
 
 				<FormSection
 					title="Rotina"
-					description="Escolha a opção que mais parece com o seu dia a dia, pensando no trabalho e nos treinos."
+					description="Com que frequência e intensidade você se exercita, pensando nas últimas semanas. Na dúvida entre dois, escolha o menor: a fórmula costuma superestimar o gasto."
 				>
 					<ActivityLevelPicker
 						value={profile.activityFactor}

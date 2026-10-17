@@ -37,11 +37,12 @@ describe("calculateTdee", () => {
 
 describe("findActivityLevel", () => {
 	it("encontra o nível pelo fator", () => {
-		expect(findActivityLevel(1.55)?.label).toBe("Moderadamente ativo");
-		expect(findActivityLevel(1)?.label).toBe("Sedentário");
+		expect(findActivityLevel(1.55)?.label).toBe("Moderado");
+		expect(findActivityLevel(1.2)?.label).toBe("Sedentário");
 	});
 
 	it("retorna undefined pra fator fora da lista", () => {
 		expect(findActivityLevel(1.3)).toBeUndefined();
+		expect(findActivityLevel(1)).toBeUndefined();
 	});
 });

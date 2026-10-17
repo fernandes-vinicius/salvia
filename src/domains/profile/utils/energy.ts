@@ -8,49 +8,38 @@ export interface ActivityLevel {
 	tags: string[];
 }
 
-// Fatores de atividade (FA) usados na dieta original, descritos pelo dia a
-// dia (trabalho + exercício) pra pessoa se encaixar sem saber o número.
+// Fatores de atividade (FA) de Harris-Benedict pela frequência/intensidade
+// de exercício (tabela de referência adotada em out/2026).
 export const ACTIVITY_LEVELS: ActivityLevel[] = [
 	{
-		factor: 1,
-		label: "Sedentário",
-		description: "Não trabalha e não pratica nenhuma atividade física.",
-		tags: ["Não trabalha", "Sem exercício"],
-	},
-	{
 		factor: 1.2,
-		label: "Muito pouco ativo",
-		description:
-			"Trabalho sem esforço físico (ex.: escritório) e nenhum exercício no dia.",
-		tags: ["Trabalho sem esforço", "Sem exercício"],
+		label: "Sedentário",
+		description: "Pouco ou nenhum exercício.",
+		tags: ["Sem treino"],
 	},
 	{
 		factor: 1.375,
 		label: "Pouco ativo",
-		description:
-			"Trabalho sem esforço físico e alguma atividade leve no dia, como uma caminhada.",
-		tags: ["Trabalho sem esforço", "Atividade leve"],
+		description: "Exercícios ou esportes leves, de 1 a 3 vezes por semana.",
+		tags: ["Leve", "1 a 3× por semana"],
 	},
 	{
 		factor: 1.55,
-		label: "Moderadamente ativo",
-		description:
-			"Trabalho sem esforço físico, alguma atividade no dia e treino de musculação.",
-		tags: ["Trabalho sem esforço", "Atividade leve", "Musculação"],
+		label: "Moderado",
+		description: "Exercícios ou esportes moderados, de 3 a 5 vezes por semana.",
+		tags: ["Moderado", "3 a 5× por semana"],
 	},
 	{
 		factor: 1.725,
-		label: "Altamente ativo",
-		description:
-			"Musculação e trabalho que exige esforço físico. Ou trabalho sem esforço, mas com musculação e outro esporte intenso no mesmo dia.",
-		tags: ["Musculação", "Trabalho braçal ou esporte intenso"],
+		label: "Muito ativo",
+		description: "Exercícios ou esportes pesados, de 6 a 7 vezes por semana.",
+		tags: ["Pesado", "6 a 7× por semana"],
 	},
 	{
 		factor: 1.9,
 		label: "Extremamente ativo",
-		description:
-			"Musculação e outro esporte intenso no mesmo dia, além de um trabalho que exige esforço físico.",
-		tags: ["Trabalho braçal", "Musculação", "Esporte intenso"],
+		description: "Exercício, esporte ou trabalho intenso todos os dias.",
+		tags: ["Intenso", "Todos os dias"],
 	},
 ];
 

@@ -1,5 +1,6 @@
 export type { LucideIcon } from "lucide-react";
 export {
+	Bike,
 	Cake,
 	CheckIcon,
 	ChevronDown,
@@ -14,10 +15,8 @@ export {
 	Equal,
 	Flame,
 	Footprints,
-	HardHat,
 	House,
 	InfoIcon,
-	Laptop,
 	Leaf,
 	Loader2Icon,
 	LogOut,

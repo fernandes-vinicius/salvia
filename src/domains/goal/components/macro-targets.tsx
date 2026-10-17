@@ -120,6 +120,7 @@ export function MacroTargets({ goal, targets, onChange }: MacroTargetsProps) {
 					{/* Carboidrato: automático (o que sobra) por padrão; desligando,
 					    vira g/kg fixo como na planilha. Começa no valor que o
 					    automático estava dando, pra não dar salto. */}
+					{/* biome-ignore lint/a11y/noLabelWithoutControl: o controle é o Switch (Base UI) dentro do label */}
 					<label className="flex cursor-pointer items-center gap-3 rounded-2xl bg-card p-4">
 						<span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
 							<Wheat className="size-5" aria-hidden />

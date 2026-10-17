@@ -3,22 +3,20 @@
 import { ACTIVITY_LEVELS } from "~/domains/profile/utils/energy";
 import { ChoiceCard } from "~/shared/components/choice-card";
 import {
+	Bike,
 	Dumbbell,
 	Flame,
 	Footprints,
-	HardHat,
-	Laptop,
 	type LucideIcon,
 	Sofa,
 } from "~/shared/components/icons";
 import { RadioGroup } from "~/shared/components/ui/radio-group";
 
 const LEVEL_ICONS: Record<number, LucideIcon> = {
-	1: Sofa,
-	1.2: Laptop,
+	1.2: Sofa,
 	1.375: Footprints,
-	1.55: Dumbbell,
-	1.725: HardHat,
+	1.55: Bike,
+	1.725: Dumbbell,
 	1.9: Flame,
 };
 
