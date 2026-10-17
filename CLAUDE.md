@@ -14,6 +14,13 @@
   - Bordas leves: prefira separar por superfície (`bg-card` sobre `bg-background`, `bg-secondary` para destaque) em vez de bordas; quando precisar, `ring-1 ring-foreground/5`.
   - Títulos e números em `font-heading` (Manrope) com `tabular-nums`; corpo em Inter.
   - Componentes shadcn: não editar radius/border/shadow por arquivo; ajuste visual vem dos tokens.
+- Auth (Better Auth + Google, Drizzle/Postgres):
+  - Proteção em 2 camadas: `src/proxy.ts` só checa se o cookie existe (otimista); a checagem real é o DAL `getCurrentUser()` em `~/domains/auth/services/session-service`, obrigatório em toda página/ação que toque dados do usuário.
+  - Cache Components: ler sessão (`getCurrentUser`, `headers()`) só dentro de `<Suspense>`, nunca com `await` no topo de layout/página.
+  - `~/domains/auth/lib/auth` e `session-service` são server-only; o barrel `~/domains/auth` só exporta coisas seguras pro client.
+  - Mudou plugins ou campos do Better Auth? Atualize também `auth-cli-config.ts` e rode `bun run auth:generate && bun run db:generate`.
+  - Tabelas novas da dieta: `src/shared/db/schema/<nome>-schema.ts` + export no `schema/index.ts`, com `userId` referenciando `user.id`.
+- Testes: importar `describe/it/expect/vi` de `vitest` explicitamente.
 - Formulários: Conform + Zod v4 (`import { parseWithZod } from "@conform-to/zod/v4"`).
 - Estado de URL: nuqs. Toasts: sonner. Tema: next-themes (padrão claro).
 - Regras de cálculo da dieta (migradas da planilha): `docs/planilha-calculos.md`.
