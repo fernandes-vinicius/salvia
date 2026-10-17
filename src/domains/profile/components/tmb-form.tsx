@@ -78,7 +78,7 @@ export function TmbForm({ initialProfile, isExample }: TmbFormProps) {
 			<div className="flex flex-col gap-8 md:order-1">
 				<FormSection
 					title="Sobre você"
-					description="A fórmula muda conforme o sexo biológico e a idade."
+					description="A taxa em repouso muda conforme o sexo biológico e a idade."
 				>
 					<SexPicker
 						value={profile.sex}

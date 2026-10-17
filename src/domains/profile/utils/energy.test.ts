@@ -13,16 +13,13 @@ import {
 // 70 kg, 170 cm, 30 anos (valores da planilha original).
 const base: BodyProfile = EXAMPLE_PROFILE;
 
-describe("calculateBmr", () => {
-	it("reproduz a fórmula masculina da planilha", () => {
-		expect(calculateBmr(base)).toBeCloseTo(1674.97, 2);
+describe("calculateBmr (Mifflin-St Jeor)", () => {
+	it("masculino: 10·peso + 6,25·altura − 5·idade + 5", () => {
+		expect(calculateBmr(base)).toBe(1617.5);
 	});
 
-	it("usa os coeficientes femininos", () => {
-		expect(calculateBmr({ ...base, sex: "female" })).toBeCloseTo(
-			655.1 + 9.563 * 70 + 1.85 * 170 - 4.676 * 30,
-			5,
-		);
+	it("feminino: mesma base − 161", () => {
+		expect(calculateBmr({ ...base, sex: "female" })).toBe(1451.5);
 	});
 });
 
@@ -42,18 +39,17 @@ describe("calculateTrainingKcalPerDay", () => {
 
 describe("calculateEnergy", () => {
 	it("soma TMB × NEAT, treinos e 10% de digestão", () => {
-		// Caso real: musculação 4×/sem, 60 min, moderada → ≈ 2.317 kcal,
-		// próximo do fator 1,375 que funcionou na prática (2.303).
+		// Caso real: musculação 4×/sem, 60 min, moderada.
 		const energy = calculateEnergy({
 			...base,
 			strength: { ...base.strength, enabled: true, daysPerWeek: 4 },
 		});
 
-		expect(energy.bmr).toBeCloseTo(1674.97, 2);
-		expect(energy.daily).toBeCloseTo(1674.97 * 0.15, 2);
+		expect(energy.bmr).toBe(1617.5);
+		expect(energy.daily).toBeCloseTo(1617.5 * 0.15, 5);
 		expect(energy.strength).toBeCloseTo(180, 0);
 		expect(energy.cardio).toBe(0);
-		expect(energy.tdee).toBeCloseTo((1674.97 * 1.15 + 180) * 1.1, 0);
+		expect(energy.tdee).toBeCloseTo((1617.5 * 1.15 + 180) * 1.1, 0);
 		expect(energy.digestion).toBeCloseTo(energy.tdee - energy.tdee / 1.1, 5);
 	});
 });

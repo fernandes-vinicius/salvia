@@ -28,7 +28,7 @@ Nome/tagline centralizados em `~/shared/lib/app-config.ts` (`APP_NAME`, `APP_TAG
 - Testes: importar `describe/it/expect/vi` de `vitest` explicitamente.
 - Edição estilo "salva sozinho" (ex.: aba TMB): estado local no client + `useAutosave` (`~/shared/hooks/use-autosave`, debounce + fila + flush ao sair) chamando uma Server Action que valida com Zod e checa o usuário via `getCurrentUser()`. Cálculos derivados rodam no client a partir do estado (funções puras em `domains/<x>/utils`), sem esperar o servidor.
 - UX pra leigos: valores técnicos (ex.: fator de atividade) nunca são digitados; o usuário escolhe uma opção descritiva (`ChoiceCard`) e o número aparece só como dica discreta. Medidas numéricas usam `MeasureSlider` (slider + botões −/+).
-- Domínios: `profile` (TMB: dados corporais + NEAT + treinos por MET → GCD fatorial) → `goal` (Meta: objetivo, ajuste de kcal, proteína ANIMAL e gordura em g/kg; carboidrato automático (resto) ou fixado em g/kg) → dieta (próximo). A Dieta mostra o resumo estilo planilha (g · % · kcal · g/kg, total, excedente) e a diferença pra meta.
+- Domínios: `profile` (TMB Mifflin-St Jeor + NEAT + treinos por MET → GCD fatorial) → `goal` (Meta: objetivo, ajuste de kcal, proteína ANIMAL e gordura em g/kg; carboidrato automático (resto) ou fixado em g/kg) → dieta (próximo). A Dieta mostra o resumo estilo planilha (g · % · kcal · g/kg, total, excedente) e a diferença pra meta.
 - Formulários: Conform + Zod v4 (`import { parseWithZod } from "@conform-to/zod/v4"`).
 - Estado de URL: nuqs. Toasts: sonner. Tema: next-themes (padrão claro).
 - Regras de cálculo da dieta (migradas da planilha): `docs/planilha-calculos.md`. Ideias futuras/backlog: `docs/roadmap.md`.

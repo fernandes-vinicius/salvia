@@ -119,15 +119,10 @@ export function findOption(options: Option[], value: number) {
 	return options.find((option) => Math.abs(option.value - value) < 0.001);
 }
 
-// Harris-Benedict original — a mesma fórmula da planilha (versão masculina);
-// a feminina não existia na planilha. Ver docs/planilha-calculos.md.
-const BMR_COEFFICIENTS: Record<
-	Sex,
-	{ base: number; weight: number; height: number; age: number }
-> = {
-	male: { base: 66.47, weight: 13.75, height: 5, age: 6.8 },
-	female: { base: 655.1, weight: 9.563, height: 1.85, age: 4.676 },
-};
+// Mifflin-St Jeor (1990): a fórmula de TMB mais usada hoje e a mesma da
+// calculadora de referência (hipertrofia.org). Substituiu a Harris-Benedict
+// original da planilha, que superestimava a TMB (~57 kcal no caso real).
+const SEX_CONSTANT: Record<Sex, number> = { male: 5, female: -161 };
 
 /** Taxa metabólica basal (kcal/dia): gasto em repouso absoluto. */
 export function calculateBmr({
@@ -136,8 +131,7 @@ export function calculateBmr({
 	heightCm,
 	ageYears,
 }: Pick<BodyProfile, "sex" | "weightKg" | "heightCm" | "ageYears">) {
-	const c = BMR_COEFFICIENTS[sex];
-	return c.base + c.weight * weightKg + c.height * heightCm - c.age * ageYears;
+	return 10 * weightKg + 6.25 * heightCm - 5 * ageYears + SEX_CONSTANT[sex];
 }
 
 /**
