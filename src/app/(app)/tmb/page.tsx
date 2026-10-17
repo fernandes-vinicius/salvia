@@ -34,7 +34,7 @@ async function TmbContent() {
 
 function TmbFormSkeleton() {
 	return (
-		<div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_18rem]">
+		<div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_20rem]">
 			<Skeleton className="h-44 rounded-3xl md:order-2" />
 			<div className="flex flex-col gap-3 md:order-1">
 				<Skeleton className="h-20 rounded-2xl" />

@@ -44,7 +44,7 @@ export function TmbForm({ initialProfile, isExample }: TmbFormProps) {
 	}
 
 	return (
-		<div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_18rem] md:items-start">
+		<div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_20rem] md:items-start">
 			<EnergySummary
 				profile={profile}
 				status={status}

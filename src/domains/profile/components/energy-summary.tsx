@@ -48,16 +48,18 @@ export function EnergySummary({
 				É quanto seu corpo gasta por dia, contando a sua rotina.
 			</p>
 
-			<dl className="mt-2 grid grid-cols-2 gap-2 md:mt-3">
-				<div className="rounded-2xl bg-primary-foreground/10 px-3 py-2.5">
-					<dt className="text-xs opacity-80">Em repouso (TMB)</dt>
+			{/* Linhas rótulo/valor: cabem na coluna estreita do desktop sem
+			    quebrar nomes longos como "Moderadamente ativo". */}
+			<dl className="mt-3 flex flex-col divide-y divide-primary-foreground/15 rounded-2xl bg-primary-foreground/10 px-4">
+				<div className="flex items-center justify-between gap-4 py-3">
+					<dt className="shrink-0 text-sm opacity-80">Em repouso (TMB)</dt>
 					<dd className="font-heading font-semibold tabular-nums">
 						{formatNumber(bmr)} kcal
 					</dd>
 				</div>
-				<div className="rounded-2xl bg-primary-foreground/10 px-3 py-2.5">
-					<dt className="text-xs opacity-80">Rotina</dt>
-					<dd className="font-heading font-semibold text-sm leading-snug">
+				<div className="flex items-center justify-between gap-4 py-3">
+					<dt className="shrink-0 text-sm opacity-80">Rotina</dt>
+					<dd className="text-right font-heading font-semibold">
 						{level?.label ?? "—"}
 					</dd>
 				</div>
