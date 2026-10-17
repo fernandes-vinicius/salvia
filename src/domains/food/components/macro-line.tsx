@@ -1,10 +1,9 @@
 import type { Macros } from "~/domains/food/types/food-types";
 import { kcalFor } from "~/domains/food/utils/food";
 import { formatNumber } from "~/shared/lib/format";
-import { cn } from "~/shared/lib/utils";
 
-// Resumo compacto de uma porção: "●P 26 · ●C 3 · ●G 18 · 374 kcal", com as
-// cores dos macros (proteína: verde-escuro animal, sálvia claro vegetal).
+// Resumo compacto de uma porção: "P 26 · C 3 · G 18 · 374 kcal", com letra e
+// valor na cor de cada macro (proteína: verde-escuro animal, sálvia vegetal).
 export function MacroLine({ macros }: { macros: Macros }) {
 	const isAnimal = macros.proteinAnimal >= macros.proteinVegetal;
 	const protein = macros.proteinAnimal + macros.proteinVegetal;
@@ -13,27 +12,29 @@ export function MacroLine({ macros }: { macros: Macros }) {
 		{
 			label: "P",
 			value: protein,
-			dot: isAnimal ? "bg-macro-protein" : "bg-macro-protein-vegetal",
+			color: isAnimal
+				? "text-macro-protein-ink"
+				: "text-macro-protein-vegetal-ink",
 			title: isAnimal ? "Proteína animal" : "Proteína vegetal",
 		},
 		{
 			label: "C",
 			value: macros.carbs,
-			dot: "bg-macro-carb",
+			color: "text-macro-carb-ink",
 			title: "Carboidrato",
 		},
-		{ label: "G", value: macros.fat, dot: "bg-macro-fat", title: "Gordura" },
+		{
+			label: "G",
+			value: macros.fat,
+			color: "text-macro-fat-ink",
+			title: "Gordura",
+		},
 	];
 
 	return (
-		<p className="flex flex-wrap items-center gap-x-2 text-muted-foreground text-xs tabular-nums">
+		<p className="flex flex-wrap items-center gap-x-2 text-xs tabular-nums">
 			{parts.map((part) => (
-				<span
-					key={part.label}
-					className="inline-flex items-center gap-1"
-					title={part.title}
-				>
-					<span className={cn("size-1.5 rounded-full", part.dot)} />
+				<span key={part.label} className={part.color} title={part.title}>
 					{part.label} {formatNumber(part.value)}
 				</span>
 			))}

@@ -55,6 +55,10 @@
 	--color-card: var(--card);
 	--color-macro-protein: var(--macro-protein);
 	--color-macro-protein-vegetal: var(--macro-protein-vegetal);
+	--color-macro-protein-ink: var(--macro-protein-ink);
+	--color-macro-protein-vegetal-ink: var(--macro-protein-vegetal-ink);
+	--color-macro-carb-ink: var(--macro-carb-ink);
+	--color-macro-fat-ink: var(--macro-fat-ink);
 	--color-macro-carb: var(--macro-carb);
 	--color-macro-fat: var(--macro-fat);
 	--radius-sm: calc(var(--radius) * 0.6);
@@ -97,6 +101,11 @@
 
 	--macro-protein: oklch(0.479 0.089 142.3); /* #3E6A3A */
 	--macro-protein-vegetal: oklch(0.772 0.067 134.8); /* #A3BF94 */
+	/* "ink": a mesma cor do macro em tom de texto (≥ 4,5:1 sobre o card) */
+	--macro-protein-ink: oklch(0.479 0.089 142.3); /* #3E6A3A */
+	--macro-protein-vegetal-ink: oklch(0.536 0.088 139.5); /* #527A48 */
+	--macro-carb-ink: oklch(0.555 0.1 83.2); /* #8F6D22 */
+	--macro-fat-ink: oklch(0.535 0.106 41.1); /* #A0563A */
 	--macro-carb: oklch(0.741 0.103 84.8); /* #C9A65B trigo */
 	--macro-fat: oklch(0.652 0.1 46.4); /* #C27C5A terracota */
 
@@ -139,6 +148,10 @@
 
 	--macro-protein: oklch(0.779 0.073 135.1); /* #A3C293 */
 	--macro-protein-vegetal: oklch(0.57 0.087 139.5); /* #5C8452 */
+	--macro-protein-ink: oklch(0.779 0.073 135.1); /* #A3C293 */
+	--macro-protein-vegetal-ink: oklch(0.678 0.082 137.7); /* #7FA472 */
+	--macro-carb-ink: oklch(0.805 0.091 86.7); /* #D9BC7A */
+	--macro-fat-ink: oklch(0.732 0.09 43.5); /* #D9967A */
 	--macro-carb: oklch(0.805 0.091 86.7); /* #D9BC7A */
 	--macro-fat: oklch(0.732 0.09 43.5); /* #D9967A */
 

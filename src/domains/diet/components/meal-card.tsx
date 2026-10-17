@@ -109,38 +109,39 @@ export function MealCard({
 			</header>
 
 			{meal.items.length > 0 ? (
+				// Cada macro na sua cor (letra e valor), como no resumo. A
+				// proteína usa a cor da origem: verde-escuro animal, sálvia vegetal.
 				<table className="w-full text-sm tabular-nums">
 					<thead>
-						<tr className="text-muted-foreground text-xs">
-							<th className="pb-1 text-left font-normal">Alimento</th>
-							<th className="w-11 pb-1 text-right font-normal">
+						<tr className="text-xs">
+							<th className="pb-1 text-left font-normal text-muted-foreground">
+								Alimento
+							</th>
+							<th className="w-10 pb-1 text-right font-medium text-macro-protein-ink">
 								<abbr title="Proteína" className="no-underline">
 									P
 								</abbr>
 							</th>
-							<th className="w-10 pb-1 text-right font-normal">
-								<span className="inline-flex items-center gap-1">
-									<span className="size-1.5 rounded-full bg-macro-carb" />
-									<abbr title="Carboidrato" className="no-underline">
-										C
-									</abbr>
-								</span>
+							<th className="w-10 pb-1 text-right font-medium text-macro-carb-ink">
+								<abbr title="Carboidrato" className="no-underline">
+									C
+								</abbr>
 							</th>
-							<th className="w-10 pb-1 text-right font-normal">
-								<span className="inline-flex items-center gap-1">
-									<span className="size-1.5 rounded-full bg-macro-fat" />
-									<abbr title="Gordura" className="no-underline">
-										G
-									</abbr>
-								</span>
+							<th className="w-10 pb-1 text-right font-medium text-macro-fat-ink">
+								<abbr title="Gordura" className="no-underline">
+									G
+								</abbr>
 							</th>
-							<th className="w-12 pb-1 text-right font-normal">kcal</th>
+							<th className="w-12 pb-1 text-right font-normal text-muted-foreground">
+								kcal
+							</th>
 						</tr>
 					</thead>
 					<tbody>
 						{meal.items.map((item) => {
 							const macros = itemMacros(item);
 							const protein = macros.proteinAnimal + macros.proteinVegetal;
+							const isAnimal = item.food.proteinSource === "animal";
 							return (
 								<tr
 									key={item.id}
@@ -164,36 +165,21 @@ export function MealCard({
 											{UNIT_LABELS[item.food.unit].short}
 										</span>
 									</td>
-									<td className="py-2 text-right">
-										{/* Cor da origem no lugar da letra: verde-escuro = animal,
-										    sálvia claro = vegetal (mesmas cores do resumo). */}
-										<span
-											className="inline-flex items-center gap-1"
-											title={
-												protein > 0
-													? item.food.proteinSource === "animal"
-														? "Proteína animal"
-														: "Proteína vegetal"
-													: undefined
-											}
-										>
-											{protein > 0 && (
-												<span
-													className={cn(
-														"size-1.5 rounded-full",
-														item.food.proteinSource === "animal"
-															? "bg-macro-protein"
-															: "bg-macro-protein-vegetal",
-													)}
-												/>
-											)}
-											{formatNumber(protein)}
-										</span>
+									<td
+										className={cn(
+											"py-2 text-right",
+											isAnimal
+												? "text-macro-protein-ink"
+												: "text-macro-protein-vegetal-ink",
+										)}
+										title={isAnimal ? "Proteína animal" : "Proteína vegetal"}
+									>
+										{formatNumber(protein)}
 									</td>
-									<td className="py-2 text-right">
+									<td className="py-2 text-right text-macro-carb-ink">
 										{formatNumber(macros.carbs)}
 									</td>
-									<td className="py-2 text-right">
+									<td className="py-2 text-right text-macro-fat-ink">
 										{formatNumber(macros.fat)}
 									</td>
 									<td className="py-2 text-right text-muted-foreground">
@@ -204,13 +190,17 @@ export function MealCard({
 						})}
 					</tbody>
 					<tfoot>
-						<tr className="border-border border-t font-medium">
+						<tr className="border-border border-t font-semibold">
 							<td className="py-2">Total</td>
-							<td className="py-2 text-right">
+							<td className="py-2 text-right text-macro-protein-ink">
 								{formatNumber(total.proteinAnimal + total.proteinVegetal)}
 							</td>
-							<td className="py-2 text-right">{formatNumber(total.carbs)}</td>
-							<td className="py-2 text-right">{formatNumber(total.fat)}</td>
+							<td className="py-2 text-right text-macro-carb-ink">
+								{formatNumber(total.carbs)}
+							</td>
+							<td className="py-2 text-right text-macro-fat-ink">
+								{formatNumber(total.fat)}
+							</td>
 							<td className="py-2 text-right">{formatNumber(totalKcal)}</td>
 						</tr>
 					</tfoot>
