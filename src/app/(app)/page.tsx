@@ -110,10 +110,10 @@ async function HomeContent() {
 			{targets && <PlanOverview summary={summary} targets={targets} />}
 
 			<div className="grid gap-4 sm:grid-cols-2 sm:items-start">
-				{meals.length > 0 && <NextMealCard meals={meals} />}
 				{goal && targets && tdee !== null && (
 					<GoalCard goal={goal} targets={targets} tdee={tdee} />
 				)}
+				{meals.length > 0 && <NextMealCard meals={meals} />}
 			</div>
 		</>
 	);
