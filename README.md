@@ -1,4 +1,4 @@
-# Dieta
+# Sálvia · Dieta e Nutrição
 
 Web app para planejar e acompanhar a dieta, substituindo a planilha `Dieta.xlsx`.
 
@@ -20,7 +20,7 @@ bun run dev                   # http://localhost:3000
 
 | Variável | Descrição |
 |---|---|
-| `DATABASE_URL` | Postgres. Local: `postgresql://dieta:dieta@localhost:5432/dieta`. Produção: Neon. |
+| `DATABASE_URL` | Postgres. Local: `postgresql://salvia:salvia@localhost:5432/salvia`. Produção: Neon. |
 | `BETTER_AUTH_SECRET` | Segredo da sessão (`openssl rand -base64 32`). |
 | `BETTER_AUTH_URL` | URL base do app (`http://localhost:3000` em dev). |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Credenciais OAuth do Google (abaixo). |

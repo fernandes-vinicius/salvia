@@ -1,5 +1,9 @@
 @AGENTS.md
 
+## Sálvia · Dieta e Nutrição
+
+Nome/tagline centralizados em `~/shared/lib/app-config.ts` (`APP_NAME`, `APP_TAGLINE`); não escrever o nome do app hardcoded.
+
 ## Convenções do projeto
 
 - Stack: Next.js 16 (App Router, Cache Components) · React 19 · Tailwind v4 · shadcn/ui (`base-maia`, sobre Base UI — não Radix) · Biome · Vitest.

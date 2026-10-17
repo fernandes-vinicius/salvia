@@ -3,9 +3,9 @@ services:
     image: postgres:17-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_USER: dieta
-      POSTGRES_PASSWORD: dieta
-      POSTGRES_DB: dieta
+      POSTGRES_USER: salvia
+      POSTGRES_PASSWORD: salvia
+      POSTGRES_DB: salvia
     ports:
       - "5432:5432"
     volumes:

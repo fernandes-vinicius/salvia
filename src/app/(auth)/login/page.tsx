@@ -8,8 +8,9 @@ import {
 } from "~/domains/auth";
 import { Leaf } from "~/shared/components/icons";
 import { Card, CardContent } from "~/shared/components/ui/card";
+import { APP_NAME, APP_TAGLINE } from "~/shared/lib/app-config";
 
-export const metadata: Metadata = { title: "Entrar — Dieta" };
+export const metadata: Metadata = { title: "Entrar" };
 
 export default function LoginPage() {
 	return (
@@ -20,9 +21,9 @@ export default function LoginPage() {
 						<Leaf className="size-6" />
 					</span>
 					<div className="flex flex-col gap-1.5">
-						<h1 className="font-heading font-semibold text-2xl">Dieta</h1>
+						<h1 className="font-heading font-semibold text-2xl">{APP_NAME}</h1>
 						<p className="text-balance text-muted-foreground text-sm">
-							Seu plano alimentar, sem planilha.
+							{APP_TAGLINE}
 						</p>
 					</div>
 				</div>

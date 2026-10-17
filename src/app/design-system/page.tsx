@@ -19,7 +19,7 @@ import {
 	ProgressValue,
 } from "~/shared/components/ui/progress";
 
-export const metadata: Metadata = { title: "Design system — Dieta" };
+export const metadata: Metadata = { title: "Design system" };
 
 const colorTokens = [
 	{ name: "background", className: "bg-background" },

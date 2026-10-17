@@ -1,4 +1,5 @@
 import { Leaf } from "~/shared/components/icons";
+import { APP_NAME } from "~/shared/lib/app-config";
 import { cn } from "~/shared/lib/utils";
 
 export function Logo({ className }: { className?: string }) {
@@ -7,7 +8,7 @@ export function Logo({ className }: { className?: string }) {
 			<span className="flex size-8 items-center justify-center rounded-full bg-secondary text-primary">
 				<Leaf className="size-4" />
 			</span>
-			<span className="font-heading font-semibold text-lg">Dieta</span>
+			<span className="font-heading font-semibold text-lg">{APP_NAME}</span>
 		</span>
 	);
 }
