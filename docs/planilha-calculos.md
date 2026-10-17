@@ -27,7 +27,7 @@ MET cardio     = 5 · 6,25 · 7,5 · 8,75 · 10
 ```
 
 - MET líquido (MET − 1) porque o repouso daquele tempo já está na TMB.
-- TMB: Mifflin-St Jeor (mesma da calculadora de referência), no lugar da Harris-Benedict da planilha, que dava ~57 kcal a mais e inflava o carboidrato (2,3 vs ~2,0 g/kg no caso real).
+- TMB: Mifflin-St Jeor por padrão (mesma da calculadora de referência); Harris-Benedict continua disponível em Configurações. A Harris-Benedict da planilha que dava ~57 kcal a mais e inflava o carboidrato (2,3 vs ~2,0 g/kg no caso real).
 - Exemplo real (out/2026): 70 kg, 170 cm, 30 anos, NEAT 1,10, musculação 4×/sem 60 min moderada, cardio 4×/sem 60 min muito leve → (1.617,5 × 1,1 + 180 + 160) × 1,1 ≈ 2.331 kcal; meta −500 = 1.831; com proteína 2,2 e gordura 1,0 g/kg sobram 146 g de carboidrato (2,1 g/kg).
 - Domínio `src/domains/profile` (tabela `profile`). Fórmulas em `utils/energy.ts`, testadas. O servidor só aceita os valores de NEAT/MET das opções.
 

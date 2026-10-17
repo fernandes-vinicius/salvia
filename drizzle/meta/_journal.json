@@ -43,6 +43,13 @@
 			"when": 1792252634777,
 			"tag": "0005_simple_silver_surfer",
 			"breakpoints": true
+		},
+		{
+			"idx": 6,
+			"version": "7",
+			"when": 1792253929277,
+			"tag": "0006_concerned_khan",
+			"breakpoints": true
 		}
 	]
 }

@@ -11,6 +11,7 @@ import { TrainingFields } from "~/domains/profile/components/training-fields";
 import { BODY_RANGES } from "~/domains/profile/schemas/profile-schema";
 import type { BodyProfile } from "~/domains/profile/types/profile-types";
 import {
+	type BmrFormula,
 	CARDIO_INTENSITIES,
 	calculateEnergy,
 	NEAT_LEVELS,
@@ -40,9 +41,15 @@ interface TmbFormProps {
 	initialProfile: BodyProfile;
 	/** `true` quando o usuário ainda não tem dados salvos. */
 	isExample: boolean;
+	/** Fórmula da TMB escolhida em Configurações. */
+	bmrFormula: BmrFormula;
 }
 
-export function TmbForm({ initialProfile, isExample }: TmbFormProps) {
+export function TmbForm({
+	initialProfile,
+	isExample,
+	bmrFormula,
+}: TmbFormProps) {
 	const [profile, setProfile] = useState(initialProfile);
 	const [hasSaved, setHasSaved] = useState(!isExample);
 
@@ -69,7 +76,7 @@ export function TmbForm({ initialProfile, isExample }: TmbFormProps) {
 	return (
 		<div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_20rem] md:items-start">
 			<EnergySummary
-				energy={calculateEnergy(profile)}
+				energy={calculateEnergy(profile, bmrFormula)}
 				status={status}
 				isExample={!hasSaved}
 				className="sticky top-3 z-10 md:top-6 md:order-2"

@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { EXAMPLE_PROFILE, TmbForm } from "~/domains/profile";
 import { findProfileByUserId } from "~/domains/profile/services/profile-service";
+import { getSettingsByUserId } from "~/domains/settings/services/settings-service";
 import { PageHeader } from "~/shared/components/page-header";
 import { Skeleton } from "~/shared/components/ui/skeleton";
 
@@ -25,10 +26,17 @@ export default function TmbPage() {
 
 async function TmbContent() {
 	const user = await getCurrentUser();
-	const profile = await findProfileByUserId(user.id);
+	const [profile, settings] = await Promise.all([
+		findProfileByUserId(user.id),
+		getSettingsByUserId(user.id),
+	]);
 
 	return (
-		<TmbForm initialProfile={profile ?? EXAMPLE_PROFILE} isExample={!profile} />
+		<TmbForm
+			initialProfile={profile ?? EXAMPLE_PROFILE}
+			isExample={!profile}
+			bmrFormula={settings.bmrFormula}
+		/>
 	);
 }
 

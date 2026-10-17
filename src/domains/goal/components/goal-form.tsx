@@ -16,7 +16,11 @@ import {
 	findPace,
 } from "~/domains/goal/utils/goal";
 import type { BodyProfile } from "~/domains/profile/types/profile-types";
-import { calculateBmr, calculateTdee } from "~/domains/profile/utils/energy";
+import {
+	type BmrFormula,
+	calculateBmr,
+	calculateTdee,
+} from "~/domains/profile/utils/energy";
 import { FormSection } from "~/shared/components/form-section";
 import { useAutosave } from "~/shared/hooks/use-autosave";
 
@@ -25,9 +29,16 @@ interface GoalFormProps {
 	initialGoal: Goal;
 	/** `true` quando o usuário ainda não salvou uma meta. */
 	isExample: boolean;
+	/** Fórmula da TMB escolhida em Configurações. */
+	bmrFormula: BmrFormula;
 }
 
-export function GoalForm({ profile, initialGoal, isExample }: GoalFormProps) {
+export function GoalForm({
+	profile,
+	initialGoal,
+	isExample,
+	bmrFormula,
+}: GoalFormProps) {
 	const [goal, setGoal] = useState(initialGoal);
 	const [isCustomPace, setIsCustomPace] = useState(
 		initialGoal.objective !== "maintain" &&
@@ -49,10 +60,10 @@ export function GoalForm({ profile, initialGoal, isExample }: GoalFormProps) {
 		}
 	}, [status]);
 
-	const tdee = calculateTdee(profile);
+	const tdee = calculateTdee(profile, bmrFormula);
 	const targets = calculateTargets(goal, {
 		tdee,
-		bmr: calculateBmr(profile),
+		bmr: calculateBmr(profile, bmrFormula),
 		weightKg: profile.weightKg,
 	});
 

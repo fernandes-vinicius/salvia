@@ -119,19 +119,60 @@ export function findOption(options: Option[], value: number) {
 	return options.find((option) => Math.abs(option.value - value) < 0.001);
 }
 
-// Mifflin-St Jeor (1990): a fórmula de TMB mais usada hoje e a mesma da
-// calculadora de referência (hipertrofia.org). Substituiu a Harris-Benedict
-// original da planilha, que superestimava a TMB (~57 kcal no caso real).
-const SEX_CONSTANT: Record<Sex, number> = { male: 5, female: -161 };
+export type BmrFormula = "mifflin" | "harris";
+
+export interface BmrFormulaOption {
+	value: BmrFormula;
+	label: string;
+	description: string;
+}
+
+// Escolhida em Configurações. Padrão: Mifflin-St Jeor (1990), a mais usada
+// hoje e a da calculadora de referência (hipertrofia.org). Harris-Benedict
+// original (1919) é a da planilha e tende a dar valores mais altos.
+export const BMR_FORMULAS: BmrFormulaOption[] = [
+	{
+		value: "mifflin",
+		label: "Mifflin-St Jeor",
+		description:
+			"A mais usada por nutricionistas hoje e a mais precisa para a maioria das pessoas.",
+	},
+	{
+		value: "harris",
+		label: "Harris-Benedict",
+		description:
+			"A clássica, usada na planilha original. Costuma dar um valor um pouco mais alto.",
+	},
+];
+
+export const DEFAULT_BMR_FORMULA: BmrFormula = "mifflin";
+
+const MIFFLIN_SEX_CONSTANT: Record<Sex, number> = { male: 5, female: -161 };
+
+const HARRIS_COEFFICIENTS: Record<
+	Sex,
+	{ base: number; weight: number; height: number; age: number }
+> = {
+	male: { base: 66.47, weight: 13.75, height: 5, age: 6.8 },
+	female: { base: 655.1, weight: 9.563, height: 1.85, age: 4.676 },
+};
+
+type BmrInput = Pick<BodyProfile, "sex" | "weightKg" | "heightCm" | "ageYears">;
 
 /** Taxa metabólica basal (kcal/dia): gasto em repouso absoluto. */
-export function calculateBmr({
-	sex,
-	weightKg,
-	heightCm,
-	ageYears,
-}: Pick<BodyProfile, "sex" | "weightKg" | "heightCm" | "ageYears">) {
-	return 10 * weightKg + 6.25 * heightCm - 5 * ageYears + SEX_CONSTANT[sex];
+export function calculateBmr(
+	{ sex, weightKg, heightCm, ageYears }: BmrInput,
+	formula: BmrFormula = DEFAULT_BMR_FORMULA,
+) {
+	if (formula === "harris") {
+		const c = HARRIS_COEFFICIENTS[sex];
+		return (
+			c.base + c.weight * weightKg + c.height * heightCm - c.age * ageYears
+		);
+	}
+	return (
+		10 * weightKg + 6.25 * heightCm - 5 * ageYears + MIFFLIN_SEX_CONSTANT[sex]
+	);
 }
 
 /**
@@ -148,8 +189,11 @@ export function calculateTrainingKcalPerDay(
 	return (perSession * routine.daysPerWeek) / 7;
 }
 
-export function calculateEnergy(profile: BodyProfile): EnergyBreakdown {
-	const bmr = calculateBmr(profile);
+export function calculateEnergy(
+	profile: BodyProfile,
+	formula: BmrFormula = DEFAULT_BMR_FORMULA,
+): EnergyBreakdown {
+	const bmr = calculateBmr(profile, formula);
 	const daily = bmr * (profile.neatFactor - 1);
 	const strength = calculateTrainingKcalPerDay(
 		profile.strength,
@@ -170,8 +214,11 @@ export function calculateEnergy(profile: BodyProfile): EnergyBreakdown {
 }
 
 /** Gasto calórico diário (kcal/dia). */
-export function calculateTdee(profile: BodyProfile) {
-	return calculateEnergy(profile).tdee;
+export function calculateTdee(
+	profile: BodyProfile,
+	formula: BmrFormula = DEFAULT_BMR_FORMULA,
+) {
+	return calculateEnergy(profile, formula).tdee;
 }
 
 // Ponto de partida pra quem ainda não salvou nada. A tela deixa claro que

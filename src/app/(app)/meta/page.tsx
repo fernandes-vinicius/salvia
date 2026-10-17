@@ -6,6 +6,7 @@ import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { EXAMPLE_GOAL, GoalForm } from "~/domains/goal";
 import { findGoalByUserId } from "~/domains/goal/services/goal-service";
 import { findProfileByUserId } from "~/domains/profile/services/profile-service";
+import { getSettingsByUserId } from "~/domains/settings/services/settings-service";
 import { Flame } from "~/shared/components/icons";
 import { PageHeader } from "~/shared/components/page-header";
 import { Button } from "~/shared/components/ui/button";
@@ -37,9 +38,10 @@ export default function MetaPage() {
 
 async function MetaContent() {
 	const user = await getCurrentUser();
-	const [profile, goal] = await Promise.all([
+	const [profile, goal, settings] = await Promise.all([
 		findProfileByUserId(user.id),
 		findGoalByUserId(user.id),
+		getSettingsByUserId(user.id),
 	]);
 
 	// A meta depende do gasto calórico e do peso, que vêm da aba TMB.
@@ -60,7 +62,10 @@ async function MetaContent() {
 					</EmptyDescription>
 				</EmptyHeader>
 				<EmptyContent>
-					<Button render={<Link href="/tmb">Preencher TMB</Link>} />
+					<Button
+						nativeButton={false}
+						render={<Link href="/tmb">Preencher TMB</Link>}
+					/>
 				</EmptyContent>
 			</Empty>
 		);
@@ -71,6 +76,7 @@ async function MetaContent() {
 			profile={profile}
 			initialGoal={goal ?? EXAMPLE_GOAL}
 			isExample={!goal}
+			bmrFormula={settings.bmrFormula}
 		/>
 	);
 }

@@ -1,6 +1,7 @@
 export type { LucideIcon } from "lucide-react";
 export {
 	Bike,
+	BookOpen,
 	Cake,
 	CalendarDays,
 	CheckIcon,
@@ -15,6 +16,7 @@ export {
 	Dumbbell,
 	Equal,
 	Flame,
+	FlaskConical,
 	Footprints,
 	HardHat,
 	HeartPulse,
@@ -33,6 +35,7 @@ export {
 	Plus,
 	Ruler,
 	Salad,
+	Settings,
 	Signal,
 	SignalHigh,
 	SignalLow,

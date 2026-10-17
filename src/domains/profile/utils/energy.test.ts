@@ -23,6 +23,26 @@ describe("calculateBmr (Mifflin-St Jeor)", () => {
 	});
 });
 
+describe("calculateBmr (Harris-Benedict)", () => {
+	it("reproduz a fórmula masculina da planilha", () => {
+		expect(calculateBmr(base, "harris")).toBeCloseTo(1674.97, 2);
+	});
+
+	it("usa os coeficientes femininos", () => {
+		expect(calculateBmr({ ...base, sex: "female" }, "harris")).toBeCloseTo(
+			655.1 + 9.563 * 70 + 1.85 * 170 - 4.676 * 30,
+			5,
+		);
+	});
+
+	it("propaga a fórmula escolhida para o gasto total", () => {
+		const mifflin = calculateEnergy(base);
+		const harris = calculateEnergy(base, "harris");
+		expect(harris.bmr).toBeCloseTo(1674.97, 2);
+		expect(harris.tdee).toBeGreaterThan(mifflin.tdee);
+	});
+});
+
 describe("calculateTrainingKcalPerDay", () => {
 	it("usa MET líquido e média semanal", () => {
 		const kcal = calculateTrainingKcalPerDay(
