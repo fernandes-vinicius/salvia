@@ -1,9 +1,11 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
 import {
+	type ActionResult,
 	addItemAction,
 	addMealAction,
 	deleteItemAction,
@@ -55,6 +57,7 @@ export function DietView({
 	tdee,
 	targets,
 }: DietViewProps) {
+	const router = useRouter();
 	const [meals, setMeals] = useState(initialMeals);
 	const [addingTo, setAddingTo] = useState<string | null>(null);
 	const [editingItemId, setEditingItemId] = useState<string | null>(null);
@@ -69,17 +72,33 @@ export function DietView({
 		meals.flatMap((meal) => meal.items).find((i) => i.id === editingItemId) ??
 		null;
 
+	/**
+	 * Erro "stale" = a dieta mudou em outra aba/aparelho (refeição ou item não
+	 * existe mais): recarrega do servidor. A página remonta esta view com os
+	 * dados novos (key pelos ids das refeições).
+	 */
+	function handleError(result: Extract<ActionResult<unknown>, { ok: false }>) {
+		if (result.stale) {
+			toast.info(
+				"Sua dieta mudou em outra aba ou aparelho. Atualizamos a tela.",
+			);
+			router.refresh();
+			return;
+		}
+		toast.error(result.error);
+	}
+
 	/** Aplica a mudança na hora e desfaz se o servidor recusar. */
 	async function optimistic(
 		next: (current: DietMeal[]) => DietMeal[],
-		request: () => Promise<{ ok: boolean; error?: string }>,
+		request: () => Promise<ActionResult<unknown>>,
 	) {
 		const previous = meals;
 		setMeals(next);
 		const result = await request();
 		if (!result.ok) {
 			setMeals(previous);
-			toast.error(result.error ?? "Não foi possível salvar.");
+			handleError(result);
 		}
 	}
 
@@ -88,7 +107,7 @@ export function DietView({
 		const result = await addMealAction(nextMealName(meals));
 		setAddingMeal(false);
 		if (result.ok) setMeals((current) => [...current, result.data]);
-		else toast.error(result.error);
+		else handleError(result);
 	}
 
 	async function handleAddFood(food: Food, quantity: number) {
@@ -96,7 +115,8 @@ export function DietView({
 		if (!mealId) return false;
 		const result = await addItemAction({ mealId, foodId: food.id, quantity });
 		if (!result.ok) {
-			toast.error(result.error);
+			handleError(result);
+			if (result.stale) setAddingTo(null);
 			return false;
 		}
 		setMeals((current) =>
@@ -175,6 +195,10 @@ export function DietView({
 			<ItemSheet
 				item={editingItem}
 				onOpenChange={(open) => !open && setEditingItemId(null)}
+				onStale={() => {
+					setEditingItemId(null);
+					handleError({ ok: false, error: "", stale: true });
+				}}
 				onQuantityChange={(itemId, quantity) =>
 					setMeals((current) =>
 						current.map((meal) => ({

@@ -20,6 +20,8 @@ import { useAutosave } from "~/shared/hooks/use-autosave";
 interface ItemSheetProps {
 	item: DietItem | null;
 	onOpenChange: (open: boolean) => void;
+	/** O item não existe mais no servidor (mudou em outra aba/aparelho). */
+	onStale: () => void;
 	onQuantityChange: (itemId: string, quantity: number) => void;
 	onDelete: (itemId: string) => void;
 }
@@ -27,6 +29,7 @@ interface ItemSheetProps {
 export function ItemSheet({
 	item,
 	onOpenChange,
+	onStale,
 	onQuantityChange,
 	onDelete,
 }: ItemSheetProps) {
@@ -45,6 +48,7 @@ export function ItemSheet({
 					<ItemEditor
 						key={item.id}
 						item={item}
+						onStale={onStale}
 						onQuantityChange={onQuantityChange}
 						onDelete={onDelete}
 					/>
@@ -58,16 +62,26 @@ export function ItemSheet({
 // fechar o painel, que desmonta este componente).
 function ItemEditor({
 	item,
+	onStale,
 	onQuantityChange,
 	onDelete,
 }: {
 	item: DietItem;
+	onStale: ItemSheetProps["onStale"];
 	onQuantityChange: ItemSheetProps["onQuantityChange"];
 	onDelete: ItemSheetProps["onDelete"];
 }) {
 	const { status, schedule } = useAutosave<number>({
-		save: async (quantity) =>
-			(await updateItemQuantityAction(item.id, quantity)).ok,
+		save: async (quantity) => {
+			const result = await updateItemQuantityAction(item.id, quantity);
+			if (!result.ok && result.stale) {
+				// O painel fecha e a tela recarrega; não mostra o toast de erro
+				// do autosave além do aviso de atualização.
+				onStale();
+				return true;
+			}
+			return result.ok;
+		},
 	});
 
 	useEffect(() => {

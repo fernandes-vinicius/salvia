@@ -51,6 +51,9 @@ async function DietContent() {
 
 	return (
 		<DietView
+			// Remonta quando o servidor devolve outras refeições (ex.: depois de
+			// `router.refresh()` por mudança em outra aba).
+			key={meals.map((meal) => meal.id).join(",")}
 			initialMeals={meals}
 			weightKg={profile?.weightKg ?? null}
 			tdee={tdee}

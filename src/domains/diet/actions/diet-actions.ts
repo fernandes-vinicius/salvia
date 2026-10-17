@@ -17,7 +17,8 @@ import { findVisibleFood } from "~/domains/food/services/food-service";
 
 export type ActionResult<T = null> =
 	| { ok: true; data: T }
-	| { ok: false; error: string };
+	/** `stale`: a refeição/item não existe mais (mudou em outra aba ou aparelho). */
+	| { ok: false; error: string; stale?: boolean };
 
 const id = z.uuid();
 const quantity = z.number().positive().max(5000);
@@ -30,6 +31,7 @@ const mealData = z.object({
 });
 
 const fail = (error: string) => ({ ok: false as const, error });
+const stale = (error: string) => ({ ok: false as const, error, stale: true });
 const done = <T>(data: T) => ({ ok: true as const, data });
 
 export async function addMealAction(
@@ -53,7 +55,7 @@ export async function updateMealAction(
 	}
 	return (await updateMeal(user.id, parsedId.data, parsed.data))
 		? done(null)
-		: fail("Refeição não encontrada.");
+		: stale("Refeição não encontrada.");
 }
 
 export async function reorderMealsAction(ids: unknown): Promise<ActionResult> {
@@ -62,16 +64,17 @@ export async function reorderMealsAction(ids: unknown): Promise<ActionResult> {
 	if (!parsed.success) return fail("Ordem inválida.");
 	return (await reorderMeals(user.id, parsed.data))
 		? done(null)
-		: fail("Não foi possível reordenar.");
+		: stale("Não foi possível reordenar.");
 }
 
 export async function deleteMealAction(mealId: unknown): Promise<ActionResult> {
 	const user = await getCurrentUser();
 	const parsed = id.safeParse(mealId);
 	if (!parsed.success) return fail("Refeição inválida.");
-	return (await deleteMeal(user.id, parsed.data))
-		? done(null)
-		: fail("Mantenha pelo menos uma refeição.");
+	const status = await deleteMeal(user.id, parsed.data);
+	if (status === "not-found") return stale("Refeição não encontrada.");
+	if (status === "last-meal") return fail("Mantenha pelo menos uma refeição.");
+	return done(null);
 }
 
 export async function addItemAction(
@@ -92,7 +95,7 @@ export async function addItemAction(
 		food.id,
 		parsed.data.quantity,
 	);
-	return row ? done({ ...row, food }) : fail("Refeição não encontrada.");
+	return row ? done({ ...row, food }) : stale("Refeição não encontrada.");
 }
 
 export async function updateItemQuantityAction(
@@ -105,7 +108,7 @@ export async function updateItemQuantityAction(
 	if (!parsedId.success || !parsed.success) return fail("Quantidade inválida.");
 	return (await updateItemQuantity(user.id, parsedId.data, parsed.data))
 		? done(null)
-		: fail("Alimento não encontrado.");
+		: stale("Alimento não encontrado.");
 }
 
 export async function deleteItemAction(itemId: unknown): Promise<ActionResult> {
@@ -114,5 +117,5 @@ export async function deleteItemAction(itemId: unknown): Promise<ActionResult> {
 	if (!parsed.success) return fail("Alimento inválido.");
 	return (await deleteItem(user.id, parsed.data))
 		? done(null)
-		: fail("Alimento não encontrado.");
+		: stale("Alimento não encontrado.");
 }

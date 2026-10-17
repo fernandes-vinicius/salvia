@@ -121,15 +121,18 @@ export async function reorderMeals(userId: string, orderedIds: string[]) {
 }
 
 /** Remove a refeição (e seus itens); mantém ao menos uma. */
-export async function deleteMeal(userId: string, mealId: string) {
-	if (!(await ownedMeal(userId, mealId))) return false;
+export async function deleteMeal(
+	userId: string,
+	mealId: string,
+): Promise<"deleted" | "not-found" | "last-meal"> {
+	if (!(await ownedMeal(userId, mealId))) return "not-found";
 	const [{ total }] = await db
 		.select({ total: count() })
 		.from(dietMeal)
 		.where(eq(dietMeal.userId, userId));
-	if (total <= 1) return false;
+	if (total <= 1) return "last-meal";
 	await db.delete(dietMeal).where(eq(dietMeal.id, mealId));
-	return true;
+	return "deleted";
 }
 
 export async function addItem(
