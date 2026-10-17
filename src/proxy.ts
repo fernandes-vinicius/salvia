@@ -8,6 +8,8 @@ import { type NextRequest, NextResponse } from "next/server";
 // `/` é a landing pública; com sessão, vai direto pro app.
 function isPublicPath(pathname: string) {
 	if (pathname === "/" || pathname === "/login") return true;
+	// Página offline do PWA (pré-cacheada pelo service worker).
+	if (pathname === "/~offline") return true;
 	return process.env.NODE_ENV !== "production" && pathname === "/design-system";
 }
 
@@ -29,6 +31,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
 	matcher: [
-		"/((?!api/auth|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+		"/((?!api/auth|_next/static|_next/image|serwist/|manifest.webmanifest|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
 	],
 };

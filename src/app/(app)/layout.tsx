@@ -7,6 +7,7 @@ import { Settings } from "~/shared/components/icons";
 import { Logo } from "~/shared/components/logo";
 import { ModeToggle } from "~/shared/components/mode-toggle";
 import { TabBar, TabBarFallback } from "~/shared/components/navigation/tab-bar";
+import { InstallPrompt } from "~/shared/components/pwa/install-prompt";
 import { Button } from "~/shared/components/ui/button";
 import { Skeleton } from "~/shared/components/ui/skeleton";
 import { APP_NAME } from "~/shared/lib/app-config";
@@ -45,6 +46,7 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
 			<div className="flex flex-1 flex-col pb-[calc(env(safe-area-inset-bottom)+6rem)] print:pb-0">
 				{children}
 			</div>
+			<InstallPrompt />
 			<Suspense fallback={<TabBarFallback />}>
 				<TabBar />
 			</Suspense>

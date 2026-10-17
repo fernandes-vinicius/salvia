@@ -18,6 +18,10 @@ export const metadata: Metadata = {
 	description:
 		"Planeje e acompanhe sua dieta: refeições, macros e gasto calórico.",
 	applicationName: APP_NAME,
+	// iOS: abre em tela cheia quando adicionado à Tela de Início.
+	appleWebApp: { capable: true, title: APP_NAME, statusBarStyle: "default" },
+	icons: { apple: "/apple-touch-icon-180x180.png" },
+	formatDetection: { telephone: false },
 };
 
 // `viewport-fit=cover` libera o `env(safe-area-inset-*)` usado pela barra de

@@ -24,6 +24,7 @@ export {
 	Clock,
 	CloudCheck,
 	Copy,
+	Download,
 	Droplet,
 	Drumstick,
 	Dumbbell,
@@ -60,6 +61,7 @@ export {
 	Scale,
 	Search,
 	Settings,
+	Share,
 	Signal,
 	SignalHigh,
 	SignalLow,
@@ -80,6 +82,7 @@ export {
 	Wallet,
 	Weight,
 	Wheat,
+	WifiOff,
 	XIcon,
 	Zap,
 } from "lucide-react";
