@@ -31,5 +31,5 @@ Nome/tagline centralizados em `~/shared/lib/app-config.ts` (`APP_NAME`, `APP_TAG
 - Domínios: `profile` (TMB: dados corporais, TMB/GCD) → `goal` (Meta: objetivo, ajuste de kcal, proteína ANIMAL e gordura em g/kg; carboidrato automático (resto) ou fixado em g/kg) → dieta (próximo). A Dieta mostra o resumo estilo planilha (g · % · kcal · g/kg, total, excedente) e a diferença pra meta.
 - Formulários: Conform + Zod v4 (`import { parseWithZod } from "@conform-to/zod/v4"`).
 - Estado de URL: nuqs. Toasts: sonner. Tema: next-themes (padrão claro).
-- Regras de cálculo da dieta (migradas da planilha): `docs/planilha-calculos.md`.
+- Regras de cálculo da dieta (migradas da planilha): `docs/planilha-calculos.md`. Ideias futuras/backlog: `docs/roadmap.md`.
 - Antes de finalizar: `bun run lint`, `bun run typecheck`, `bun run test`.
