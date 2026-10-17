@@ -19,6 +19,7 @@ Nome/tagline centralizados em `~/shared/lib/app-config.ts` (`APP_NAME`, `APP_TAG
   - Títulos e números em `font-heading` (Manrope) com `tabular-nums`; corpo em Inter.
   - Componentes shadcn: não editar radius/border/shadow por arquivo; ajuste visual vem dos tokens.
   - Tailwind v4: breakpoints arbitrários em `rem` (ex.: `min-[85rem]:`), não em `px` — misturar unidades quebra a ordem das regras e o `md:` vence. Utilitários `@utility` novos não podem ter o nome de outro como prefixo (`container-wrapper-wide` não gera CSS).
+  - Painéis (adicionar/editar) sobem de baixo como no listify: `BottomSheetContent` (`~/shared/components/bottom-sheet`) dentro de `<Sheet>`; pra altura fixa use `data-[side=bottom]:h-[…]`.
   - `Button` (Base UI) renderizado como link: `nativeButton={false}` + `render={<Link href="…" />}`, senão o Base UI acusa erro de semântica.
 - Navegação: rotas logadas ficam em `src/app/(app)/` (header + barra de abas flutuante `~/shared/components/navigation/tab-bar.tsx`, abas Início `/`, TMB `/tmb`, Meta `/meta`, Dieta `/dieta`). Páginas usam `container-wrapper` + `PageHeader`; o layout já reserva espaço inferior pra barra. Página larga (ex.: Dieta, grade + coluna lateral): `<main data-wide-page className="container-wide …">` — o header acompanha via `group-has-[[data-wide-page]]/app`. Configurações em `/configuracoes` (engrenagem no header), domínio `settings` (tabela `settings`, sem linha = padrão); a fórmula da TMB escolhida lá é passada como `bmrFormula` pras abas TMB e Meta.
 - Auth (Better Auth + Google, Drizzle/Postgres):

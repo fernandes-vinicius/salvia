@@ -12,11 +12,11 @@ import {
 	macrosFor,
 	QuantityEditor,
 } from "~/domains/food";
+import { BottomSheetContent } from "~/shared/components/bottom-sheet";
 import { ChevronLeft, Loader2Icon } from "~/shared/components/icons";
 import { Button } from "~/shared/components/ui/button";
 import {
 	Sheet,
-	SheetContent,
 	SheetDescription,
 	SheetHeader,
 	SheetTitle,
@@ -31,14 +31,14 @@ interface AddFoodSheetProps {
 export function AddFoodSheet({ meal, onOpenChange, onAdd }: AddFoodSheetProps) {
 	return (
 		<Sheet open={meal !== null} onOpenChange={onOpenChange}>
-			<SheetContent side="right" className="w-full gap-0 sm:max-w-md">
-				<SheetHeader>
+			<BottomSheetContent className="data-[side=bottom]:h-[90svh] sm:data-[side=bottom]:h-[80svh]">
+				<SheetHeader className="text-center">
 					<SheetTitle>Adicionar alimento</SheetTitle>
 					<SheetDescription>{meal?.name}</SheetDescription>
 				</SheetHeader>
 				{/* Remontado a cada abertura: o passo volta pra busca. */}
 				{meal && <AddFoodFlow key={meal.id} onAdd={onAdd} />}
-			</SheetContent>
+			</BottomSheetContent>
 		</Sheet>
 	);
 }

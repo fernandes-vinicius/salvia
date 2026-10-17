@@ -8,6 +8,7 @@ import { CustomFoodForm } from "~/domains/food/components/custom-food-form";
 import { MacroLine } from "~/domains/food/components/macro-line";
 import type { CustomFoodSummary, Food } from "~/domains/food/types/food-types";
 import { macrosFor, UNIT_LABELS } from "~/domains/food/utils/food";
+import { BottomSheetContent } from "~/shared/components/bottom-sheet";
 import { FormSection } from "~/shared/components/form-section";
 import { PackagePlus, Pencil, Trash2 } from "~/shared/components/icons";
 import {
@@ -23,7 +24,6 @@ import { Badge } from "~/shared/components/ui/badge";
 import { Button } from "~/shared/components/ui/button";
 import {
 	Sheet,
-	SheetContent,
 	SheetDescription,
 	SheetHeader,
 	SheetTitle,
@@ -145,8 +145,8 @@ export function MyFoods({
 				open={editing !== null}
 				onOpenChange={(open) => !open && setEditing(null)}
 			>
-				<SheetContent side="right" className="w-full gap-0 sm:max-w-md">
-					<SheetHeader>
+				<BottomSheetContent>
+					<SheetHeader className="text-center">
 						<SheetTitle>
 							{editingFood ? "Editar alimento" : "Cadastrar alimento"}
 						</SheetTitle>
@@ -167,7 +167,7 @@ export function MyFoods({
 							/>
 						</div>
 					)}
-				</SheetContent>
+				</BottomSheetContent>
 			</Sheet>
 
 			<AlertDialog

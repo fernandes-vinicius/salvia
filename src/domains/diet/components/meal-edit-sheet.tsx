@@ -5,6 +5,7 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import { z } from "zod";
 
 import type { DietMeal } from "~/domains/diet/types/diet-types";
+import { BottomSheetContent } from "~/shared/components/bottom-sheet";
 import { Button } from "~/shared/components/ui/button";
 import {
 	Field,
@@ -15,7 +16,6 @@ import {
 import { Input } from "~/shared/components/ui/input";
 import {
 	Sheet,
-	SheetContent,
 	SheetDescription,
 	SheetHeader,
 	SheetTitle,
@@ -42,13 +42,13 @@ export function MealEditSheet({
 }: MealEditSheetProps) {
 	return (
 		<Sheet open={meal !== null} onOpenChange={onOpenChange}>
-			<SheetContent side="right" className="w-full gap-0 sm:max-w-md">
-				<SheetHeader>
+			<BottomSheetContent>
+				<SheetHeader className="text-center">
 					<SheetTitle>Editar refeição</SheetTitle>
 					<SheetDescription>Nome e horário aparecem na grade.</SheetDescription>
 				</SheetHeader>
 				{meal && <MealEditForm meal={meal} onSave={onSave} />}
-			</SheetContent>
+			</BottomSheetContent>
 		</Sheet>
 	);
 }

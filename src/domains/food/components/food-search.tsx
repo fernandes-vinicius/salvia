@@ -65,6 +65,17 @@ export function FoodSearch({ onSelect, onCreate }: FoodSearchProps) {
 				)}
 			</div>
 
+			{debounced.length < MIN_QUERY && (
+				<p className="px-1 text-muted-foreground text-sm">
+					Digite pelo menos 2 letras. A busca inclui a Tabela TACO e os
+					alimentos que você cadastrar.
+				</p>
+			)}
+			{showEmpty && (
+				<p className="px-1 text-muted-foreground text-sm">
+					Nada encontrado para “{debounced}”.
+				</p>
+			)}
 			<ul className="-mx-1 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-1">
 				{results.map((food) => (
 					<li key={food.id}>
@@ -90,17 +101,6 @@ export function FoodSearch({ onSelect, onCreate }: FoodSearchProps) {
 				))}
 			</ul>
 
-			{debounced.length < MIN_QUERY && (
-				<p className="px-1 text-muted-foreground text-sm">
-					Digite pelo menos 2 letras. A busca inclui a Tabela TACO e os
-					alimentos que você cadastrar.
-				</p>
-			)}
-			{showEmpty && (
-				<p className="px-1 text-muted-foreground text-sm">
-					Nada encontrado para “{debounced}”.
-				</p>
-			)}
 			<Button
 				type="button"
 				variant="secondary"

@@ -6,11 +6,11 @@ import { toast } from "sonner";
 import { updateItemQuantityAction } from "~/domains/diet/actions/diet-actions";
 import type { DietItem } from "~/domains/diet/types/diet-types";
 import { MacroLine, macrosFor, QuantityEditor } from "~/domains/food";
+import { BottomSheetContent } from "~/shared/components/bottom-sheet";
 import { Trash2 } from "~/shared/components/icons";
 import { Button } from "~/shared/components/ui/button";
 import {
 	Sheet,
-	SheetContent,
 	SheetDescription,
 	SheetHeader,
 	SheetTitle,
@@ -35,8 +35,8 @@ export function ItemSheet({
 }: ItemSheetProps) {
 	return (
 		<Sheet open={item !== null} onOpenChange={onOpenChange}>
-			<SheetContent side="right" className="w-full gap-0 sm:max-w-md">
-				<SheetHeader>
+			<BottomSheetContent>
+				<SheetHeader className="text-center">
 					<SheetTitle>{item?.food.name ?? "Alimento"}</SheetTitle>
 					<SheetDescription>
 						{item?.food.source === "taco"
@@ -53,7 +53,7 @@ export function ItemSheet({
 						onDelete={onDelete}
 					/>
 				)}
-			</SheetContent>
+			</BottomSheetContent>
 		</Sheet>
 	);
 }
