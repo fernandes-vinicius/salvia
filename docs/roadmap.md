@@ -46,15 +46,24 @@ Revisão de out/2026: o cálculo atual (Mifflin-St Jeor + método fatorial + MET
 - Diretrizes de nutrição esportiva (ACSM): ~3–5 g/kg pra ~1 h de treino por dia; 5–7 g/kg pra volume alto.
 - Com o volume de treino da aba TMB (dias × minutos de musculação + cardio), sugerir uma faixa e mostrar aviso suave quando o carboidrato ficar abaixo ("Pode faltar energia pro treino; se o rendimento cair, aumente o carbo") — sem bloquear, déficit com carbo baixo é comum.
 
+### Insights contextuais (tirar dúvidas na hora de escolher)
+
+Origem: ao definir a gordura na Meta (70 kg, querendo perder peso sem perder muito músculo), surgiu a dúvida "1 g/kg ou 0,8 g/kg?". Dúvidas assim, no momento da escolha, viram insights.
+
+- Cartões curtos ("Por que isso importa?") ao lado de cada escolha da Meta e da TMB, escritos pra leigos, com a recomendação aplicada aos dados da pessoa (peso, objetivo, treino).
+- Exemplo (gordura em déficit): faixa usual 0,6–1,0 g/kg, sem descer de ~0,5 g/kg nem de ~20% das kcal (saúde hormonal). Quem preserva o músculo é a proteína (1,6–2,2 g/kg) + musculação, não a gordura; baixar a gordura libera kcal pro carboidrato, o que ajuda o treino. Pra 70 kg em déficit e treinando, 0,8 g/kg (~56 g) costuma ser um bom meio-termo; 1,0 g/kg se a dieta ficar mais saciante assim.
+- Gatilhos: valor escolhido fora da faixa recomendada, combinação estranha (ex.: carbo baixo + muito treino, ver item acima), mudança de objetivo.
+- Formato: dica discreta na própria tela (não bloqueia), com link pra "Como calculamos". No futuro, um "Pergunte" com IA usando o contexto do usuário (perfil, meta, dieta).
+- Sempre com referência e o aviso de que não substitui nutricionista.
+
 ### Transparência
 
 - Página "Como calculamos" com as fórmulas e referências, e nota de que o app não substitui acompanhamento profissional.
 
 ## Aba Dieta — próximos passos
 
-Feito (out/2026): grade de refeições, TACO + alimentos próprios, resumo estilo planilha, planejado × meta.
+Feito (out/2026): grade de refeições, TACO + alimentos próprios, resumo estilo planilha, planejado × meta, arrastar e soltar, substituir alimento (com quantidade equivalente) e copiar pra outra refeição, modo Visualizar + PDF, resetar dieta.
 
-- Trocar o alimento de um item mantendo a quantidade.
 - Reordenar as próprias refeições arrastando (hoje só os alimentos se movem).
 - Substituições ("ou 100 g de cuscuz" da planilha): alternativas equivalentes por item.
 - Celular: resumo e meta ocupam a primeira tela; avaliar versão compacta/recolhível pra grade aparecer antes (desktop já resolvido com coluna lateral).
