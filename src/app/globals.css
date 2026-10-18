@@ -90,7 +90,9 @@
 	); /* #5E6659 — ≥ 4,5:1 sobre creme, card, muted e secondary */
 	--accent: oklch(0.938 0.025 126.6); /* #E6EEDC */
 	--accent-foreground: oklch(0.393 0.069 142.2);
-	--destructive: oklch(0.56 0.133 32.5); /* #B5523F terracota */
+	--destructive: oklch(
+		0.5 0.133 32.5
+	); /* #A1402E terracota (≥ 4,5:1 até sobre destructive/20) */
 	--border: oklch(0.906 0.018 92.7); /* #E4E0D3 */
 	--input: oklch(0.885 0.019 93.7); /* #DDD9CB */
 	--ring: oklch(0.716 0.069 137.6); /* #8FAE84 */
@@ -103,11 +105,11 @@
 
 	--macro-protein: oklch(0.479 0.089 142.3); /* #3E6A3A */
 	--macro-protein-vegetal: oklch(0.772 0.067 134.8); /* #A3BF94 */
-	/* "ink": a mesma cor do macro em tom de texto (≥ 4,5:1 sobre o card) */
-	--macro-protein-ink: oklch(0.479 0.089 142.3); /* #3E6A3A */
-	--macro-protein-vegetal-ink: oklch(0.536 0.088 139.5); /* #527A48 */
-	--macro-carb-ink: oklch(0.555 0.1 83.2); /* #8F6D22 */
-	--macro-fat-ink: oklch(0.535 0.106 41.1); /* #A0563A */
+	/* "ink": a mesma cor do macro em tom de texto (≥ 4,5:1 em todos os fundos claros, até o secondary) */
+	--macro-protein-ink: oklch(0.443 0.089 142.3); /* #346030 */
+	--macro-protein-vegetal-ink: oklch(0.5 0.088 139.5); /* #486F3E */
+	--macro-carb-ink: oklch(0.512 0.1 83.2); /* #82600F */
+	--macro-fat-ink: oklch(0.519 0.106 41.1); /* #9B5136 */
 	--macro-carb: oklch(0.741 0.103 84.8); /* #C9A65B trigo */
 	--macro-fat: oklch(0.652 0.1 46.4); /* #C27C5A terracota */
 

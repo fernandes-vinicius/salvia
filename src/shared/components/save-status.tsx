@@ -35,7 +35,7 @@ export function SaveStatus({ status, isExample }: SaveStatusProps) {
 	})();
 
 	return (
-		<output className="flex items-center gap-1.5 rounded-full bg-primary-foreground/15 px-2.5 py-1 font-medium text-xs">
+		<output className="flex items-center gap-1.5 rounded-full bg-primary-foreground/10 px-2.5 py-1 font-medium text-xs">
 			{content}
 		</output>
 	);
