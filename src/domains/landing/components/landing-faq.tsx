@@ -16,6 +16,16 @@ export const FAQ_QUESTIONS: FaqItem[] = [
 			"Serve. Você escolhe perder, manter ou ganhar peso, com ritmos prontos ou um ajuste de kcal personalizado.",
 	},
 	{
+		question: "Não sei montar uma dieta. O app ajuda?",
+		answer:
+			"Ajuda. Tem dietas prontas (pra perder peso, ganhar massa ou gastar pouco) que já vêm com as quantidades recalculadas pras metas que você definiu. Você visualiza antes, usa com um toque e depois troca o que quiser.",
+	},
+	{
+		question: "E se eu não estiver perdendo (ou ganhando) peso?",
+		answer:
+			"Registre seu peso uma vez por semana. Com 3 pesagens em 2 semanas, o app compara com o ritmo esperado e, se estiver fora, sugere comer um pouco mais ou menos. Nada muda sem você confirmar.",
+	},
+	{
 		question: "De onde vêm os dados dos alimentos?",
 		answer:
 			"Da TACO (Tabela Brasileira de Composição de Alimentos, da Unicamp), com 597 alimentos. O que não estiver lá, como o seu whey ou uma marca específica, você cadastra com os valores do rótulo.",

@@ -62,6 +62,7 @@ import {
 	Loader2Icon,
 	Plus,
 	RotateCcw,
+	ShoppingCart,
 } from "~/shared/components/icons";
 import {
 	AlertDialog,
@@ -523,7 +524,7 @@ export function DietView({
 						}
 					/>
 				</label>
-				{/* Ações da dieta inteira (hoje só o PDF; próximas entram aqui). */}
+				{/* Ações da dieta inteira (PDF, lista de compras, resetar). */}
 				<DropdownMenu>
 					<DropdownMenuTrigger
 						render={
@@ -542,6 +543,12 @@ export function DietView({
 						<DropdownMenuItem onClick={handleExport}>
 							<FileDown />
 							Exportar PDF
+						</DropdownMenuItem>
+						<DropdownMenuItem
+							onClick={() => router.push("/dieta/lista-de-compras")}
+						>
+							<ShoppingCart />
+							Lista de compras
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem

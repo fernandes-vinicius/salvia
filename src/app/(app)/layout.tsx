@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { after } from "next/server";
 import { Suspense } from "react";
 
 import { UserMenu } from "~/domains/auth";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
+import { recordActivity } from "~/domains/metrics/services/activity-service";
 import { ShellProviders } from "~/providers/shell-providers";
 import { Settings } from "~/shared/components/icons";
 import { Logo } from "~/shared/components/logo";
@@ -70,5 +72,8 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
 
 async function CurrentUserMenu() {
 	const user = await getCurrentUser();
+	// "Usou o app hoje", pras métricas de retenção. Depois da resposta, sem
+	// atrasar a página.
+	after(() => recordActivity(user.id));
 	return <UserMenu user={user} />;
 }

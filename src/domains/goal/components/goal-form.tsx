@@ -25,6 +25,8 @@ interface GoalFormProps {
 	isExample: boolean;
 	/** Fórmula da TMB escolhida em Configurações. */
 	bmrFormula: BmrFormula;
+	/** Ajuste do gasto pelo peso real (kcal/dia). */
+	calibrationKcal: number;
 }
 
 export function GoalForm({
@@ -32,6 +34,7 @@ export function GoalForm({
 	initialGoal,
 	isExample,
 	bmrFormula,
+	calibrationKcal,
 }: GoalFormProps) {
 	const [goal, setGoal] = useState(initialGoal);
 	const [hasSaved, setHasSaved] = useState(!isExample);
@@ -55,7 +58,7 @@ export function GoalForm({
 
 	const tdee = calculateTdee(profile, bmrFormula);
 	const targets = calculateTargets(goal, {
-		tdee,
+		tdee: tdee + calibrationKcal,
 		bmr: calculateBmr(profile, bmrFormula),
 		weightKg: profile.weightKg,
 	});
@@ -83,6 +86,7 @@ export function GoalForm({
 				targets={targets}
 				tdee={tdee}
 				calorieAdjustment={goal.calorieAdjustment}
+				calibrationKcal={calibrationKcal}
 				status={status}
 				isExample={!hasSaved}
 				className="sticky top-3 z-10 md:top-6 md:order-2"

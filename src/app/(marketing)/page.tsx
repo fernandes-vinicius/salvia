@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-
 import {
 	LandingFaq,
 	LandingFeatures,
@@ -9,6 +8,7 @@ import {
 	LandingPainPoints,
 	LandingStructuredData,
 } from "~/domains/landing";
+import { LandingCalculators } from "~/domains/landing/components/landing-calculators";
 import { APP_DESCRIPTION, APP_NAME } from "~/shared/lib/app-config";
 
 export const metadata: Metadata = {
@@ -24,6 +24,7 @@ export default function LandingPage() {
 			<LandingPainPoints />
 			<LandingFeatures />
 			<LandingHowItWorks />
+			<LandingCalculators />
 			<LandingFaq />
 			<LandingFinalCta />
 			<LandingStructuredData />

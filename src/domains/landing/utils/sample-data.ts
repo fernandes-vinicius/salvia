@@ -2,6 +2,7 @@ import type { DietMeal } from "~/domains/diet/types/diet-types";
 import { summarizeDiet } from "~/domains/diet/utils/diet";
 import type { Food } from "~/domains/food/types/food-types";
 import type { Goal } from "~/domains/goal/types/goal-types";
+import { analyzeCalibration } from "~/domains/goal/utils/calibration";
 import { calculateTargets } from "~/domains/goal/utils/goal";
 import type {
 	Measurement,
@@ -9,6 +10,7 @@ import type {
 } from "~/domains/measurements/types/measurement-types";
 import type { BodyProfile } from "~/domains/profile/types/profile-types";
 import { calculateBmr, calculateEnergy } from "~/domains/profile/utils/energy";
+import { buildShoppingList } from "~/domains/shopping/utils/shopping-list";
 
 // Persona da landing: 28 anos, 80 kg, musculação 5×/semana e cardio 3×, em
 // cutting. Tudo é calculado com as mesmas funções do app e renderizado com
@@ -44,49 +46,58 @@ export const SAMPLE_TARGETS = calculateTargets(SAMPLE_GOAL, {
 // fechar perto da meta acima.
 function food(
 	name: string,
-	values: Pick<Food, "protein" | "carbs" | "fat" | "proteinSource">,
+	values: Pick<Food, "protein" | "carbs" | "fat" | "proteinSource"> & {
+		category?: string;
+	},
 	source: Food["source"] = "taco",
 ): Food {
 	return { id: name, source, name, category: null, unit: "g", ...values };
 }
 
-const ovo = food("Ovo, de galinha, inteiro, cozido", {
+const ovo = food("Ovo, de galinha, inteiro, cozido/10minutos", {
+	category: "Ovos e derivados",
 	protein: 13.3,
 	carbs: 0.6,
 	fat: 9.5,
 	proteinSource: "animal",
 });
 const pao = food("Pão, trigo, forma, integral", {
+	category: "Cereais e derivados",
 	protein: 9.4,
 	carbs: 49.9,
 	fat: 3.7,
 	proteinSource: "vegetal",
 });
 const banana = food("Banana, prata, crua", {
+	category: "Frutas e derivados",
 	protein: 1.3,
 	carbs: 26,
 	fat: 0.1,
 	proteinSource: "vegetal",
 });
 const frango = food("Frango, peito, sem pele, grelhado", {
+	category: "Carnes e derivados",
 	protein: 32,
 	carbs: 0,
 	fat: 2.5,
 	proteinSource: "animal",
 });
 export const arroz = food("Arroz, tipo 1, cozido", {
+	category: "Cereais e derivados",
 	protein: 2.5,
 	carbs: 28.1,
 	fat: 0.2,
 	proteinSource: "vegetal",
 });
 const feijao = food("Feijão, carioca, cozido", {
+	category: "Leguminosas e derivados",
 	protein: 4.8,
 	carbs: 13.6,
 	fat: 0.5,
 	proteinSource: "vegetal",
 });
 const azeite = food("Azeite, de oliva, extra virgem", {
+	category: "Gorduras e óleos",
 	protein: 0,
 	carbs: 0,
 	fat: 100,
@@ -98,24 +109,28 @@ const whey = food(
 	"custom",
 );
 const iogurte = food("Iogurte, natural, desnatado", {
+	category: "Leite e derivados",
 	protein: 3.8,
 	carbs: 5.8,
 	fat: 0.3,
 	proteinSource: "animal",
 });
 export const batataDoce = food("Batata, doce, cozida", {
+	category: "Verduras, hortaliças e derivados",
 	protein: 0.6,
 	carbs: 18.4,
 	fat: 0.1,
 	proteinSource: "vegetal",
 });
 const patinho = food("Carne, bovina, patinho, sem gordura, grelhado", {
+	category: "Carnes e derivados",
 	protein: 35.9,
 	carbs: 0,
 	fat: 7.3,
 	proteinSource: "animal",
 });
 const aveia = food("Aveia, flocos, crua", {
+	category: "Cereais e derivados",
 	protein: 13.9,
 	carbs: 66.6,
 	fat: 8.5,
@@ -215,3 +230,20 @@ export const SAMPLE_MEASUREMENTS: Measurement[] = [
 	hipsCm: Number(hipsCm),
 	bicepsRightCm: Number(biceps),
 }));
+
+// Depois da última medição, o peso desacelera (perde ~0,15 kg/semana em vez
+// de ~0,45): é o caso em que o ajuste pelo peso sugere comer menos.
+export const SAMPLE_CALIBRATION = analyzeCalibration({
+	weighIns: [
+		{ date: "2026-09-14", weightKg: 80 },
+		{ date: "2026-09-21", weightKg: 79.8 },
+		{ date: "2026-09-28", weightKg: 79.7 },
+		{ date: "2026-10-05", weightKg: 79.5 },
+	],
+	today: "2026-10-05",
+	since: null,
+	calorieAdjustment: SAMPLE_GOAL.calorieAdjustment,
+});
+
+/** Uma semana de compras da dieta de exemplo. */
+export const SAMPLE_SHOPPING = buildShoppingList(SAMPLE_MEALS, 7);

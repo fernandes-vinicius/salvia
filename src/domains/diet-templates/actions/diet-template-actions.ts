@@ -11,7 +11,10 @@ import {
 import { personalizeTemplate } from "~/domains/diet-templates/utils/personalize";
 import { resolveTemplate } from "~/domains/diet-templates/utils/resolve";
 import { calculateTargets } from "~/domains/goal";
-import { findGoalByUserId } from "~/domains/goal/services/goal-service";
+import {
+	findGoalByUserId,
+	findGoalCalibration,
+} from "~/domains/goal/services/goal-service";
 import { calculateBmr, calculateTdee } from "~/domains/profile";
 import { findProfileByUserId } from "~/domains/profile/services/profile-service";
 import { getSettingsByUserId } from "~/domains/settings/services/settings-service";
@@ -32,17 +35,18 @@ export async function applyDietTemplateAction(
 	const template = parsed.success ? findTemplate(parsed.data) : null;
 	if (!template) return { ok: false, error: "Dieta pronta não encontrada." };
 
-	const [foods, profile, goal, settings] = await Promise.all([
+	const [foods, profile, goal, settings, calibration] = await Promise.all([
 		getTemplateFoods(user.id),
 		findProfileByUserId(user.id),
 		findGoalByUserId(user.id),
 		getSettingsByUserId(user.id),
+		findGoalCalibration(user.id),
 	]);
 
 	const targets =
 		profile && goal
 			? calculateTargets(goal, {
-					tdee: calculateTdee(profile, settings.bmrFormula),
+					tdee: calculateTdee(profile, settings.bmrFormula) + calibration.kcal,
 					bmr: calculateBmr(profile, settings.bmrFormula),
 					weightKg: profile.weightKg,
 				})

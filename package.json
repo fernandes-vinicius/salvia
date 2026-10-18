@@ -19,6 +19,8 @@
 		"db:studio": "drizzle-kit studio",
 		"auth:generate": "bunx auth@latest generate --config src/domains/auth/lib/auth-cli-config.ts --output src/shared/db/schema/auth-schema.ts -y",
 		"db:seed:taco": "bun scripts/seed-taco.ts",
+		"metrics": "bun scripts/metrics.ts",
+		"metrics:prod": "bun --env-file=.env.neon scripts/metrics.ts",
 		"generate-pwa-assets": "pwa-assets-generator"
 	},
 	"dependencies": {
@@ -30,6 +32,7 @@
 		"@dnd-kit/sortable": "^10.0.0",
 		"@dnd-kit/utilities": "^3.2.2",
 		"@serwist/turbopack": "^9.5.13",
+		"@vercel/analytics": "^2.0.1",
 		"better-auth": "^1.7.10",
 		"class-variance-authority": "^0.7.1",
 		"cn": "^0.5.0",

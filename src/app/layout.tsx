@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { Inter, Manrope } from "next/font/google";
 
@@ -68,6 +69,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
 		>
 			<body className="flex min-h-full flex-col">
 				<AppProviders>{children}</AppProviders>
+				{/* Visitas e páginas (Vercel Web Analytics): sem cookies, anônimo.
+				    Funil e retenção vêm do nosso banco (`user_activity`). */}
+				<Analytics />
 			</body>
 		</html>
 	);

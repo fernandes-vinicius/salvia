@@ -1,8 +1,13 @@
 import type { ReactNode } from "react";
 
 import { DietSummaryCard } from "~/domains/diet/components/diet-summary";
-import { SampleMeasurements } from "~/domains/landing/components/sample-screens";
+import {
+	SampleCalibration,
+	SampleMeasurements,
+	SampleShopping,
+} from "~/domains/landing/components/sample-screens";
 import { SampleSwap } from "~/domains/landing/components/sample-swap";
+import { SampleTemplates } from "~/domains/landing/components/sample-templates";
 import { ShowcaseFrame } from "~/domains/landing/components/showcase-frame";
 import {
 	SAMPLE_ENERGY,
@@ -92,6 +97,37 @@ export function LandingFeatures() {
 			/>
 
 			<FeatureRow
+				eyebrow="Começo rápido"
+				title="Não sabe por onde começar? Use uma dieta pronta"
+				points={[
+					"Modelos pra perder peso, ganhar massa e gastar pouco no mercado",
+					"As quantidades são recalculadas pras metas que você definiu",
+					"Visualize a dieta inteira antes de usar e ajuste como quiser",
+				]}
+				visual={
+					<ShowcaseFrame label="Dietas prontas no app">
+						<SampleTemplates />
+					</ShowcaseFrame>
+				}
+			/>
+
+			<FeatureRow
+				reverse
+				eyebrow="No mercado"
+				title="A lista de compras sai da sua dieta"
+				points={[
+					"Pra 1 dia, 1 semana ou 1 mês, separada por seção do mercado",
+					"Arroz e carnes já no peso cru, ovos e pães em unidades",
+					"Marque o que já pegou e mande pro WhatsApp",
+				]}
+				visual={
+					<ShowcaseFrame label="Lista de compras de uma semana no app">
+						<SampleShopping />
+					</ShowcaseFrame>
+				}
+			/>
+
+			<FeatureRow
 				eyebrow="Evolução"
 				title="Veja o emagrecimento acontecendo"
 				points={[
@@ -102,6 +138,22 @@ export function LandingFeatures() {
 				visual={
 					<ShowcaseFrame label="Medidas e gráfico de evolução no app">
 						<SampleMeasurements />
+					</ShowcaseFrame>
+				}
+			/>
+
+			<FeatureRow
+				reverse
+				eyebrow="Meta que se ajusta"
+				title="O peso travou? O app percebe e sugere o ajuste"
+				points={[
+					"Pese-se uma vez por semana e o app compara com o esperado",
+					"Sugere comer um pouco mais ou menos, em passos pequenos",
+					"Você decide se aplica, e pode desfazer quando quiser",
+				]}
+				visual={
+					<ShowcaseFrame label="Sugestão de ajuste da meta pelo peso no app">
+						<SampleCalibration />
 					</ShowcaseFrame>
 				}
 			/>

@@ -4,7 +4,8 @@ import { Suspense } from "react";
 
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { EXAMPLE_GOAL, GoalForm } from "~/domains/goal";
-import { findGoalByUserId } from "~/domains/goal/services/goal-service";
+import { CalibrationCard } from "~/domains/goal/components/calibration-card";
+import { getCalibrationState } from "~/domains/goal/services/calibration-service";
 import { findProfileByUserId } from "~/domains/profile/services/profile-service";
 import { getSettingsByUserId } from "~/domains/settings/services/settings-service";
 import { Flame } from "~/shared/components/icons";
@@ -38,11 +39,12 @@ export default function MetaPage() {
 
 async function MetaContent() {
 	const user = await getCurrentUser();
-	const [profile, goal, settings] = await Promise.all([
+	const [profile, settings, calibrationState] = await Promise.all([
 		findProfileByUserId(user.id),
-		findGoalByUserId(user.id),
 		getSettingsByUserId(user.id),
+		getCalibrationState(user.id),
 	]);
+	const goal = calibrationState?.goal ?? null;
 
 	// A meta depende do gasto calórico e do peso, que vêm da aba TMB.
 	if (!profile) {
@@ -72,12 +74,21 @@ async function MetaContent() {
 	}
 
 	return (
-		<GoalForm
-			profile={profile}
-			initialGoal={goal ?? EXAMPLE_GOAL}
-			isExample={!goal}
-			bmrFormula={settings.bmrFormula}
-		/>
+		<div className="flex flex-col gap-6">
+			{calibrationState && (
+				<CalibrationCard
+					analysis={calibrationState.analysis}
+					calibration={calibrationState.calibration}
+				/>
+			)}
+			<GoalForm
+				profile={profile}
+				initialGoal={goal ?? EXAMPLE_GOAL}
+				isExample={!goal}
+				bmrFormula={settings.bmrFormula}
+				calibrationKcal={calibrationState?.calibration.kcal ?? 0}
+			/>
+		</div>
 	);
 }
 

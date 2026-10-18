@@ -2,7 +2,7 @@
 
 ## Calibração da meta pelo peso real
 
-**Status:** mitigado em out/2026 trocando o FA único pelo método fatorial (NEAT + treinos por MET + digestão) na aba TMB. A calibração pelo peso continua útil como ajuste fino.
+**Status:** feito em out/2026 (ajuste pelo seu peso: `goal/utils/calibration.ts` + `CalibrationCard` no Início e na Meta). Antes disso, mitigado trocando o FA único pelo método fatorial na aba TMB. Próximos passos possíveis: lembrete semanal de pesagem (push do PWA), mostrar o "gasto real estimado" num gráfico, usar a dieta registrada (se um dia houver diário do que foi comido) em vez de assumir que a pessoa seguiu o plano.
 
 **Problema original:** o fator de atividade (FA) e a fórmula de Harris-Benedict são médias populacionais e costumam superestimar o gasto de quem treina mas passa o resto do dia sentado. Caso real (out/2026): pela tabela, musculação 3–5×/semana = 1,55, mas o que funcionou na prática foi 1,375 (~300 kcal/dia de diferença).
 
@@ -77,10 +77,10 @@ Análise de out/2026. Já feito: Termos de uso e Política de privacidade (LGPD)
 
 O app resolve um evento único (montar a dieta). Assinatura precisa de valor recorrente, senão cancela no 2º mês.
 
-- **Ajuste automático de metas** (principal motivo pra pagar): é a "Calibração da meta pelo peso real" acima, virando recurso Pro.
+- **Ajuste automático de metas** (principal motivo pra pagar): feito (out/2026), hoje grátis; candidato a recurso Pro.
 - **Check-in semanal**: "você perdeu 0,4 kg, está no ritmo". Junto com os Insights contextuais.
 - **Dietas prontas novas todo mês** (conteúdo que traz a pessoa de volta).
-- **Lista de compras da semana** gerada a partir da dieta.
+- **Lista de compras**: feita (out/2026). Próximos passos possíveis: preço estimado por item (custo da dieta por semana), lista de várias dietas somadas, unidades de venda (pacote de 1 kg, bandeja de 30 ovos).
 - **Várias dietas** (dia de treino × descanso).
 
 ### Modelo de cobrança
@@ -103,7 +103,7 @@ O app resolve um evento único (montar a dieta). Assinatura precisa de valor rec
 
 ### Medição
 
-- Analytics de funil: visita → cadastro → montou a dieta → voltou na semana 2 → pagou. Sem isso não dá pra saber onde se perde gente. Ao adicionar, atualizar a Política de privacidade (item cookies/terceiros).
+- Feito (out/2026): Vercel Web Analytics pro tráfego + `user_activity` e `bun run metrics` pro funil (cadastro → TMB → Meta → dieta → pesou → voltou na 2ª semana). Falta: etapa "pagou" quando houver cobrança; eventos de clique (ex.: CTA das calculadoras) exigem Vercel Pro ou registrar no nosso banco.
 
 ### Marketing de custo quase zero
 
