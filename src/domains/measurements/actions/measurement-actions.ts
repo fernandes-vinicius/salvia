@@ -6,6 +6,7 @@ import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { measurementSchema } from "~/domains/measurements/schemas/measurement-schema";
 import {
 	createMeasurement,
+	deleteAllMeasurements,
 	deleteMeasurement,
 	updateMeasurement,
 } from "~/domains/measurements/services/measurement-service";
@@ -62,4 +63,11 @@ export async function deleteMeasurementAction(
 	return (await deleteMeasurement(user.id, parsed.data))
 		? { ok: true, data: null }
 		: { ok: false, error: "Medição não encontrada." };
+}
+
+/** "Resetar medidas": apaga todo o histórico pra recomeçar. */
+export async function resetMeasurementsAction(): Promise<ActionResult> {
+	const user = await getCurrentUser();
+	await deleteAllMeasurements(user.id);
+	return { ok: true, data: null };
 }
