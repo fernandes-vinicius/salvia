@@ -9,7 +9,6 @@ import { MacroLine } from "~/domains/food/components/macro-line";
 import type { CustomFoodSummary, Food } from "~/domains/food/types/food-types";
 import { macrosFor, UNIT_LABELS } from "~/domains/food/utils/food";
 import { BottomSheetContent } from "~/shared/components/bottom-sheet";
-import { FormSection } from "~/shared/components/form-section";
 import { PackagePlus, Pencil, Trash2 } from "~/shared/components/icons";
 import {
 	AlertDialog,
@@ -75,14 +74,24 @@ export function MyFoods({
 	const editingFood = editing?.kind === "edit" ? editing.food : undefined;
 
 	return (
-		<FormSection
-			title="Meus alimentos"
-			description="Alimentos que você cadastrou. A Tabela TACO não pode ser editada."
-		>
+		<div className="flex flex-col gap-4">
+			<div className="flex items-center justify-between gap-3">
+				<p className="text-muted-foreground text-sm">
+					{foods.length === 1
+						? "1 alimento cadastrado"
+						: `${foods.length} alimentos cadastrados`}
+				</p>
+				<Button onClick={() => setEditing({ kind: "new" })}>
+					<PackagePlus data-icon="inline-start" />
+					Cadastrar alimento
+				</Button>
+			</div>
+
 			{foods.length === 0 ? (
 				<p className="rounded-2xl bg-card p-4 text-muted-foreground text-sm">
-					Você ainda não cadastrou alimentos. Cadastre aqui ou pela aba Dieta,
-					em “Não achou? Cadastrar alimento”.
+					Você ainda não cadastrou alimentos. Cadastre aqui (ex.: o whey da sua
+					marca, pelo rótulo) ou pela aba Dieta, em “Não achou? Cadastrar
+					alimento”.
 				</p>
 			) : (
 				<ul className="flex flex-col gap-2">
@@ -131,15 +140,6 @@ export function MyFoods({
 					))}
 				</ul>
 			)}
-
-			<Button
-				variant="secondary"
-				className="self-start"
-				onClick={() => setEditing({ kind: "new" })}
-			>
-				<PackagePlus data-icon="inline-start" />
-				Cadastrar alimento
-			</Button>
 
 			<Sheet
 				open={editing !== null}
@@ -194,6 +194,6 @@ export function MyFoods({
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>
-		</FormSection>
+		</div>
 	);
 }

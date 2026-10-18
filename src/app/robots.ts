@@ -16,6 +16,7 @@ export default function robots(): MetadataRoute.Robots {
 				"/meta",
 				"/dieta",
 				"/medidas",
+				"/alimentos",
 				"/configuracoes",
 				"/design-system",
 				"/serwist/",

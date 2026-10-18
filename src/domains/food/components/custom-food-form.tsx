@@ -164,7 +164,7 @@ export function CustomFoodForm({
 					))}
 				</div>
 				<p className="-mt-3 text-muted-foreground text-xs">
-					Gramas de cada macro em {base}, como no rótulo.
+					Gramas de cada macro em {base}, como no rótulo. Em branco vale 0.
 				</p>
 
 				<Field className="max-w-[calc((100%-1.5rem)/3)]">
@@ -179,7 +179,7 @@ export function CustomFoodForm({
 					<FieldError errors={errorsOf(fields.fiber.errors)} />
 				</Field>
 				<p className="-mt-3 text-muted-foreground text-xs">
-					Opcional: se o rótulo trouxer, em {base}.
+					Se o rótulo trouxer, em {base}.
 				</p>
 
 				<Field>
