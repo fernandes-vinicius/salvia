@@ -37,7 +37,7 @@ export function MeasurementHistory({
 									className="whitespace-nowrap px-3 py-3 text-right font-normal"
 								>
 									{field.short}
-									<span className="ml-0.5 text-muted-foreground/70">
+									<span className="ml-0.5 text-muted-foreground">
 										{field.unit}
 									</span>
 								</th>

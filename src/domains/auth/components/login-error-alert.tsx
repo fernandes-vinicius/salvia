@@ -15,7 +15,8 @@ export function LoginErrorAlert() {
 	return (
 		<Alert variant="destructive">
 			<TriangleAlertIcon />
-			<AlertDescription>
+			{/* Cor cheia: a padrão (90%) fica abaixo de 4,5:1 sobre o card. */}
+			<AlertDescription className="text-destructive!">
 				Não foi possível entrar com o Google. Tente novamente.
 			</AlertDescription>
 		</Alert>

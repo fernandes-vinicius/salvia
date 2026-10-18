@@ -59,7 +59,7 @@ export function ChoiceCard({
 					</span>
 				)}
 				{hint && (
-					<span className="mt-0.5 text-[0.6875rem] text-muted-foreground/70 tabular-nums">
+					<span className="mt-0.5 text-[0.6875rem] text-muted-foreground tabular-nums">
 						{hint}
 					</span>
 				)}
