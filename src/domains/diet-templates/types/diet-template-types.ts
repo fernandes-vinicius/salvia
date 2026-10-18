@@ -21,7 +21,7 @@ export interface TemplateMeal {
 export interface DietTemplate {
 	id: string;
 	name: string;
-	/** Rótulo curto do objetivo, ex.: "Cutting". */
+	/** Rótulo curto do objetivo, ex.: "Perder peso". */
 	tag: string;
 	description: string;
 	meals: TemplateMeal[];

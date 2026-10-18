@@ -53,7 +53,7 @@ export function LandingFeatures() {
 				</h2>
 				<p className="text-pretty text-muted-foreground">
 					As telas abaixo são do app de verdade, com o dia de um marombeiro de
-					80 kg em cutting.
+					80 kg que quer perder peso.
 				</p>
 			</div>
 
@@ -63,7 +63,7 @@ export function LandingFeatures() {
 				points={[
 					"P(A) · C · G · kcal por alimento e por refeição",
 					"Total do dia em gramas, %, kcal e g/kg",
-					"Excedente ou déficit contra o seu gasto, na hora",
+					"Quanto a dieta fica acima ou abaixo do seu gasto, na hora",
 				]}
 				visual={
 					<ShowcaseFrame label="Resumo do dia no app">
@@ -93,7 +93,7 @@ export function LandingFeatures() {
 
 			<FeatureRow
 				eyebrow="Evolução"
-				title="Veja o cutting funcionando"
+				title="Veja o emagrecimento acontecendo"
 				points={[
 					"Peso, cintura, braço e mais 12 medidas",
 					"Gráfico com o tempo real entre as medições",

@@ -20,7 +20,7 @@ const PAINS: { icon: LucideIcon; title: string; text: string }[] = [
 	{
 		icon: Wallet,
 		title: "Nutri todo mês pesa no bolso",
-		text: "Você já sabe o básico: déficit, g/kg, bater a proteína. Falta uma ferramenta, não uma consulta.",
+		text: "Você já sabe o básico: comer menos do que gasta, g/kg, bater a proteína. Falta uma ferramenta, não uma consulta.",
 	},
 ];
 

@@ -5,9 +5,16 @@ import { type NextRequest, NextResponse } from "next/server";
 // porque o proxy roda em toda navegação e prefetch). A validação real fica
 // no DAL (`getCurrentUser`). Usuário logado em `/login` é tratado no client
 // (`RedirectIfAuthenticated`) pra não gerar loop com cookie expirado.
-// `/` é a landing pública; com sessão, vai direto pro app.
+// `/` é a landing pública; com sessão, vai direto pro app. Termos,
+// privacidade e calculadoras são públicos com ou sem sessão.
+const PUBLIC_PATHS = new Set(["/", "/login", "/termos", "/privacidade"]);
+
 function isPublicPath(pathname: string) {
-	if (pathname === "/" || pathname === "/login") return true;
+	if (PUBLIC_PATHS.has(pathname)) return true;
+	// Calculadoras abertas (porta de entrada pela busca).
+	if (pathname === "/calculadoras" || pathname.startsWith("/calculadoras/")) {
+		return true;
+	}
 	// Página offline do PWA (pré-cacheada pelo service worker).
 	if (pathname === "/~offline") return true;
 	return process.env.NODE_ENV !== "production" && pathname === "/design-system";

@@ -6,7 +6,7 @@ export const GOAL_WARNING_MESSAGES: Record<GoalWarning, string> = {
 	"below-bmr":
 		"Sua meta ficou abaixo do que o corpo gasta em repouso (TMB). Prefira um ritmo mais leve ou procure um nutricionista.",
 	"carbs-negative":
-		"Proteína e gordura já passam da meta de calorias, então não sobra carboidrato. Diminua a gordura, a proteína ou o déficit.",
+		"Proteína e gordura já passam da meta de calorias, então não sobra carboidrato. Diminua a gordura, a proteína ou o quanto você corta de calorias.",
 	"carbs-low":
 		"Sobrou pouco carboidrato (menos de 1 g por kg). Considere diminuir a gordura ou usar um ritmo mais leve.",
 };

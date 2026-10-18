@@ -68,3 +68,53 @@ Feito (out/2026): grade de refeições, TACO + alimentos próprios, resumo estil
 - Substituições ("ou 100 g de cuscuz" da planilha): alternativas equivalentes por item.
 - Celular: resumo e meta ocupam a primeira tela; avaliar versão compacta/recolhível pra grade aparecer antes (desktop já resolvido com coluna lateral).
 - Porções caseiras na TACO (1 fatia, 1 colher) além de gramas.
+
+## Negócio: monetização, custo e marketing
+
+Análise de out/2026. Já feito: Termos de uso e Política de privacidade (LGPD) com exclusão de conta, aviso "ferramenta, não prescrição", calculadoras públicas (TMB, macros, proteína) que levam os números pro app, e assinatura "Feito com Sálvia" no PDF.
+
+### Produto: motivo pra voltar (antes de cobrar)
+
+O app resolve um evento único (montar a dieta). Assinatura precisa de valor recorrente, senão cancela no 2º mês.
+
+- **Ajuste automático de metas** (principal motivo pra pagar): é a "Calibração da meta pelo peso real" acima, virando recurso Pro.
+- **Check-in semanal**: "você perdeu 0,4 kg, está no ritmo". Junto com os Insights contextuais.
+- **Dietas prontas novas todo mês** (conteúdo que traz a pessoa de volta).
+- **Lista de compras da semana** gerada a partir da dieta.
+- **Várias dietas** (dia de treino × descanso).
+
+### Modelo de cobrança
+
+- Freemium em vez de teste de 30 dias: o valor aparece em 5 minutos, então 30 dias grátis = pega a dieta e some. O grátis vira marketing (boca a boca na academia).
+- Grátis: TMB, Meta, 1 dieta, usar dietas prontas, substituir/copiar alimentos. Pro: ajuste automático, todas as dietas prontas, PDF e lista de compras, histórico completo de medidas, várias dietas.
+- Preço: ~R$ 9,90/mês ou ~R$ 59,90/ano, empurrando o anual (menos churn e uma taxa de gateway por ano). Âncora: consulta de nutricionista R$ 150–300.
+- Lançamento: "Fundador vitalício" (~R$ 99) pros 100 primeiros.
+- Se quiser teste: 7 dias de Pro com Pix Automático/cartão cadastrado, não 30 dias sem nada.
+- Pagamento: gateway brasileiro com Pix e Pix Automático (Mercado Pago, Asaas, AbacatePay; comparar taxas). Com preço baixo, taxa fixa por transação pesa. Evitar lojas de app (PWA já instala, sem 15–30%).
+- Implementação: webhook do gateway marca o usuário como Pro, bloqueio das funções pagas, página de planos.
+
+### Custo de infra
+
+- **Atenção:** Vercel Hobby não permite uso comercial. Ao cobrar: Vercel Pro (US$ 20/mês, ~R$ 110) ou sair da Vercel.
+- Opção mais barata: VPS no Brasil (~R$ 25–40/mês) com Coolify + Postgres na mesma máquina (dados no Brasil, bom pra LGPD; backup por nossa conta).
+- Alternativa: Cloudflare Workers (US$ 5/mês) via OpenNext; verificar suporte a Next 16 + Cache Components antes.
+- Neon grátis aguenta bem no começo (dados pequenos). Domínio próprio `.com.br` ~R$ 40/ano (SEO e confiança; trocar `NEXT_PUBLIC_SITE_URL`).
+- Plano: validar grátis na Hobby → ligar cobrança e migrar pra VPS juntos.
+
+### Medição
+
+- Analytics de funil: visita → cadastro → montou a dieta → voltou na semana 2 → pagou. Sem isso não dá pra saber onde se perde gente. Ao adicionar, atualizar a Política de privacidade (item cookies/terceiros).
+
+### Marketing de custo quase zero
+
+- Calculadoras públicas (feito) + mais páginas de busca: "dieta de cutting barata", "quantas calorias pra secar", "proteína do ovo/frango".
+- Reels/TikTok no tom do público: "montei a dieta de cutting em 3 minutos", "dieta de R$ 15/dia com 160 g de proteína", "troquei frango por ovo sem errar o macro" (o recurso de substituir é ótimo pra vídeo).
+- Plano Personal (R$ 29–49/mês): personal trainers montam dietas dos alunos, que entram no grátis. Canal de aquisição que se paga.
+- Indicação: 1 mês de Pro pra quem indica e pro indicado.
+- Comunidades (grupos de academia, fóruns de maromba, Discords fitness) com conteúdo útil, não link solto.
+
+### Pendências jurídicas
+
+- Termos e privacidade foram escritos como modelo: revisar com advogado antes de cobrar.
+- Confirmar com nutricionista/advogado o enquadramento das dietas prontas (hoje: modelos de exemplo recalculados pelas metas que a pessoa definiu, sem prescrição).
+- Exportação de dados (portabilidade) hoje é por e-mail; dá pra virar botão "Baixar meus dados" (JSON) em Configurações.

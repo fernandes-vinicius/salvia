@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { DeleteAccount } from "~/domains/auth";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { MyFoods } from "~/domains/food";
 import { listCustomFoods } from "~/domains/food/services/food-service";
@@ -17,7 +18,7 @@ export default function ConfiguracoesPage() {
 		<main className="container-wrapper flex flex-col gap-8">
 			<PageHeader
 				title="Configurações"
-				description="Como o app faz os cálculos e os alimentos que você cadastrou."
+				description="Como o app faz os cálculos, os alimentos que você cadastrou e a sua conta."
 			/>
 			<Suspense fallback={<SettingsSkeleton />}>
 				<SettingsContent />
@@ -38,6 +39,7 @@ async function SettingsContent() {
 		<div className="flex flex-col gap-10">
 			<SettingsForm initialSettings={settings} profile={profile} />
 			<MyFoods initialFoods={foods} />
+			<DeleteAccount />
 		</div>
 	);
 }

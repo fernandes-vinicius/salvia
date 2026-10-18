@@ -1,6 +1,7 @@
 // Só exports seguros pro client. Server-only (auth, getCurrentUser) são
 // importados pelo caminho direto: `~/domains/auth/lib/auth` e
 // `~/domains/auth/services/session-service`.
+export { DeleteAccount } from "~/domains/auth/components/delete-account";
 export { GoogleSignInButton } from "~/domains/auth/components/google-sign-in-button";
 export { LoginErrorAlert } from "~/domains/auth/components/login-error-alert";
 export { RedirectIfAuthenticated } from "~/domains/auth/components/redirect-if-authenticated";

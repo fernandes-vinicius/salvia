@@ -50,9 +50,9 @@ const TACO = {
 
 export const DIET_TEMPLATES: DietTemplate[] = [
 	{
-		id: "cutting-classico",
-		name: "Cutting clássico",
-		tag: "Cutting",
+		id: "classica-perder-peso",
+		name: "Clássica",
+		tag: "Perder peso",
 		description:
 			"5 refeições com frango, arroz, ovos e whey. A dieta da planilha que deu origem ao app.",
 		meals: [
@@ -153,11 +153,11 @@ export const DIET_TEMPLATES: DietTemplate[] = [
 		],
 	},
 	{
-		id: "bulking-limpo",
-		name: "Bulking limpo",
-		tag: "Bulking",
+		id: "ganhar-massa",
+		name: "Comida de verdade",
+		tag: "Ganhar massa",
 		description:
-			"6 refeições a cada 3 horas, com carboidrato antes do treino e muita comida de verdade pra bater o superávit.",
+			"6 refeições a cada 3 horas, com carboidrato antes do treino e bastante comida pra comer um pouco acima do que você gasta.",
 		meals: [
 			{
 				name: "Café da manhã",

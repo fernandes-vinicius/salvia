@@ -1,7 +1,7 @@
-import { ChevronDown } from "~/shared/components/icons";
+import { type FaqItem, FaqList } from "~/shared/components/faq-list";
 import { APP_NAME } from "~/shared/lib/app-config";
 
-export const FAQ_QUESTIONS = [
+export const FAQ_QUESTIONS: FaqItem[] = [
 	{
 		question: "É grátis?",
 		answer: "Sim. Entra com a conta Google e usa tudo, sem cartão de crédito.",
@@ -11,7 +11,7 @@ export const FAQ_QUESTIONS = [
 		answer: `Não. O ${APP_NAME} é uma ferramenta pra quem já entende o básico e quer planejar e acompanhar a própria dieta. Se você tem alguma condição de saúde, objetivo competitivo ou dúvida séria, procure um profissional.`,
 	},
 	{
-		question: "Serve pra cutting e pra bulking?",
+		question: "Serve pra perder peso e pra ganhar massa?",
 		answer:
 			"Serve. Você escolhe perder, manter ou ganhar peso, com ritmos prontos ou um ajuste de kcal personalizado.",
 	},
@@ -41,25 +41,7 @@ export function LandingFaq() {
 			<h2 className="text-balance font-heading font-semibold text-3xl tracking-tight">
 				Dúvidas frequentes
 			</h2>
-			<div className="flex flex-col gap-3">
-				{FAQ_QUESTIONS.map(({ question, answer }) => (
-					<details
-						key={question}
-						className="group rounded-3xl bg-card px-5 py-4 [&_summary::-webkit-details-marker]:hidden"
-					>
-						<summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium outline-none focus-visible:underline">
-							{question}
-							<ChevronDown
-								className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180"
-								aria-hidden
-							/>
-						</summary>
-						<p className="text-pretty pt-3 text-muted-foreground text-sm">
-							{answer}
-						</p>
-					</details>
-				))}
-			</div>
+			<FaqList items={FAQ_QUESTIONS} />
 		</section>
 	);
 }

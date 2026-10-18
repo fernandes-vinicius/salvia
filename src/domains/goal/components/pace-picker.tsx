@@ -89,7 +89,11 @@ export function PacePicker({
 
 			{isCustom && (
 				<MeasureSlider
-					label={objective === "lose" ? "Déficit por dia" : "Superávit por dia"}
+					label={
+						objective === "lose"
+							? "Comer a menos por dia"
+							: "Comer a mais por dia"
+					}
 					icon={SlidersHorizontal}
 					unit="kcal"
 					value={Math.abs(adjustment)}

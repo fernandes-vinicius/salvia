@@ -88,7 +88,7 @@ export function DietSummaryCard({ summary, tdee }: DietSummaryCardProps) {
 						</div>
 						<div className="flex items-center justify-between py-2.5">
 							<dt className="text-muted-foreground">
-								{surplus > 0 ? "Excedente" : "Déficit"}
+								{surplus > 0 ? "Acima do gasto" : "Abaixo do gasto"}
 							</dt>
 							<dd className="font-heading font-semibold tabular-nums">
 								{surplus > 0 ? "+" : "−"}
@@ -100,7 +100,8 @@ export function DietSummaryCard({ summary, tdee }: DietSummaryCardProps) {
 			</dl>
 			{tdee === null && (
 				<p className="text-muted-foreground text-xs">
-					Preencha a aba TMB para ver o excedente ou déficit.
+					Preencha a aba TMB para ver quanto a dieta fica acima ou abaixo do seu
+					gasto.
 				</p>
 			)}
 		</section>

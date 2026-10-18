@@ -1,11 +1,16 @@
 # Sálvia · Dieta e Nutrição
 
-> App web gratuito (pt-BR) para quem treina e conta macros: calcula a TMB e o gasto calórico diário, define a meta (cutting, manutenção ou bulking) em g/kg e monta a dieta por refeição, com a tabela TACO e alimentos próprios. Não substitui nutricionista.
+> App web gratuito (pt-BR) para quem treina e conta macros: calcula a TMB e o gasto calórico diário, define a meta (perder peso, manter ou ganhar massa) em g/kg e monta a dieta por refeição, com a tabela TACO e alimentos próprios. Não substitui nutricionista.
 
 ## Páginas públicas
 
 - [Página inicial](https://salvia-dieta.vercel.app/): o que o app faz, como funciona e dúvidas frequentes.
+- [Calculadoras](https://salvia-dieta.vercel.app/calculadoras): calculadoras grátis e sem cadastro.
+  - [TMB e gasto calórico](https://salvia-dieta.vercel.app/calculadoras/tmb): Mifflin-St Jeor ou Harris-Benedict + método fatorial (rotina, musculação e cardio por MET).
+  - [Macros](https://salvia-dieta.vercel.app/calculadoras/macros): calorias e g/kg de proteína, carboidrato e gordura pra perder peso, manter ou ganhar massa.
+  - [Proteína por dia](https://salvia-dieta.vercel.app/calculadoras/proteina): 1,6–2,2 g/kg, por refeição e em frango, ovo ou whey.
 - [Entrar](https://salvia-dieta.vercel.app/login): login com conta Google.
+- [Termos de uso](https://salvia-dieta.vercel.app/termos) e [Política de privacidade](https://salvia-dieta.vercel.app/privacidade).
 
 ## Observações
 
