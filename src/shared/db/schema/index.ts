@@ -1,6 +1,7 @@
 export * from "~/shared/db/schema/activity-schema";
 export * from "~/shared/db/schema/auth-schema";
 export * from "~/shared/db/schema/diet-schema";
+export * from "~/shared/db/schema/feedback-schema";
 export * from "~/shared/db/schema/food-schema";
 export * from "~/shared/db/schema/goal-schema";
 export * from "~/shared/db/schema/measurement-schema";
