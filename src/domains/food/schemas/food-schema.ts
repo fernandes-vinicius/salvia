@@ -6,6 +6,8 @@ export const customFoodSchema = z.object({
 	protein: z.number().min(0).max(1000),
 	carbs: z.number().min(0).max(1000),
 	fat: z.number().min(0).max(1000),
+	/** Opcional: muitos rótulos não trazem. */
+	fiber: z.number().min(0).max(1000).default(0),
 	proteinSource: z.enum(["animal", "vegetal"]),
 });
 

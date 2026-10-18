@@ -60,6 +60,46 @@ Origem: ao definir a gordura na Meta (70 kg, querendo perder peso sem perder mui
 
 - Página "Como calculamos" com as fórmulas e referências, e nota de que o app não substitui acompanhamento profissional.
 
+## IA no app (aos poucos)
+
+Planejado em out/2026. Ordem pensada pra começar pelo que não usa IA e ir aumentando o risco/custo aos poucos.
+
+### 0. Base (antes da 1ª funcionalidade com IA)
+
+- [ ] Escolher provedor e acesso: Vercel AI Gateway + AI SDK (troca de modelo sem mudar código, custo por requisição visível).
+- [ ] Limite de uso por usuário por dia (custo controlado; tabela de uso no nosso banco) e mensagem amigável quando acabar.
+- [ ] Mandar pra IA só o mínimo (macros, metas, alimentos, tendência de peso), nunca nome/e-mail.
+- [ ] Atualizar a Política de privacidade (novo fornecedor que recebe dados) antes de lançar.
+- [ ] Prompt base com as regras do app: linguagem simples (sem "cutting", "déficit"…), tom de ferramenta e nunca prescrição, aviso de que não substitui nutricionista, sem conselho médico (gestação, doenças, remédios → procurar profissional).
+- [ ] Respostas estruturadas (schema Zod) em vez de texto livre, pra renderizar com os componentes do app e validar os números.
+- [ ] Candidato a recurso Pro (ver "Modelo de cobrança"); começar grátis com limite baixo pra medir uso.
+
+### 1. Calculadora de água (sem IA)
+
+**Status:** feito em out/2026 (`/calculadoras/agua`, `calculators/utils/water.ts`): mínimo 35 ml/kg e recomendado 40 ml/kg + suor do treino (0,5/0,75/1 L por hora conforme clima) + 0,5 L no calor, em litros, copos e garrafas. Junto veio a **fibra na dieta** (TACO `dietaryFiber`, Resumo do dia com a recomendação da OMS).
+
+- [ ] Reaproveitar peso e treinos da aba TMB quando logado; avaliar meta de água no Início.
+- [ ] Revisar as faixas com um nutricionista e, se preciso, citar as referências com link.
+
+### 2. Sugestão de receitas da refeição (IA)
+
+- [ ] No menu ⋮ da refeição: "Sugerir receita". A IA recebe os alimentos e quantidades da refeição e devolve um jeito de preparar (passos curtos, temperos, tempo).
+- [ ] Regra: a receita usa só os alimentos da refeição (mais temperos sem caloria: sal, alho, ervas, limão). Se sugerir ingrediente extra com caloria, mostrar à parte com o impacto nos macros.
+- [ ] Botão "Outra ideia" e opções simples (rápida, marmita, air fryer).
+- [ ] Depois: "Montar refeição com IA" a partir dos macros que faltam (ex.: "faltam 40 g de proteína e 60 g de carbo"), sugerindo alimentos da TACO com quantidades no passo do editor, aplicáveis com "Desfazer".
+
+### 3. Insights de evolução e dicas (IA)
+
+- [ ] Card no Início com um resumo semanal: tendência do peso e da cintura (Medidas), se está no ritmo da meta, calibração sugerida e um próximo passo. As contas continuam nas funções puras (`analyzeCalibration`, `home.ts`); a IA só escreve o texto a partir delas.
+- [ ] Dicas contextuais: água (ligada à calculadora), proteína distribuída nas refeições (a coluna P(A) já mostra), sono e constância nas pesagens, fibras/vegetais.
+- [ ] Gerar no máximo 1×/semana por usuário (cache no banco) pra controlar custo; "Ver de novo" não chama a IA de novo.
+- [ ] Evolui pro "Pergunte" com IA dos Insights contextuais (seção acima), usando perfil, meta e dieta como contexto.
+
+### 4. Mais calculadoras (sem IA)
+
+- [ ] Ideias de páginas de busca: déficit/superávit em linguagem simples ("quantas calorias pra perder 1 kg por mês"), IMC com aviso das limitações, peso ideal/massa magra (se houver % de gordura), fibras por dia, creatina.
+- [ ] Cada nova calculadora alimenta o sitemap, a lista em `/calculadoras` e a seção de calculadoras da landing.
+
 ## Aba Dieta — próximos passos
 
 Feito (out/2026): grade de refeições, TACO + alimentos próprios, resumo estilo planilha, planejado × meta, arrastar e soltar, substituir alimento (com quantidade equivalente) e copiar pra outra refeição, modo Visualizar + PDF, resetar dieta.

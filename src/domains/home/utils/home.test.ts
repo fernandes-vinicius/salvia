@@ -21,6 +21,7 @@ const frango: Food = {
 	protein: 32,
 	carbs: 0,
 	fat: 4,
+	fiber: 0,
 	proteinSource: "animal",
 };
 

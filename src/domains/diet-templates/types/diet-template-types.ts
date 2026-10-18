@@ -30,7 +30,7 @@ export interface DietTemplate {
 /** Valores de um alimento próprio que o modelo cria se o usuário não tiver. */
 export type TemplateCustomFood = Pick<
 	Food,
-	"name" | "unit" | "protein" | "carbs" | "fat" | "proteinSource"
+	"name" | "unit" | "protein" | "carbs" | "fat" | "fiber" | "proteinSource"
 >;
 
 /** Modelo com os alimentos resolvidos e as quantidades já personalizadas. */

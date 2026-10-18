@@ -44,6 +44,7 @@ const rows = read("food.csv").map((row) => {
 		protein: num(n.protein),
 		carbs: num(n.carbohydrates),
 		fat: num(n.lipids),
+		fiber: num(n.dietaryFiber),
 		proteinSource: tacoProteinSource(categoryId, row.name),
 	};
 });
@@ -66,6 +67,7 @@ await db
 			protein: sql`excluded.protein`,
 			carbs: sql`excluded.carbs`,
 			fat: sql`excluded.fat`,
+			fiber: sql`excluded.fiber`,
 			proteinSource: sql`excluded.protein_source`,
 		},
 	});

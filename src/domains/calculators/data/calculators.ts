@@ -1,4 +1,4 @@
-import { Beef, Flame, Target } from "~/shared/components/icons";
+import { Beef, Droplet, Flame, Target } from "~/shared/components/icons";
 
 /** Calculadoras públicas (índice, sitemap e links internos). */
 export const CALCULATORS = [
@@ -22,5 +22,12 @@ export const CALCULATORS = [
 		title: "Proteína por dia",
 		description:
 			"Quanto de proteína você precisa e quanto de frango, ovo ou whey isso dá.",
+	},
+	{
+		href: "/calculadoras/agua",
+		icon: Droplet,
+		title: "Água por dia",
+		description:
+			"O mínimo e o recomendado pra quem treina, pelo peso, treino e calor.",
 	},
 ] as const;

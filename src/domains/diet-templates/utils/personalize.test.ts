@@ -15,6 +15,7 @@ function food(
 		name,
 		category: null,
 		unit: "g",
+		fiber: 0,
 		...values,
 	};
 }
