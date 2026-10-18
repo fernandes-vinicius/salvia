@@ -55,15 +55,15 @@ const meals: DietMeal[] = [
 		name: "Refeição 1",
 		time: "12:00",
 		items: [
-			{ id: "i1", quantity: 100, food: frango },
-			{ id: "i2", quantity: 100, food: arroz },
+			{ id: "i1", quantity: 100, food: frango, options: [] },
+			{ id: "i2", quantity: 100, food: arroz, options: [] },
 		],
 	},
 	{
 		id: "m2",
 		name: "Refeição 2",
 		time: null,
-		items: [{ id: "i3", quantity: 2, food: pao }],
+		items: [{ id: "i3", quantity: 2, food: pao, options: [] }],
 	},
 	{ id: "m3", name: "Refeição 3", time: null, items: [] },
 ];
@@ -131,8 +131,8 @@ describe("fibras", () => {
 				name: "Almoço",
 				time: null,
 				items: [
-					{ id: "a", quantity: 200, food: feijao },
-					{ id: "b", quantity: 4, food: torrada },
+					{ id: "a", quantity: 200, food: feijao, options: [] },
+					{ id: "b", quantity: 4, food: torrada, options: [] },
 				],
 			},
 		];
@@ -201,9 +201,11 @@ describe("equivalentQuantity", () => {
 
 	it("troca pelo macro principal do item (arroz → batata no carboidrato)", () => {
 		// 100 g de arroz = 28 g C → 200 g de batata.
-		expect(
-			equivalentQuantity({ id: "i", quantity: 100, food: arroz }, batata),
-		).toEqual({ quantity: 200, macro: "carbs", grams: 28 });
+		expect(equivalentQuantity({ quantity: 100, food: arroz }, batata)).toEqual({
+			quantity: 200,
+			macro: "carbs",
+			grams: 28,
+		});
 	});
 
 	it("arredonda ao passo da unidade (0,5)", () => {
@@ -214,12 +216,12 @@ describe("equivalentQuantity", () => {
 		);
 		// 100 g de frango = 32 g P → 5,3 ovos → 5,5.
 		expect(
-			equivalentQuantity({ id: "i", quantity: 100, food: frango }, ovo),
+			equivalentQuantity({ quantity: 100, food: frango }, ovo),
 		).toMatchObject({ quantity: 5.5, macro: "protein" });
 		// 2 pães = 24 g C → 1,7 un do pão com 14 g C → 1,5.
 		expect(
 			equivalentQuantity(
-				{ id: "i", quantity: 2, food: pao },
+				{ quantity: 2, food: pao },
 				{
 					...pao,
 					carbs: 14,
@@ -230,7 +232,7 @@ describe("equivalentQuantity", () => {
 
 	it("sem o macro no alimento novo não sugere", () => {
 		expect(
-			equivalentQuantity({ id: "i", quantity: 100, food: arroz }, frango),
+			equivalentQuantity({ quantity: 100, food: arroz }, frango),
 		).toBeNull();
 	});
 });

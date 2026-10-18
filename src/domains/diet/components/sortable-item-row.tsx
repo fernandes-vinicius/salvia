@@ -69,6 +69,17 @@ export function SortableItemRow({ item, onEdit }: SortableItemRowProps) {
 				<span className="text-muted-foreground text-xs">
 					{formatNumber(item.quantity, 1)} {UNIT_LABELS[item.food.unit].short}
 				</span>
+				{item.options.map((option) => (
+					<span
+						key={option.id}
+						className="block truncate text-muted-foreground text-xs"
+						title={`ou ${option.food.name}`}
+					>
+						<span className="font-medium text-primary">ou</span>{" "}
+						{formatNumber(option.quantity, 1)}{" "}
+						{UNIT_LABELS[option.food.unit].short} · {option.food.name}
+					</span>
+				))}
 			</td>
 			<td className="py-2 text-right text-macro-protein-ink">
 				{formatNonZero(macros.proteinAnimal)}

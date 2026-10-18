@@ -36,6 +36,7 @@ export function previewTemplates(
 					id: `${template.id}-${mealIndex}-${itemIndex}`,
 					food: item.food,
 					quantity: item.quantity,
+					options: [],
 				})),
 			})),
 			kcal: kcalFor(macros),

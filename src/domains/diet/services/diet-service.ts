@@ -2,10 +2,11 @@ import "server-only";
 
 import { and, asc, count, eq, gte, inArray, max, sql } from "drizzle-orm";
 
-import type { DietMeal } from "~/domains/diet/types/diet-types";
+import type { DietItemOption, DietMeal } from "~/domains/diet/types/diet-types";
+import { MAX_ITEM_OPTIONS } from "~/domains/diet/utils/diet";
 import { foodColumns } from "~/domains/food/services/food-service";
 import { db } from "~/shared/db";
-import { dietItem, dietMeal, food } from "~/shared/db/schema";
+import { dietItem, dietItemOption, dietMeal, food } from "~/shared/db/schema";
 
 const INITIAL_MEALS = 3;
 
@@ -44,12 +45,38 @@ export async function getDiet(
 		)
 		.orderBy(asc(dietItem.position), asc(dietItem.createdAt));
 
+	const options = await listOptions(items.map((item) => item.id));
+
 	return meals.map((meal) => ({
 		...meal,
 		items: items
 			.filter((item) => item.mealId === meal.id)
-			.map(({ mealId: _, ...item }) => item),
+			.map(({ mealId: _, ...item }) => ({
+				...item,
+				options: options.get(item.id) ?? [],
+			})),
 	}));
+}
+
+/** Opções dos itens, agrupadas pelo item e na ordem em que foram criadas. */
+async function listOptions(itemIds: string[]) {
+	const grouped = new Map<string, DietItemOption[]>();
+	if (itemIds.length === 0) return grouped;
+	const rows = await db
+		.select({
+			id: dietItemOption.id,
+			itemId: dietItemOption.itemId,
+			quantity: dietItemOption.quantity,
+			food: foodColumns,
+		})
+		.from(dietItemOption)
+		.innerJoin(food, eq(food.id, dietItemOption.foodId))
+		.where(inArray(dietItemOption.itemId, itemIds))
+		.orderBy(asc(dietItemOption.position), asc(dietItemOption.createdAt));
+	for (const { itemId, ...option } of rows) {
+		grouped.set(itemId, [...(grouped.get(itemId) ?? []), option]);
+	}
+	return grouped;
 }
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -142,9 +169,15 @@ export async function deleteMeal(
 	return "deleted";
 }
 
+export interface NewOption {
+	foodId: string;
+	quantity: number;
+}
+
 /**
  * Adiciona um item no fim da refeição ou, com `index`, numa posição exata
- * (ex.: "Desfazer" depois de remover), empurrando os seguintes.
+ * (ex.: "Desfazer" depois de remover), empurrando os seguintes. `options`
+ * recria as opções junto (copiar pra outra refeição, desfazer).
  */
 export async function addItem(
 	userId: string,
@@ -152,6 +185,7 @@ export async function addItem(
 	foodId: string,
 	quantity: number,
 	index?: number,
+	options: NewOption[] = [],
 ) {
 	if (!(await ownedMeal(userId, mealId))) return null;
 
@@ -175,7 +209,21 @@ export async function addItem(
 			.insert(dietItem)
 			.values({ mealId, foodId, quantity, position })
 			.returning({ id: dietItem.id, quantity: dietItem.quantity });
-		return row;
+		const optionRows =
+			options.length > 0
+				? await tx
+						.insert(dietItemOption)
+						.values(
+							options.map((option, optionIndex) => ({
+								itemId: row.id,
+								foodId: option.foodId,
+								quantity: option.quantity,
+								position: optionIndex,
+							})),
+						)
+						.returning({ id: dietItemOption.id })
+				: [];
+		return { ...row, optionIds: optionRows.map((option) => option.id) };
 	});
 }
 
@@ -249,5 +297,73 @@ export async function replaceItemFood(
 export async function deleteItem(userId: string, itemId: string) {
 	if (!(await ownedItem(userId, itemId))) return false;
 	await db.delete(dietItem).where(eq(dietItem.id, itemId));
+	return true;
+}
+
+// --- Opções do item ---------------------------------------------------------
+
+async function ownedOption(userId: string, optionId: string) {
+	const [option] = await db
+		.select({
+			id: dietItemOption.id,
+			itemId: dietItemOption.itemId,
+			foodId: dietItemOption.foodId,
+			quantity: dietItemOption.quantity,
+		})
+		.from(dietItemOption)
+		.innerJoin(dietItem, eq(dietItem.id, dietItemOption.itemId))
+		.innerJoin(dietMeal, eq(dietMeal.id, dietItem.mealId))
+		.where(and(eq(dietItemOption.id, optionId), eq(dietMeal.userId, userId)))
+		.limit(1);
+	return option ?? null;
+}
+
+/** Nova opção no fim da lista do item (até `MAX_ITEM_OPTIONS`). */
+export async function addItemOption(
+	userId: string,
+	itemId: string,
+	foodId: string,
+	quantity: number,
+): Promise<{ id: string; quantity: number } | "not-found" | "full"> {
+	if (!(await ownedItem(userId, itemId))) return "not-found";
+	const [{ total, last }] = await db
+		.select({ total: count(), last: max(dietItemOption.position) })
+		.from(dietItemOption)
+		.where(eq(dietItemOption.itemId, itemId));
+	if (total >= MAX_ITEM_OPTIONS) return "full";
+	const [row] = await db
+		.insert(dietItemOption)
+		.values({ itemId, foodId, quantity, position: (last ?? -1) + 1 })
+		.returning({ id: dietItemOption.id, quantity: dietItemOption.quantity });
+	return row;
+}
+
+export async function deleteItemOption(userId: string, optionId: string) {
+	if (!(await ownedOption(userId, optionId))) return false;
+	await db.delete(dietItemOption).where(eq(dietItemOption.id, optionId));
+	return true;
+}
+
+/**
+ * "Usar esta": a opção vira o alimento do item e o alimento de antes vira a
+ * opção, no mesmo lugar (desfazer = trocar de novo).
+ */
+export async function swapItemOption(userId: string, optionId: string) {
+	const option = await ownedOption(userId, optionId);
+	if (!option) return false;
+	await db.transaction(async (tx) => {
+		const [item] = await tx
+			.select({ foodId: dietItem.foodId, quantity: dietItem.quantity })
+			.from(dietItem)
+			.where(eq(dietItem.id, option.itemId));
+		await tx
+			.update(dietItem)
+			.set({ foodId: option.foodId, quantity: option.quantity })
+			.where(eq(dietItem.id, option.itemId));
+		await tx
+			.update(dietItemOption)
+			.set({ foodId: item.foodId, quantity: item.quantity })
+			.where(eq(dietItemOption.id, optionId));
+	});
 	return true;
 }

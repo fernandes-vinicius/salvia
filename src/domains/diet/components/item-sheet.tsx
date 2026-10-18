@@ -8,6 +8,7 @@ import type { DietItem, DietMeal } from "~/domains/diet/types/diet-types";
 import {
 	type Equivalent,
 	equivalentQuantity,
+	MAX_ITEM_OPTIONS,
 	type SwapMacro,
 } from "~/domains/diet/utils/diet";
 import {
@@ -26,7 +27,9 @@ import {
 	ChevronLeft,
 	Copy,
 	Loader2Icon,
+	Plus,
 	Trash2,
+	XIcon,
 } from "~/shared/components/icons";
 import { Button } from "~/shared/components/ui/button";
 import {
@@ -49,8 +52,18 @@ interface ItemSheetProps {
 	onQuantityChange: (itemId: string, quantity: number) => void;
 	onReplace: (itemId: string, food: Food, quantity: number) => Promise<boolean>;
 	onCopy: (itemId: string, mealId: string) => Promise<boolean>;
+	onAddOption: (
+		itemId: string,
+		food: Food,
+		quantity: number,
+	) => Promise<boolean>;
+	onRemoveOption: (itemId: string, optionId: string) => void;
+	onSwapOption: (itemId: string, optionId: string) => Promise<boolean>;
 	onDelete: (itemId: string) => void;
 }
+
+/** Buscar outro alimento pra substituir o item ou pra virar uma opção. */
+type FlowMode = "replace" | "option";
 
 type SwapStep =
 	| { kind: "search" }
@@ -62,12 +75,21 @@ type SwapStep =
 			equivalent: Equivalent | null;
 	  };
 
+const FLOW_TITLES: Record<FlowMode, string> = {
+	replace: "Substituir alimento",
+	option: "Adicionar opção",
+};
+
 export function ItemSheet({ item, ...props }: ItemSheetProps) {
-	// A troca fica presa ao item: abrir outro alimento volta pra edição.
-	const [swap, setSwap] = useState<{ itemId: string; step: SwapStep } | null>(
-		null,
-	);
-	const step = item && swap?.itemId === item.id ? swap.step : null;
+	// A busca fica presa ao item: abrir outro alimento volta pra edição.
+	const [swap, setSwap] = useState<{
+		itemId: string;
+		mode: FlowMode;
+		step: SwapStep;
+	} | null>(null);
+	const active = item && swap?.itemId === item.id ? swap : null;
+	const step = active?.step ?? null;
+	const mode = active?.mode ?? "replace";
 
 	return (
 		<Sheet open={item !== null} onOpenChange={props.onOpenChange}>
@@ -79,11 +101,13 @@ export function ItemSheet({ item, ...props }: ItemSheetProps) {
 			>
 				<SheetHeader className="text-center">
 					<SheetTitle>
-						{step ? "Substituir alimento" : (item?.food.name ?? "Alimento")}
+						{step ? FLOW_TITLES[mode] : (item?.food.name ?? "Alimento")}
 					</SheetTitle>
 					<SheetDescription>
 						{step
-							? `No lugar de ${item?.food.name}`
+							? mode === "option"
+								? `Pra comer no lugar de ${item?.food.name}, quando quiser`
+								: `No lugar de ${item?.food.name}`
 							: item?.food.source === "taco"
 								? "Tabela TACO"
 								: "Alimento cadastrado por você"}
@@ -92,21 +116,34 @@ export function ItemSheet({ item, ...props }: ItemSheetProps) {
 				{item &&
 					(step ? (
 						<SwapFlow
-							key={item.id}
+							key={`${item.id}-${mode}`}
 							item={item}
+							mode={mode}
 							step={step}
 							onStep={(next) =>
-								setSwap(next && { itemId: item.id, step: next })
+								setSwap(next && { itemId: item.id, mode, step: next })
 							}
-							onReplace={props.onReplace}
+							onConfirm={async (food, quantity) => {
+								if (mode === "replace") {
+									return props.onReplace(item.id, food, quantity);
+								}
+								const ok = await props.onAddOption(item.id, food, quantity);
+								// Volta pro painel do item, já com a opção na lista.
+								if (ok) setSwap(null);
+								return ok;
+							}}
 						/>
 					) : (
 						<ItemEditor
 							key={item.id}
 							item={item}
 							{...props}
-							onSwap={() =>
-								setSwap({ itemId: item.id, step: { kind: "search" } })
+							onStartFlow={(nextMode) =>
+								setSwap({
+									itemId: item.id,
+									mode: nextMode,
+									step: { kind: "search" },
+								})
 							}
 						/>
 					))}
@@ -123,13 +160,19 @@ function ItemEditor({
 	onStale,
 	onQuantityChange,
 	onCopy,
+	onRemoveOption,
+	onSwapOption,
 	onDelete,
-	onSwap,
-}: Omit<ItemSheetProps, "item" | "onOpenChange" | "onReplace"> & {
+	onStartFlow,
+}: Omit<
+	ItemSheetProps,
+	"item" | "onOpenChange" | "onReplace" | "onAddOption"
+> & {
 	item: DietItem;
-	onSwap: () => void;
+	onStartFlow: (mode: FlowMode) => void;
 }) {
 	const [copyingTo, setCopyingTo] = useState<string | null>(null);
+	const [swappingOption, setSwappingOption] = useState<string | null>(null);
 	const { status, schedule } = useAutosave<number>({
 		save: async (quantity) => {
 			const result = await updateItemQuantityAction(item.id, quantity);
@@ -161,7 +204,83 @@ function ItemEditor({
 				}}
 			/>
 
-			<Button variant="secondary" onClick={onSwap}>
+			{/* Opções: alternativas pra comer no lugar ("ou 1 banana"). */}
+			<section className="flex flex-col gap-2" aria-labelledby="item-options">
+				<div className="flex items-baseline justify-between gap-2">
+					<h3
+						id="item-options"
+						className="font-medium text-muted-foreground text-xs"
+					>
+						Opções
+					</h3>
+					<span className="text-muted-foreground text-xs">
+						Não entram nos totais
+					</span>
+				</div>
+				{item.options.length > 0 && (
+					<ul className="flex flex-col gap-2">
+						{item.options.map((option) => (
+							<li
+								key={option.id}
+								className="flex items-center gap-2 rounded-2xl bg-muted/50 p-3"
+							>
+								<div className="flex min-w-0 flex-1 flex-col gap-0.5 text-sm">
+									<span className="truncate">
+										<span className="font-medium text-primary">ou </span>
+										{option.food.name}
+									</span>
+									<span className="text-muted-foreground text-xs tabular-nums">
+										{formatNumber(option.quantity, 1)}{" "}
+										{UNIT_LABELS[option.food.unit].short}
+									</span>
+									<MacroLine macros={macrosFor(option.food, option.quantity)} />
+								</div>
+								<Button
+									size="sm"
+									variant="secondary"
+									disabled={swappingOption !== null}
+									onClick={async () => {
+										setSwappingOption(option.id);
+										await onSwapOption(item.id, option.id);
+										setSwappingOption(null);
+									}}
+								>
+									{swappingOption === option.id && (
+										<Loader2Icon
+											data-icon="inline-start"
+											className="animate-spin"
+										/>
+									)}
+									Usar esta
+								</Button>
+								<Button
+									size="icon-sm"
+									variant="ghost"
+									aria-label={`Remover a opção ${option.food.name}`}
+									onClick={() => onRemoveOption(item.id, option.id)}
+								>
+									<XIcon />
+								</Button>
+							</li>
+						))}
+					</ul>
+				)}
+				{item.options.length < MAX_ITEM_OPTIONS && (
+					<Button
+						variant="outline"
+						size="sm"
+						className="self-start"
+						onClick={() => onStartFlow("option")}
+					>
+						<Plus data-icon="inline-start" />
+						{item.options.length === 0
+							? "Adicionar opção"
+							: "Adicionar outra opção"}
+					</Button>
+				)}
+			</section>
+
+			<Button variant="secondary" onClick={() => onStartFlow("replace")}>
 				<ArrowLeftRight data-icon="inline-start" />
 				Substituir por outro alimento
 			</Button>
@@ -220,14 +339,16 @@ const MACRO_NAMES: Record<SwapMacro, string> = {
 
 function SwapFlow({
 	item,
+	mode,
 	step,
 	onStep,
-	onReplace,
+	onConfirm,
 }: {
 	item: DietItem;
+	mode: FlowMode;
 	step: SwapStep;
 	onStep: (step: SwapStep | null) => void;
-	onReplace: ItemSheetProps["onReplace"];
+	onConfirm: (food: Food, quantity: number) => Promise<boolean>;
 }) {
 	const [pending, setPending] = useState(false);
 
@@ -273,10 +394,16 @@ function SwapFlow({
 				<dl className="grid gap-3 rounded-2xl bg-muted/50 p-3 text-sm">
 					<div className="flex flex-col gap-0.5">
 						<dt className="text-muted-foreground text-xs">
-							Sai · {formatNumber(item.quantity, 1)} {short}
+							{mode === "option" ? "Na dieta" : "Sai"} ·{" "}
+							{formatNumber(item.quantity, 1)} {short}
 						</dt>
 						<dd className="flex flex-col gap-0.5">
-							<span className="line-through decoration-muted-foreground/60">
+							<span
+								className={cn(
+									mode === "replace" &&
+										"line-through decoration-muted-foreground/60",
+								)}
+							>
 								{item.food.name}
 							</span>
 							<MacroLine macros={macrosFor(item.food, item.quantity)} />
@@ -284,7 +411,8 @@ function SwapFlow({
 					</div>
 					<div className="flex flex-col gap-0.5">
 						<dt className="text-muted-foreground text-xs">
-							Entra · {formatNumber(quantity, 1)} {UNIT_LABELS[food.unit].short}
+							{mode === "option" ? "Ou" : "Entra"} · {formatNumber(quantity, 1)}{" "}
+							{UNIT_LABELS[food.unit].short}
 						</dt>
 						<dd className="flex flex-col gap-0.5">
 							<span className="font-medium">{food.name}</span>
@@ -297,7 +425,8 @@ function SwapFlow({
 					<p className="text-muted-foreground text-xs">
 						Sugerimos a quantidade com os mesmos{" "}
 						{formatNumber(equivalent.grams)} g de{" "}
-						{MACRO_NAMES[equivalent.macro]} de antes. Ajuste se quiser.
+						{MACRO_NAMES[equivalent.macro]} de {item.food.name}. Ajuste se
+						quiser.
 					</p>
 				)}
 
@@ -310,14 +439,14 @@ function SwapFlow({
 					disabled={pending}
 					onClick={async () => {
 						setPending(true);
-						const ok = await onReplace(item.id, food, quantity);
+						const ok = await onConfirm(food, quantity);
 						if (!ok) setPending(false);
 					}}
 				>
 					{pending && (
 						<Loader2Icon data-icon="inline-start" className="animate-spin" />
 					)}
-					Substituir
+					{mode === "option" ? "Adicionar opção" : "Substituir"}
 				</Button>
 			</div>
 		);

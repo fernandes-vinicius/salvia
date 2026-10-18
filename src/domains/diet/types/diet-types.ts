@@ -1,9 +1,17 @@
 import type { Food, Macros } from "~/domains/food/types/food-types";
 
+/** Alternativa a um item ("ou 1 banana"); não entra nos totais. */
+export interface DietItemOption {
+	id: string;
+	quantity: number;
+	food: Food;
+}
+
 export interface DietItem {
 	id: string;
 	quantity: number;
 	food: Food;
+	options: DietItemOption[];
 }
 
 export interface DietMeal {

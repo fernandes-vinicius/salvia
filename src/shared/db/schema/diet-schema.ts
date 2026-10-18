@@ -45,3 +45,23 @@ export const dietItem = pgTable(
 	},
 	(table) => [index("diet_item_meal_id_idx").on(table.mealId)],
 );
+
+// Opções de um item ("200 g de mamão ou 1 banana"): alternativas que a
+// pessoa pode comer no lugar. Não entram nos totais (quem conta é o item).
+export const dietItemOption = pgTable(
+	"diet_item_option",
+	{
+		id: uuid("id").primaryKey().defaultRandom(),
+		itemId: uuid("item_id")
+			.notNull()
+			.references(() => dietItem.id, { onDelete: "cascade" }),
+		foodId: uuid("food_id")
+			.notNull()
+			.references(() => food.id, { onDelete: "cascade" }),
+		/** Em g/ml ou unidades, conforme `food.unit`. */
+		quantity: doublePrecision("quantity").notNull(),
+		position: integer("position").notNull(),
+		createdAt: timestamp("created_at").defaultNow().notNull(),
+	},
+	(table) => [index("diet_item_option_item_id_idx").on(table.itemId)],
+);

@@ -5,17 +5,26 @@ import { z } from "zod";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import {
 	addItem,
+	addItemOption,
 	addMeal,
 	deleteItem,
+	deleteItemOption,
 	deleteMeal,
 	placeItems,
 	replaceItemFood,
 	resetDiet,
+	swapItemOption,
 	updateItemQuantity,
 	updateMeal,
 } from "~/domains/diet/services/diet-service";
-import type { DietItem, DietMeal } from "~/domains/diet/types/diet-types";
+import type {
+	DietItem,
+	DietItemOption,
+	DietMeal,
+} from "~/domains/diet/types/diet-types";
+import { MAX_ITEM_OPTIONS } from "~/domains/diet/utils/diet";
 import { findVisibleFood } from "~/domains/food/services/food-service";
+import type { Food } from "~/domains/food/types/food-types";
 
 export type ActionResult<T = null> =
 	| { ok: true; data: T }
@@ -81,12 +90,23 @@ export async function addItemAction(
 			quantity,
 			// Posição exata (usada pelo "Desfazer"); sem ela, vai pro fim.
 			index: z.number().int().min(0).optional(),
+			// Opções recriadas junto (copiar pra outra refeição, desfazer).
+			options: z
+				.array(z.object({ foodId: id, quantity }))
+				.max(MAX_ITEM_OPTIONS)
+				.default([]),
 		})
 		.safeParse(input);
 	if (!parsed.success) return fail("Dados inválidos.");
 
 	const food = await findVisibleFood(user.id, parsed.data.foodId);
 	if (!food) return fail("Alimento não encontrado.");
+	const optionFoods: Food[] = [];
+	for (const option of parsed.data.options) {
+		const optionFood = await findVisibleFood(user.id, option.foodId);
+		if (!optionFood) return fail("Alimento não encontrado.");
+		optionFoods.push(optionFood);
+	}
 
 	const row = await addItem(
 		user.id,
@@ -94,8 +114,19 @@ export async function addItemAction(
 		food.id,
 		parsed.data.quantity,
 		parsed.data.index,
+		parsed.data.options,
 	);
-	return row ? done({ ...row, food }) : stale("Refeição não encontrada.");
+	if (!row) return stale("Refeição não encontrada.");
+	const { optionIds, ...item } = row;
+	return done({
+		...item,
+		food,
+		options: optionIds.map((optionId, index) => ({
+			id: optionId,
+			quantity: parsed.data.options[index].quantity,
+			food: optionFoods[index],
+		})),
+	});
 }
 
 export async function updateItemQuantityAction(
@@ -111,10 +142,13 @@ export async function updateItemQuantityAction(
 		: stale("Alimento não encontrado.");
 }
 
-/** Substitui o alimento do item (mesma posição); devolve o item atualizado. */
+/**
+ * Substitui o alimento do item (mesma posição); devolve o item atualizado
+ * (as opções continuam as mesmas).
+ */
 export async function replaceItemFoodAction(
 	input: unknown,
-): Promise<ActionResult<DietItem>> {
+): Promise<ActionResult<Omit<DietItem, "options">>> {
 	const user = await getCurrentUser();
 	const parsed = z
 		.object({ itemId: id, foodId: id, quantity })
@@ -156,4 +190,55 @@ export async function placeItemsAction(layout: unknown): Promise<ActionResult> {
 export async function resetDietAction(): Promise<ActionResult<DietMeal[]>> {
 	const user = await getCurrentUser();
 	return done(await resetDiet(user.id));
+}
+
+// --- Opções do item ---------------------------------------------------------
+
+/** Nova opção pro item ("ou 1 banana"); devolve a opção criada. */
+export async function addItemOptionAction(
+	input: unknown,
+): Promise<ActionResult<DietItemOption>> {
+	const user = await getCurrentUser();
+	const parsed = z
+		.object({ itemId: id, foodId: id, quantity })
+		.safeParse(input);
+	if (!parsed.success) return fail("Dados inválidos.");
+
+	const food = await findVisibleFood(user.id, parsed.data.foodId);
+	if (!food) return fail("Alimento não encontrado.");
+
+	const row = await addItemOption(
+		user.id,
+		parsed.data.itemId,
+		food.id,
+		parsed.data.quantity,
+	);
+	if (row === "not-found") return stale("Alimento não encontrado.");
+	if (row === "full") {
+		return fail(`Cada alimento aceita até ${MAX_ITEM_OPTIONS} opções.`);
+	}
+	return done({ ...row, food });
+}
+
+export async function deleteItemOptionAction(
+	optionId: unknown,
+): Promise<ActionResult> {
+	const user = await getCurrentUser();
+	const parsed = id.safeParse(optionId);
+	if (!parsed.success) return fail("Opção inválida.");
+	return (await deleteItemOption(user.id, parsed.data))
+		? done(null)
+		: stale("Opção não encontrada.");
+}
+
+/** Troca o alimento do item pela opção (e o de antes vira a opção). */
+export async function swapItemOptionAction(
+	optionId: unknown,
+): Promise<ActionResult> {
+	const user = await getCurrentUser();
+	const parsed = id.safeParse(optionId);
+	if (!parsed.success) return fail("Opção inválida.");
+	return (await swapItemOption(user.id, parsed.data))
+		? done(null)
+		: stale("Opção não encontrada.");
 }

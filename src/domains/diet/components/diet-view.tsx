@@ -25,12 +25,15 @@ import { toast } from "sonner";
 import {
 	type ActionResult,
 	addItemAction,
+	addItemOptionAction,
 	addMealAction,
 	deleteItemAction,
+	deleteItemOptionAction,
 	deleteMealAction,
 	placeItemsAction,
 	replaceItemFoodAction,
 	resetDietAction,
+	swapItemOptionAction,
 	updateMealAction,
 } from "~/domains/diet/actions/diet-actions";
 import { AddFoodSheet } from "~/domains/diet/components/add-food-sheet";
@@ -102,6 +105,24 @@ function mapMeal(
 ) {
 	return meals.map((meal) => (meal.id === mealId ? fn(meal) : meal));
 }
+
+function mapItem(
+	meals: DietMeal[],
+	itemId: string,
+	fn: (item: DietItem) => DietItem,
+) {
+	return meals.map((meal) => ({
+		...meal,
+		items: meal.items.map((item) => (item.id === itemId ? fn(item) : item)),
+	}));
+}
+
+/** Opções no formato de recriar (copiar, desfazer). */
+const optionInputs = (item: DietItem) =>
+	item.options.map((option) => ({
+		foodId: option.food.id,
+		quantity: option.quantity,
+	}));
 
 export function DietView({
 	initialMeals,
@@ -245,6 +266,7 @@ export function DietView({
 			foodId: item.food.id,
 			quantity: item.quantity,
 			index,
+			options: optionInputs(item),
 		});
 		if (!result.ok) {
 			handleError(result);
@@ -294,12 +316,10 @@ export function DietView({
 		return true;
 	}
 
-	function setItem(next: DietItem) {
+	/** Atualiza alimento/quantidade do item, mantendo as opções. */
+	function setItem(next: Omit<DietItem, "options">) {
 		setMeals((current) =>
-			current.map((meal) => ({
-				...meal,
-				items: meal.items.map((item) => (item.id === next.id ? next : item)),
-			})),
+			mapItem(current, next.id, (item) => ({ ...item, ...next })),
 		);
 	}
 
@@ -312,6 +332,7 @@ export function DietView({
 			mealId,
 			foodId: item.food.id,
 			quantity: item.quantity,
+			options: optionInputs(item),
 		});
 		if (!result.ok) {
 			handleError(result);
@@ -337,6 +358,85 @@ export function DietView({
 							})),
 						() => deleteItemAction(copy.id),
 					),
+			},
+		});
+		return true;
+	}
+
+	// --- Opções do item ("ou 1 banana") ----------------------------------------
+
+	async function addOption(itemId: string, food: Food, quantity: number) {
+		const result = await addItemOptionAction({
+			itemId,
+			foodId: food.id,
+			quantity,
+		});
+		if (!result.ok) {
+			handleError(result);
+			if (result.stale) setEditingItemId(null);
+			return false;
+		}
+		setMeals((current) =>
+			mapItem(current, itemId, (item) => ({
+				...item,
+				options: [...item.options, result.data],
+			})),
+		);
+		return true;
+	}
+
+	/** Remove a opção com "Desfazer" (recria no fim da lista). */
+	async function removeOption(itemId: string, optionId: string) {
+		const option = findItem(itemId)?.options.find((o) => o.id === optionId);
+		if (!option) return;
+		const ok = await optimistic(
+			(current) =>
+				mapItem(current, itemId, (item) => ({
+					...item,
+					options: item.options.filter((o) => o.id !== optionId),
+				})),
+			() => deleteItemOptionAction(optionId),
+		);
+		if (!ok) return;
+		toast(`Opção ${option.food.name} removida.`, {
+			duration: 8000,
+			action: {
+				label: "Desfazer",
+				onClick: () => addOption(itemId, option.food, option.quantity),
+			},
+		});
+	}
+
+	/**
+	 * "Usar esta": a opção vira o alimento do item e o de antes vira a opção,
+	 * no mesmo lugar. Desfazer = trocar de novo.
+	 */
+	async function swapOption(itemId: string, optionId: string) {
+		const item = findItem(itemId);
+		const option = item?.options.find((o) => o.id === optionId);
+		if (!item || !option) return false;
+		const swap = (current: DietMeal[]) =>
+			mapItem(current, itemId, (it) => {
+				const target = it.options.find((o) => o.id === optionId);
+				if (!target) return it;
+				return {
+					...it,
+					food: target.food,
+					quantity: target.quantity,
+					options: it.options.map((o) =>
+						o.id === optionId
+							? { ...o, food: it.food, quantity: it.quantity }
+							: o,
+					),
+				};
+			});
+		const ok = await optimistic(swap, () => swapItemOptionAction(optionId));
+		if (!ok) return false;
+		toast(`${option.food.name} no lugar de ${item.food.name}.`, {
+			duration: 8000,
+			action: {
+				label: "Desfazer",
+				onClick: () => optimistic(swap, () => swapItemOptionAction(optionId)),
 			},
 		});
 		return true;
@@ -671,6 +771,9 @@ export function DietView({
 				}
 				onReplace={replaceItem}
 				onCopy={copyItem}
+				onAddOption={addOption}
+				onRemoveOption={removeOption}
+				onSwapOption={swapOption}
 				onDelete={(itemId) => {
 					setEditingItemId(null);
 					removeItem(itemId);

@@ -105,7 +105,7 @@ Planejado em out/2026. Ordem pensada pra começar pelo que não usa IA e ir aume
 Feito (out/2026): grade de refeições, TACO + alimentos próprios, resumo estilo planilha, planejado × meta, arrastar e soltar, substituir alimento (com quantidade equivalente) e copiar pra outra refeição, modo Visualizar + PDF, resetar dieta.
 
 - Reordenar as próprias refeições arrastando (hoje só os alimentos se movem).
-- Substituições ("ou 100 g de cuscuz" da planilha): alternativas equivalentes por item.
+- ~~Substituições ("ou 100 g de cuscuz" da planilha)~~: feito (out/2026) como opções do item. Próximos passos possíveis: opções nas dietas prontas, lista de compras somando as opções, sugerir opções automaticamente (mesmo grupo de alimento).
 - Celular: resumo e meta ocupam a primeira tela; avaliar versão compacta/recolhível pra grade aparecer antes (desktop já resolvido com coluna lateral).
 - Porções caseiras na TACO (1 fatia, 1 colher) além de gramas.
 
