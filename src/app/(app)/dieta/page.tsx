@@ -80,7 +80,7 @@ function DietSkeleton() {
 				<Skeleton className="h-64 rounded-3xl" />
 				<Skeleton className="h-64 rounded-3xl" />
 			</div>
-			<div className="grid gap-4 md:grid-cols-2 min-[85rem]:grid-cols-3">
+			<div className="grid gap-4 md:grid-cols-2">
 				<Skeleton className="h-48 rounded-3xl" />
 				<Skeleton className="h-48 rounded-3xl" />
 				<Skeleton className="h-48 rounded-3xl" />

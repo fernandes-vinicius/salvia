@@ -7,7 +7,7 @@ import type { DietItem } from "~/domains/diet/types/diet-types";
 import { itemMacros } from "~/domains/diet/utils/diet";
 import { kcalFor, UNIT_LABELS } from "~/domains/food/utils/food";
 import { GripVertical } from "~/shared/components/icons";
-import { formatNumber } from "~/shared/lib/format";
+import { formatNonZero, formatNumber } from "~/shared/lib/format";
 import { cn } from "~/shared/lib/utils";
 
 interface SortableItemRowProps {
@@ -30,8 +30,6 @@ export function SortableItemRow({ item, onEdit }: SortableItemRowProps) {
 	} = useSortable({ id: item.id });
 
 	const macros = itemMacros(item);
-	const protein = macros.proteinAnimal + macros.proteinVegetal;
-	const isAnimal = item.food.proteinSource === "animal";
 
 	return (
 		<tr
@@ -72,25 +70,17 @@ export function SortableItemRow({ item, onEdit }: SortableItemRowProps) {
 					{formatNumber(item.quantity, 1)} {UNIT_LABELS[item.food.unit].short}
 				</span>
 			</td>
-			<td
-				className={cn(
-					"py-2 text-right",
-					isAnimal
-						? "text-macro-protein-ink"
-						: "text-macro-protein-vegetal-ink",
-				)}
-				title={isAnimal ? "Proteína animal" : "Proteína vegetal"}
-			>
-				{formatNumber(protein)}
+			<td className="py-2 text-right text-macro-protein-ink">
+				{formatNonZero(macros.proteinAnimal)}
 			</td>
 			<td className="py-2 text-right text-macro-carb-ink">
-				{formatNumber(macros.carbs)}
+				{formatNonZero(macros.carbs)}
 			</td>
 			<td className="py-2 text-right text-macro-fat-ink">
-				{formatNumber(macros.fat)}
+				{formatNonZero(macros.fat)}
 			</td>
 			<td className="py-2 text-right text-muted-foreground">
-				{formatNumber(kcalFor(macros))}
+				{formatNonZero(kcalFor(macros))}
 			</td>
 		</tr>
 	);

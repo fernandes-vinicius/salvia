@@ -4,8 +4,7 @@ import type { DietMeal } from "~/domains/diet/types/diet-types";
 import { itemMacros, mealMacros } from "~/domains/diet/utils/diet";
 import { kcalFor, UNIT_LABELS } from "~/domains/food/utils/food";
 import { Clock } from "~/shared/components/icons";
-import { formatNumber } from "~/shared/lib/format";
-import { cn } from "~/shared/lib/utils";
+import { formatNonZero, formatNumber } from "~/shared/lib/format";
 
 // Modo "Visualizar": a dieta só pra leitura, uma refeição abaixo da outra,
 // com o nome completo de cada alimento e a quantidade. É também o que vai
@@ -85,7 +84,6 @@ function PreviewMeal({ meal }: { meal: DietMeal }) {
 					<tbody>
 						{meal.items.map((item) => {
 							const macros = itemMacros(item);
-							const isAnimal = item.food.proteinSource === "animal";
 							const quantity = `${formatNumber(item.quantity, 1)} ${UNIT_LABELS[item.food.unit].short}`;
 							return (
 								<tr key={item.id} className="border-border border-t">
@@ -99,25 +97,17 @@ function PreviewMeal({ meal }: { meal: DietMeal }) {
 									<td className="hidden py-2 text-right text-muted-foreground sm:table-cell print:table-cell">
 										{quantity}
 									</td>
-									<td
-										className={cn(
-											"py-2 text-right",
-											isAnimal
-												? "text-macro-protein-ink"
-												: "text-macro-protein-vegetal-ink",
-										)}
-										title={isAnimal ? "Proteína animal" : "Proteína vegetal"}
-									>
-										{formatNumber(macros.proteinAnimal + macros.proteinVegetal)}
+									<td className="py-2 text-right text-macro-protein-ink">
+										{formatNonZero(macros.proteinAnimal)}
 									</td>
 									<td className="py-2 text-right text-macro-carb-ink">
-										{formatNumber(macros.carbs)}
+										{formatNonZero(macros.carbs)}
 									</td>
 									<td className="py-2 text-right text-macro-fat-ink">
-										{formatNumber(macros.fat)}
+										{formatNonZero(macros.fat)}
 									</td>
 									<td className="py-2 text-right text-muted-foreground">
-										{formatNumber(kcalFor(macros))}
+										{formatNonZero(kcalFor(macros))}
 									</td>
 								</tr>
 							);
@@ -128,16 +118,16 @@ function PreviewMeal({ meal }: { meal: DietMeal }) {
 							<td className="py-2">Total</td>
 							<td className="hidden sm:table-cell print:table-cell" />
 							<td className="py-2 text-right text-macro-protein-ink">
-								{formatNumber(total.proteinAnimal + total.proteinVegetal)}
+								{formatNonZero(total.proteinAnimal)}
 							</td>
 							<td className="py-2 text-right text-macro-carb-ink">
-								{formatNumber(total.carbs)}
+								{formatNonZero(total.carbs)}
 							</td>
 							<td className="py-2 text-right text-macro-fat-ink">
-								{formatNumber(total.fat)}
+								{formatNonZero(total.fat)}
 							</td>
 							<td className="py-2 text-right">
-								{formatNumber(kcalFor(total))}
+								{formatNonZero(kcalFor(total))}
 							</td>
 						</tr>
 					</tfoot>
