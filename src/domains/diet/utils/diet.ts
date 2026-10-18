@@ -7,6 +7,7 @@ import type {
 } from "~/domains/diet/types/diet-types";
 import type { Food, Macros } from "~/domains/food/types/food-types";
 import {
+	fiberFor,
 	kcalFor,
 	macrosFor,
 	quantityRangeFor,
@@ -62,7 +63,42 @@ export function summarizeDiet(
 		}),
 	) as Record<MacroKey, MacroLine>;
 
-	return { lines, kcal, surplus: tdee === null ? null : kcal - tdee };
+	return {
+		lines,
+		kcal,
+		fiber: dayFiber(meals),
+		surplus: tdee === null ? null : kcal - tdee,
+	};
+}
+
+export function dayFiber(meals: DietMeal[]) {
+	return meals.reduce(
+		(sum, meal) =>
+			sum +
+			meal.items.reduce(
+				(mealSum, item) => mealSum + fiberFor(item.food, item.quantity),
+				0,
+			),
+		0,
+	);
+}
+
+// --- Fibras -----------------------------------------------------------------
+
+/** Mínimo da OMS pra adultos (diretriz de carboidratos, 2023). */
+export const FIBER_MIN_GRAMS = 25;
+/** Referência americana (IOM): 14 g a cada 1.000 kcal. */
+const FIBER_PER_1000_KCAL = 14;
+
+/**
+ * Fibra recomendada pro dia: pelo menos 25 g (OMS) ou 14 g a cada
+ * 1.000 kcal planejadas, o que for maior.
+ */
+export function fiberTarget(kcal: number) {
+	return Math.max(
+		FIBER_MIN_GRAMS,
+		Math.round((kcal * FIBER_PER_1000_KCAL) / 1000),
+	);
 }
 
 /** Próximo nome livre: "Refeição 4" se já existem 1–3. */

@@ -35,6 +35,8 @@ export const food = pgTable(
 		protein: doublePrecision("protein").notNull(),
 		carbs: doublePrecision("carbs").notNull(),
 		fat: doublePrecision("fat").notNull(),
+		/** Fibra alimentar, na mesma base dos macros (não entra nas kcal). */
+		fiber: doublePrecision("fiber").notNull().default(0),
 		proteinSource: proteinSourceEnum("protein_source").notNull(),
 		createdAt: timestamp("created_at").defaultNow().notNull(),
 	},

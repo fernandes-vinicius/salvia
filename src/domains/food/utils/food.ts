@@ -50,6 +50,14 @@ export function macrosFor(
 	};
 }
 
+/** Fibra de uma porção (g), na mesma base dos macros. */
+export function fiberFor(
+	food: Pick<Food, "unit" | "fiber">,
+	quantity: number,
+): number {
+	return food.fiber * (food.unit === "unit" ? quantity : quantity / 100);
+}
+
 /** kcal pelos macros (4/4/9), igual à planilha. */
 export function kcalFor({ proteinAnimal, proteinVegetal, carbs, fat }: Macros) {
 	return (proteinAnimal + proteinVegetal) * 4 + carbs * 4 + fat * 9;

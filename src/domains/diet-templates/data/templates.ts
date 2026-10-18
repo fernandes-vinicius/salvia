@@ -16,6 +16,7 @@ export const TEMPLATE_CUSTOM_FOODS: Record<string, TemplateCustomFood> = {
 		protein: 80,
 		carbs: 7,
 		fat: 4,
+		fiber: 0,
 		proteinSource: "animal",
 	},
 };

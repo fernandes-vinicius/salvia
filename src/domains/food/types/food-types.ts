@@ -12,6 +12,8 @@ export interface Food {
 	protein: number;
 	carbs: number;
 	fat: number;
+	/** Fibra alimentar, na mesma base (não entra nas kcal). */
+	fiber: number;
 	proteinSource: ProteinSource;
 }
 

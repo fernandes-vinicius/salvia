@@ -29,6 +29,8 @@ export interface MacroLine {
 export interface DietSummary {
 	lines: Record<MacroKey, MacroLine>;
 	kcal: number;
+	/** Fibra alimentar do dia (g). */
+	fiber: number;
 	/** kcal planejadas − gasto diário (negativo = déficit). Null sem TMB. */
 	surplus: number | null;
 }

@@ -1,5 +1,10 @@
 import type { DietSummary, MacroKey } from "~/domains/diet/types/diet-types";
-import { MACRO_KEYS } from "~/domains/diet/utils/diet";
+import {
+	FIBER_MIN_GRAMS,
+	fiberTarget,
+	MACRO_KEYS,
+} from "~/domains/diet/utils/diet";
+import { Wheat } from "~/shared/components/icons";
 import { formatFixed, formatNumber } from "~/shared/lib/format";
 import { cn } from "~/shared/lib/utils";
 
@@ -16,9 +21,12 @@ interface DietSummaryCardProps {
 }
 
 // A legenda "OFF" da planilha: g · % · kcal · g/kg por macro, total e
-// excedente/déficit em relação ao gasto diário.
+// excedente/déficit em relação ao gasto diário. Fibra fica à parte (não
+// entra nas kcal), com a recomendação pro dia.
 export function DietSummaryCard({ summary, tdee }: DietSummaryCardProps) {
 	const { surplus } = summary;
+	const fiberGoal = fiberTarget(summary.kcal);
+	const fiberLow = Math.round(summary.fiber) < fiberGoal;
 
 	return (
 		<section
@@ -70,8 +78,44 @@ export function DietSummaryCard({ summary, tdee }: DietSummaryCardProps) {
 							</tr>
 						);
 					})}
+					<tr>
+						<th scope="row" className="py-2 text-left font-normal">
+							<span className="flex items-center gap-2 whitespace-nowrap">
+								<Wheat className="size-3.5 shrink-0 text-muted-foreground" />
+								Fibras
+							</span>
+						</th>
+						<td className="py-2 pl-2 text-right font-medium">
+							{formatNumber(summary.fiber)}
+						</td>
+						<td
+							colSpan={3}
+							className="py-2 pl-2 text-right text-muted-foreground text-xs"
+						>
+							recomendado {formatNumber(fiberGoal)} g
+						</td>
+					</tr>
 				</tbody>
 			</table>
+
+			<p className="text-pretty rounded-2xl bg-secondary px-4 py-3 text-secondary-foreground text-xs leading-relaxed">
+				{fiberLow ? (
+					<>
+						<strong className="font-semibold">
+							Faltam {fiberGoal - Math.round(summary.fiber)} g de fibra.
+						</strong>{" "}
+						A OMS indica pelo menos {FIBER_MIN_GRAMS} g por dia; pras suas
+						calorias, cerca de {formatNumber(fiberGoal)} g. Feijão, aveia,
+						frutas com casca e verduras ajudam.
+					</>
+				) : (
+					<>
+						<strong className="font-semibold">Fibra no recomendado.</strong>{" "}
+						Pelo menos {FIBER_MIN_GRAMS} g por dia (OMS), ou cerca de 14 g a
+						cada 1.000 kcal.
+					</>
+				)}
+			</p>
 
 			<dl className="flex flex-col divide-y divide-border rounded-2xl bg-muted px-4 text-sm">
 				<div className="flex items-center justify-between py-2.5">

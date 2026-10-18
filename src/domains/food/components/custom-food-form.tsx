@@ -64,6 +64,7 @@ export function CustomFoodForm({
 					protein: String(food.protein),
 					carbs: String(food.carbs),
 					fat: String(food.fat),
+					fiber: food.fiber ? String(food.fiber) : "",
 					proteinSource: food.proteinSource,
 				}
 			: { name: defaultName, unit: "g", proteinSource: "vegetal" },
@@ -164,6 +165,21 @@ export function CustomFoodForm({
 				</div>
 				<p className="-mt-3 text-muted-foreground text-xs">
 					Gramas de cada macro em {base}, como no rótulo.
+				</p>
+
+				<Field className="max-w-[calc((100%-1.5rem)/3)]">
+					<FieldLabel htmlFor={fields.fiber.id}>Fibra</FieldLabel>
+					<Input
+						{...getInputProps(fields.fiber, { type: "number" })}
+						step="0.1"
+						min="0"
+						inputMode="decimal"
+						placeholder="0"
+					/>
+					<FieldError errors={errorsOf(fields.fiber.errors)} />
+				</Field>
+				<p className="-mt-3 text-muted-foreground text-xs">
+					Opcional: se o rótulo trouxer, em {base}.
 				</p>
 
 				<Field>

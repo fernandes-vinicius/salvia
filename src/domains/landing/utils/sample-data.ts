@@ -48,10 +48,19 @@ function food(
 	name: string,
 	values: Pick<Food, "protein" | "carbs" | "fat" | "proteinSource"> & {
 		category?: string;
+		fiber?: number;
 	},
 	source: Food["source"] = "taco",
 ): Food {
-	return { id: name, source, name, category: null, unit: "g", ...values };
+	return {
+		id: name,
+		source,
+		name,
+		category: null,
+		unit: "g",
+		fiber: 0,
+		...values,
+	};
 }
 
 const ovo = food("Ovo, de galinha, inteiro, cozido/10minutos", {
@@ -66,6 +75,7 @@ const pao = food("Pão, trigo, forma, integral", {
 	protein: 9.4,
 	carbs: 49.9,
 	fat: 3.7,
+	fiber: 6.9,
 	proteinSource: "vegetal",
 });
 const banana = food("Banana, prata, crua", {
@@ -73,6 +83,7 @@ const banana = food("Banana, prata, crua", {
 	protein: 1.3,
 	carbs: 26,
 	fat: 0.1,
+	fiber: 2.0,
 	proteinSource: "vegetal",
 });
 const frango = food("Frango, peito, sem pele, grelhado", {
@@ -87,6 +98,7 @@ export const arroz = food("Arroz, tipo 1, cozido", {
 	protein: 2.5,
 	carbs: 28.1,
 	fat: 0.2,
+	fiber: 1.6,
 	proteinSource: "vegetal",
 });
 const feijao = food("Feijão, carioca, cozido", {
@@ -94,6 +106,7 @@ const feijao = food("Feijão, carioca, cozido", {
 	protein: 4.8,
 	carbs: 13.6,
 	fat: 0.5,
+	fiber: 8.5,
 	proteinSource: "vegetal",
 });
 const azeite = food("Azeite, de oliva, extra virgem", {
@@ -120,6 +133,7 @@ export const batataDoce = food("Batata, doce, cozida", {
 	protein: 0.6,
 	carbs: 18.4,
 	fat: 0.1,
+	fiber: 2.2,
 	proteinSource: "vegetal",
 });
 const patinho = food("Carne, bovina, patinho, sem gordura, grelhado", {
@@ -134,6 +148,7 @@ const aveia = food("Aveia, flocos, crua", {
 	protein: 13.9,
 	carbs: 66.6,
 	fat: 8.5,
+	fiber: 9.1,
 	proteinSource: "vegetal",
 });
 

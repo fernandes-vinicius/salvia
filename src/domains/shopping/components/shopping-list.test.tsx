@@ -26,6 +26,7 @@ const meals: DietMeal[] = [
 					protein: 13,
 					carbs: 1.6,
 					fat: 8.9,
+					fiber: 0,
 					proteinSource: "animal",
 				},
 			},

@@ -4,6 +4,7 @@ import type { DietMeal } from "~/domains/diet/types/diet-types";
 import {
 	changedLayouts,
 	equivalentQuantity,
+	fiberTarget,
 	mealMacros,
 	moveItemTo,
 	nextMealName,
@@ -13,10 +14,20 @@ import type { Food } from "~/domains/food/types/food-types";
 
 function food(
 	name: string,
-	values: Pick<Food, "protein" | "carbs" | "fat" | "proteinSource">,
+	values: Pick<Food, "protein" | "carbs" | "fat" | "proteinSource"> & {
+		fiber?: number;
+	},
 	unit: Food["unit"] = "g",
 ): Food {
-	return { id: name, source: "custom", name, category: null, unit, ...values };
+	return {
+		id: name,
+		source: "custom",
+		name,
+		category: null,
+		unit,
+		fiber: 0,
+		...values,
+	};
 }
 
 // Por 100 g (unidade no pão), escolhidos pra reproduzir a planilha.
@@ -97,6 +108,43 @@ describe("summarizeDiet", () => {
 		const empty = summarizeDiet([], { weightKg: 70, tdee: 2000 });
 		expect(empty.kcal).toBe(0);
 		expect(empty.lines.carbs.percent).toBe(0);
+	});
+});
+
+describe("fibras", () => {
+	it("soma a fibra por 100 g e por unidade, fora das kcal", () => {
+		const feijao = food("Feijão", {
+			protein: 4.8,
+			carbs: 13.6,
+			fat: 0.5,
+			fiber: 8.5,
+			proteinSource: "vegetal",
+		});
+		const torrada = food(
+			"Torrada",
+			{ protein: 1, carbs: 7, fat: 0.5, fiber: 0.5, proteinSource: "vegetal" },
+			"unit",
+		);
+		const day: DietMeal[] = [
+			{
+				id: "m",
+				name: "Almoço",
+				time: null,
+				items: [
+					{ id: "a", quantity: 200, food: feijao },
+					{ id: "b", quantity: 4, food: torrada },
+				],
+			},
+		];
+		const summary = summarizeDiet(day, { weightKg: null, tdee: null });
+		expect(summary.fiber).toBeCloseTo(19);
+		expect(summarizeDiet([], { weightKg: null, tdee: null }).fiber).toBe(0);
+	});
+
+	it("recomenda pelo menos 25 g ou 14 g a cada 1.000 kcal", () => {
+		expect(fiberTarget(0)).toBe(25);
+		expect(fiberTarget(1500)).toBe(25);
+		expect(fiberTarget(2500)).toBe(35);
 	});
 });
 

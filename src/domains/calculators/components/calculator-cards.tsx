@@ -8,7 +8,7 @@ import { ArrowRight } from "~/shared/components/icons";
 export function CalculatorCards({ heading = "h2" }: { heading?: "h2" | "h3" }) {
 	const Heading = heading;
 	return (
-		<ul className="grid gap-4 md:grid-cols-3">
+		<ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 			{CALCULATORS.map((calculator) => (
 				<li key={calculator.href}>
 					<Link

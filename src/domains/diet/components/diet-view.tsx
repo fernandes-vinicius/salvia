@@ -564,10 +564,14 @@ export function DietView({
 
 			{/* Celular: resumo no topo e 1 coluna. Tablet: resumo e meta lado a
 			    lado no topo, 2 colunas. ≥ lg: coluna lateral fixa à direita (como
-			    a legenda da planilha) e a grade à esquerda (3 colunas em telas
-			    largas, ordem 1 · 2 · 3 e as seguintes abaixo). */}
+			    a legenda da planilha) e a grade à esquerda em 2 colunas. */}
 			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start print:flex print:flex-col print:items-stretch print:gap-4">
-				<aside className="grid gap-4 md:grid-cols-2 md:items-start lg:sticky lg:top-6 lg:order-last lg:max-h-[calc(100svh-3rem)] lg:grid-cols-1 lg:overflow-y-auto print:static print:order-last print:max-h-none print:break-inside-avoid print:grid-cols-2 print:overflow-visible lg:[scrollbar-width:thin] print:[print-color-adjust:exact]">
+				<aside
+					// biome-ignore lint/a11y/noNoninteractiveTabindex: no desktop a coluna rola sozinha; o foco deixa rolar pelo teclado
+					tabIndex={0}
+					aria-label="Resumo do dia e meta"
+					className="grid gap-4 rounded-3xl outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 md:grid-cols-2 md:items-start lg:sticky lg:top-6 lg:order-last lg:max-h-[calc(100svh-3rem)] lg:grid-cols-1 lg:overflow-y-auto print:static print:order-last print:max-h-none print:break-inside-avoid print:grid-cols-2 print:overflow-visible lg:[scrollbar-width:thin] print:[print-color-adjust:exact]"
+				>
 					<DietSummaryCard summary={summary} tdee={tdee} />
 					{targets ? (
 						<GoalProgress summary={summary} targets={targets} />

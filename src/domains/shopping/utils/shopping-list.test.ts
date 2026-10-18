@@ -18,6 +18,7 @@ function taco(name: string, category: string): Food {
 		protein: 10,
 		carbs: 10,
 		fat: 1,
+		fiber: 0,
 		proteinSource: "animal",
 	};
 }
