@@ -54,6 +54,11 @@ export default function PrivacyPage() {
 						longo das semanas.
 					</li>
 					<li>
+						<strong>Sugestões que você envia:</strong> o tipo (ideia, problema
+						ou outro), a mensagem e a página do app em que você estava, quando
+						você usa “Enviar sugestão”.
+					</li>
+					<li>
 						<strong>Estatísticas de visita:</strong> páginas visitadas, de onde
 						veio o acesso, país, navegador e tipo de aparelho, de forma anônima
 						e agregada, sem cookies e sem identificar você.
@@ -90,6 +95,10 @@ export default function PrivacyPage() {
 						pra melhorar o app.
 					</li>
 					<li>Responder seus pedidos de suporte.</li>
+					<li>
+						Ler suas sugestões e relatos de problema pra decidir o que melhorar
+						no app.
+					</li>
 				</ul>
 				<p>
 					Não usamos seus dados pra publicidade, não vendemos e não
@@ -135,6 +144,12 @@ export default function PrivacyPage() {
 					transferência internacional de dados, feita com as garantias previstas
 					no art. 33 da LGPD (cláusulas contratuais dos próprios fornecedores).
 					Também podemos compartilhar dados se uma lei ou ordem judicial exigir.
+				</p>
+				<p>
+					Se você criar um link em “Compartilhar dieta”, quem tiver o link vê as
+					refeições, os alimentos e as quantidades da sua dieta atual, sem seu
+					nome, e-mail ou medidas. Você pode gerar um link novo ou desativá-lo a
+					qualquer momento.
 				</p>
 			</LegalSection>
 

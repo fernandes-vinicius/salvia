@@ -46,6 +46,7 @@ import {
 	type MealEditFocus,
 	MealEditSheet,
 } from "~/domains/diet/components/meal-edit-sheet";
+import { ShareDietSheet } from "~/domains/diet/components/share-diet-sheet";
 import { TRASH_ID, TrashZone } from "~/domains/diet/components/trash-zone";
 import type { DietItem, DietMeal } from "~/domains/diet/types/diet-types";
 import {
@@ -65,6 +66,7 @@ import {
 	Loader2Icon,
 	Plus,
 	RotateCcw,
+	Share,
 	ShoppingCart,
 } from "~/shared/components/icons";
 import {
@@ -182,6 +184,7 @@ export function DietView({
 	} | null>(null);
 	const [deletingMealId, setDeletingMealId] = useState<string | null>(null);
 	const [confirmingReset, setConfirmingReset] = useState(false);
+	const [sharing, setSharing] = useState(false);
 	const [resetting, setResetting] = useState(false);
 	const [addingMeal, setAddingMeal] = useState(false);
 	const [activeItemId, setActiveItemId] = useState<string | null>(null);
@@ -629,7 +632,8 @@ export function DietView({
 						}
 					/>
 				</label>
-				{/* Ações da dieta inteira (PDF, lista de compras, resetar). */}
+				{/* Ações da dieta inteira (PDF, lista de compras, compartilhar,
+				    resetar). */}
 				<DropdownMenu>
 					<DropdownMenuTrigger
 						render={
@@ -654,6 +658,10 @@ export function DietView({
 						>
 							<ShoppingCart />
 							Lista de compras
+						</DropdownMenuItem>
+						<DropdownMenuItem onClick={() => setSharing(true)}>
+							<Share />
+							Compartilhar dieta
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem
@@ -744,6 +752,8 @@ export function DietView({
 					</DndContext>
 				)}
 			</div>
+
+			<ShareDietSheet open={sharing} onOpenChange={setSharing} />
 
 			<AddFoodSheet
 				meal={findMeal(addingTo)}

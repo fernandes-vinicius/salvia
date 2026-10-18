@@ -65,3 +65,13 @@ export const dietItemOption = pgTable(
 	},
 	(table) => [index("diet_item_option_item_id_idx").on(table.itemId)],
 );
+
+// Link público só de leitura da dieta (`/d/:token`), um por pessoa. Apagar a
+// linha desativa o link; um token novo invalida o anterior.
+export const dietShare = pgTable("diet_share", {
+	userId: text("user_id")
+		.primaryKey()
+		.references(() => user.id, { onDelete: "cascade" }),
+	token: text("token").notNull().unique(),
+	createdAt: timestamp("created_at").defaultNow().notNull(),
+});

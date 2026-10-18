@@ -1,10 +1,17 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { authClient } from "~/domains/auth/lib/auth-client";
 import type { User } from "~/domains/auth/types/user-types";
-import { LogOut, Ruler, Salad } from "~/shared/components/icons";
+import { FeedbackSheet } from "~/domains/feedback";
+import {
+	LogOut,
+	MessageSquarePlus,
+	Ruler,
+	Salad,
+} from "~/shared/components/icons";
 import {
 	Avatar,
 	AvatarFallback,
@@ -32,6 +39,7 @@ function getInitials(name: string) {
 
 export function UserMenu({ user }: { user: User }) {
 	const router = useRouter();
+	const [feedbackOpen, setFeedbackOpen] = useState(false);
 
 	async function handleSignOut() {
 		await authClient.signOut();
@@ -39,56 +47,64 @@ export function UserMenu({ user }: { user: User }) {
 	}
 
 	return (
-		<DropdownMenu>
-			<DropdownMenuTrigger
-				render={
-					<Button
-						variant="ghost"
-						size="icon-sm"
-						className="rounded-full"
-						aria-label="Menu da conta"
-					/>
-				}
-			>
-				<Avatar size="sm">
-					{user.image && <AvatarImage src={user.image} alt={user.name} />}
-					<AvatarFallback>{getInitials(user.name)}</AvatarFallback>
-				</Avatar>
-			</DropdownMenuTrigger>
-			{/* Por padrão o menu tem a largura do gatilho (o avatar); aqui ele
+		<>
+			<DropdownMenu>
+				<DropdownMenuTrigger
+					render={
+						<Button
+							variant="ghost"
+							size="icon-sm"
+							className="rounded-full"
+							aria-label="Menu da conta"
+						/>
+					}
+				>
+					<Avatar size="sm">
+						{user.image && <AvatarImage src={user.image} alt={user.name} />}
+						<AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+					</Avatar>
+				</DropdownMenuTrigger>
+				{/* Por padrão o menu tem a largura do gatilho (o avatar); aqui ele
 			    acompanha o conteúdo, até caber na tela. */}
-			<DropdownMenuContent
-				align="end"
-				className="w-auto max-w-[min(20rem,calc(100vw-2rem))]"
-			>
-				<DropdownMenuGroup>
-					<DropdownMenuLabel className="flex min-w-0 flex-col">
-						<span className="truncate font-medium text-foreground">
-							{user.name}
-						</span>
-						<span
-							className="truncate font-normal text-muted-foreground text-xs"
-							title={user.email}
-						>
-							{user.email}
-						</span>
-					</DropdownMenuLabel>
-				</DropdownMenuGroup>
-				<DropdownMenuSeparator />
-				<DropdownMenuItem onClick={() => router.push("/medidas")}>
-					<Ruler />
-					Minhas medidas
-				</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => router.push("/alimentos")}>
-					<Salad />
-					Meus alimentos
-				</DropdownMenuItem>
-				<DropdownMenuSeparator />
-				<DropdownMenuItem onClick={handleSignOut}>
-					<LogOut />
-					Sair
-				</DropdownMenuItem>
-			</DropdownMenuContent>
-		</DropdownMenu>
+				<DropdownMenuContent
+					align="end"
+					className="w-auto max-w-[min(20rem,calc(100vw-2rem))]"
+				>
+					<DropdownMenuGroup>
+						<DropdownMenuLabel className="flex min-w-0 flex-col">
+							<span className="truncate font-medium text-foreground">
+								{user.name}
+							</span>
+							<span
+								className="truncate font-normal text-muted-foreground text-xs"
+								title={user.email}
+							>
+								{user.email}
+							</span>
+						</DropdownMenuLabel>
+					</DropdownMenuGroup>
+					<DropdownMenuSeparator />
+					<DropdownMenuItem onClick={() => router.push("/medidas")}>
+						<Ruler />
+						Minhas medidas
+					</DropdownMenuItem>
+					<DropdownMenuItem onClick={() => router.push("/alimentos")}>
+						<Salad />
+						Meus alimentos
+					</DropdownMenuItem>
+					<DropdownMenuSeparator />
+					<DropdownMenuItem onClick={() => setFeedbackOpen(true)}>
+						<MessageSquarePlus />
+						Enviar sugestão
+					</DropdownMenuItem>
+					<DropdownMenuSeparator />
+					<DropdownMenuItem onClick={handleSignOut}>
+						<LogOut />
+						Sair
+					</DropdownMenuItem>
+				</DropdownMenuContent>
+			</DropdownMenu>
+			<FeedbackSheet open={feedbackOpen} onOpenChange={setFeedbackOpen} />
+		</>
 	);
 }

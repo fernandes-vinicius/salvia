@@ -21,6 +21,8 @@
 		"db:seed:taco": "bun scripts/seed-taco.ts",
 		"metrics": "bun scripts/metrics.ts",
 		"metrics:prod": "bun --env-file=.env.neon scripts/metrics.ts",
+		"feedback": "bun scripts/feedback.ts",
+		"feedback:prod": "bun --env-file=.env.neon scripts/feedback.ts",
 		"generate-pwa-assets": "pwa-assets-generator"
 	},
 	"dependencies": {
