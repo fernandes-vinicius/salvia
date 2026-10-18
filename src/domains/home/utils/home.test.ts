@@ -34,6 +34,7 @@ function meal(id: string, time: string | null, items = 0): DietMeal {
 			id: `${id}-${i}`,
 			quantity: 100,
 			food: frango,
+			options: [],
 		})),
 	};
 }

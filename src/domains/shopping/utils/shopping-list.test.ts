@@ -50,6 +50,7 @@ function meal(items: [Food, number][]): DietMeal {
 			id: String(i),
 			food,
 			quantity,
+			options: [],
 		})),
 	};
 }

@@ -158,9 +158,9 @@ export const SAMPLE_MEALS: DietMeal[] = [
 		name: "Café da manhã",
 		time: "07:00",
 		items: [
-			{ id: "c1", quantity: 150, food: ovo },
-			{ id: "c2", quantity: 40, food: pao },
-			{ id: "c3", quantity: 100, food: banana },
+			{ id: "c1", quantity: 150, food: ovo, options: [] },
+			{ id: "c2", quantity: 40, food: pao, options: [] },
+			{ id: "c3", quantity: 100, food: banana, options: [] },
 		],
 	},
 	{
@@ -168,10 +168,10 @@ export const SAMPLE_MEALS: DietMeal[] = [
 		name: "Almoço",
 		time: "12:30",
 		items: [
-			{ id: "a1", quantity: 180, food: frango },
-			{ id: "a2", quantity: 150, food: arroz },
-			{ id: "a3", quantity: 100, food: feijao },
-			{ id: "a4", quantity: 12, food: azeite },
+			{ id: "a1", quantity: 180, food: frango, options: [] },
+			{ id: "a2", quantity: 150, food: arroz, options: [] },
+			{ id: "a3", quantity: 100, food: feijao, options: [] },
+			{ id: "a4", quantity: 12, food: azeite, options: [] },
 		],
 	},
 	{
@@ -179,8 +179,8 @@ export const SAMPLE_MEALS: DietMeal[] = [
 		name: "Pós-treino",
 		time: "17:30",
 		items: [
-			{ id: "p1", quantity: 40, food: whey },
-			{ id: "p2", quantity: 40, food: aveia },
+			{ id: "p1", quantity: 40, food: whey, options: [] },
+			{ id: "p2", quantity: 40, food: aveia, options: [] },
 		],
 	},
 	{
@@ -188,9 +188,9 @@ export const SAMPLE_MEALS: DietMeal[] = [
 		name: "Jantar",
 		time: "20:30",
 		items: [
-			{ id: "j1", quantity: 170, food: patinho },
-			{ id: "j2", quantity: 260, food: batataDoce },
-			{ id: "j3", quantity: 10, food: azeite },
+			{ id: "j1", quantity: 170, food: patinho, options: [] },
+			{ id: "j2", quantity: 260, food: batataDoce, options: [] },
+			{ id: "j3", quantity: 10, food: azeite, options: [] },
 		],
 	},
 	{
@@ -198,8 +198,8 @@ export const SAMPLE_MEALS: DietMeal[] = [
 		name: "Ceia",
 		time: "22:30",
 		items: [
-			{ id: "l1", quantity: 170, food: iogurte },
-			{ id: "l2", quantity: 20, food: aveia },
+			{ id: "l1", quantity: 170, food: iogurte, options: [] },
+			{ id: "l2", quantity: 20, food: aveia, options: [] },
 		],
 	},
 ];

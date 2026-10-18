@@ -28,7 +28,7 @@ const KCAL_PER_GRAM: Record<MacroKey, number> = {
 	fat: 9,
 };
 
-export function itemMacros(item: DietItem): Macros {
+export function itemMacros(item: Pick<DietItem, "food" | "quantity">): Macros {
 	return macrosFor(item.food, item.quantity);
 }
 
@@ -109,6 +109,11 @@ export function nextMealName(meals: Pick<DietMeal, "name">[]) {
 	return `Refeição ${n}`;
 }
 
+// --- Opções do item ---------------------------------------------------------
+
+/** Opções por item ("ou 1 banana"); mais que isso vira bagunça na grade. */
+export const MAX_ITEM_OPTIONS = 3;
+
 // --- Substituir alimento ----------------------------------------------------
 
 export type SwapMacro = "protein" | "carbs" | "fat";
@@ -128,7 +133,7 @@ export interface Equivalent {
  * alimento novo não tem esse macro.
  */
 export function equivalentQuantity(
-	item: DietItem,
+	item: Pick<DietItem, "food" | "quantity">,
 	food: Pick<Food, "unit" | "protein" | "carbs" | "fat">,
 ): Equivalent | null {
 	const macros = itemMacros(item);

@@ -93,6 +93,17 @@ function PreviewMeal({ meal }: { meal: DietMeal }) {
 										<span className="block text-muted-foreground text-xs sm:hidden print:hidden">
 											{quantity}
 										</span>
+										{item.options.map((option) => (
+											<span
+												key={option.id}
+												className="block text-muted-foreground text-xs"
+											>
+												<span className="font-medium text-primary">ou</span>{" "}
+												{formatNumber(option.quantity, 1)}{" "}
+												{UNIT_LABELS[option.food.unit].short} ·{" "}
+												{option.food.name}
+											</span>
+										))}
 									</td>
 									<td className="hidden py-2 text-right text-muted-foreground sm:table-cell print:table-cell">
 										{quantity}
