@@ -25,7 +25,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "~/shared/components/ui/dropdown-menu";
-import { formatNumber } from "~/shared/lib/format";
+import { formatNonZero, formatNumber } from "~/shared/lib/format";
 import { cn } from "~/shared/lib/utils";
 
 interface MealCardProps {
@@ -116,8 +116,9 @@ export function MealCard({
 				strategy={verticalListSortingStrategy}
 			>
 				{meal.items.length > 0 ? (
-					// Cada macro na sua cor (letra e valor), como no resumo. A
-					// proteína usa a cor da origem: verde-escuro animal, sálvia vegetal.
+					// Cada macro na sua cor (letra e valor), como no resumo. A coluna
+					// de proteína é só a animal (a da meta, pra distribuir entre as
+					// refeições); a vegetal aparece no resumo do dia.
 					<table className="w-full text-sm tabular-nums">
 						<thead>
 							<tr className="text-xs">
@@ -161,15 +162,15 @@ export function MealCard({
 								<td />
 								<td className="py-2">Total</td>
 								<td className="py-2 text-right text-macro-protein-ink">
-									{formatNumber(total.proteinAnimal + total.proteinVegetal)}
+									{formatNonZero(total.proteinAnimal)}
 								</td>
 								<td className="py-2 text-right text-macro-carb-ink">
-									{formatNumber(total.carbs)}
+									{formatNonZero(total.carbs)}
 								</td>
 								<td className="py-2 text-right text-macro-fat-ink">
-									{formatNumber(total.fat)}
+									{formatNonZero(total.fat)}
 								</td>
-								<td className="py-2 text-right">{formatNumber(totalKcal)}</td>
+								<td className="py-2 text-right">{formatNonZero(totalKcal)}</td>
 							</tr>
 						</tfoot>
 					</table>

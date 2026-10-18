@@ -597,7 +597,7 @@ export function DietView({
 						onDragEnd={handleDragEnd}
 						onDragCancel={handleDragCancel}
 					>
-						<div className="grid gap-4 md:grid-cols-2 md:items-start min-[85rem]:grid-cols-3">
+						<div className="grid gap-4 md:grid-cols-2 md:items-start">
 							{meals.map((meal) => (
 								<MealCard
 									key={meal.id}
