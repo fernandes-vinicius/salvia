@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { toast } from "sonner";
 
-import { deleteMeasurementAction } from "~/domains/measurements/actions/measurement-actions";
+import {
+	deleteMeasurementAction,
+	resetMeasurementsAction,
+} from "~/domains/measurements/actions/measurement-actions";
 import { EvolutionChart } from "~/domains/measurements/components/evolution-chart";
 import { MeasurementForm } from "~/domains/measurements/components/measurement-form";
 import { MeasurementHistory } from "~/domains/measurements/components/measurement-history";
@@ -17,7 +20,13 @@ import {
 	latestValues,
 } from "~/domains/measurements/utils/measurements";
 import { BottomSheetContent } from "~/shared/components/bottom-sheet";
-import { Plus, Ruler } from "~/shared/components/icons";
+import {
+	EllipsisVertical,
+	Loader2Icon,
+	Plus,
+	RotateCcw,
+	Ruler,
+} from "~/shared/components/icons";
 import {
 	AlertDialog,
 	AlertDialogCancel,
@@ -28,6 +37,12 @@ import {
 	AlertDialogTitle,
 } from "~/shared/components/ui/alert-dialog";
 import { Button } from "~/shared/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "~/shared/components/ui/dropdown-menu";
 import {
 	Empty,
 	EmptyContent,
@@ -61,6 +76,8 @@ export function MeasurementsView({
 	const [selected, setSelected] = useState<MeasurementKey>("weightKg");
 	const [editing, setEditing] = useState<Editing | null>(null);
 	const [deleting, setDeleting] = useState<Measurement | null>(null);
+	const [confirmingReset, setConfirmingReset] = useState(false);
+	const [resetting, setResetting] = useState(false);
 
 	function handleSaved(saved: Measurement) {
 		setMeasurements((current) =>
@@ -82,6 +99,21 @@ export function MeasurementsView({
 			setMeasurements(previous);
 			toast.error(result.error);
 		}
+	}
+
+	async function handleReset() {
+		setResetting(true);
+		const result = await resetMeasurementsAction();
+		setResetting(false);
+		if (!result.ok) {
+			toast.error(result.error);
+			return;
+		}
+		setConfirmingReset(false);
+		setMeasurements([]);
+		toast.success(
+			"Histórico apagado. Registre a primeira medição pra recomeçar.",
+		);
 	}
 
 	const newButton = (
@@ -118,7 +150,32 @@ export function MeasurementsView({
 						<p className="text-muted-foreground text-sm">
 							Última medição em {formatDate(measurements[0].measuredOn)}
 						</p>
-						{newButton}
+						<div className="flex items-center gap-2">
+							{newButton}
+							{/* Ações do histórico inteiro (como o menu da Dieta). */}
+							<DropdownMenu>
+								<DropdownMenuTrigger
+									render={
+										<Button
+											variant="outline"
+											size="icon"
+											aria-label="Opções das medidas"
+										/>
+									}
+								>
+									<EllipsisVertical />
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align="end" className="w-auto">
+									<DropdownMenuItem
+										variant="destructive"
+										onClick={() => setConfirmingReset(true)}
+									>
+										<RotateCcw />
+										Resetar medidas
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
+						</div>
 					</div>
 					<MeasurementStats
 						measurements={measurements}
@@ -191,6 +248,40 @@ export function MeasurementsView({
 							onClick={() => deleting && handleDelete(deleting)}
 						>
 							Excluir
+						</Button>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
+
+			<AlertDialog
+				open={confirmingReset}
+				onOpenChange={(open) => !resetting && setConfirmingReset(open)}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Resetar suas medidas?</AlertDialogTitle>
+						<AlertDialogDescription>
+							{measurements.length === 1
+								? "A medição registrada será apagada"
+								: `As ${measurements.length} medições registradas serão apagadas`}{" "}
+							e o histórico e o gráfico recomeçam do zero. Isso não pode ser
+							desfeito. TMB, meta e dieta continuam como estão.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel disabled={resetting}>Cancelar</AlertDialogCancel>
+						<Button
+							variant="destructive"
+							disabled={resetting}
+							onClick={handleReset}
+						>
+							{resetting && (
+								<Loader2Icon
+									data-icon="inline-start"
+									className="animate-spin"
+								/>
+							)}
+							Resetar medidas
 						</Button>
 					</AlertDialogFooter>
 				</AlertDialogContent>

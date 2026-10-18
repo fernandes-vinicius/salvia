@@ -89,3 +89,12 @@ export async function deleteMeasurement(userId: string, id: string) {
 		.returning({ id: bodyMeasurement.id });
 	return rows.length > 0;
 }
+
+/** Apaga todo o histórico do usuário (recomeçar do zero). */
+export async function deleteAllMeasurements(userId: string) {
+	const rows = await db
+		.delete(bodyMeasurement)
+		.where(eq(bodyMeasurement.userId, userId))
+		.returning({ id: bodyMeasurement.id });
+	return rows.length;
+}
