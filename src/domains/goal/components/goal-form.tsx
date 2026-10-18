@@ -3,25 +3,19 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { useCalculatorDraftImport } from "~/domains/calculators";
 import { saveGoal } from "~/domains/goal/actions/save-goal";
-import { GoalWarnings } from "~/domains/goal/components/goal-warnings";
-import { MacroTargets } from "~/domains/goal/components/macro-targets";
-import { ObjectivePicker } from "~/domains/goal/components/objective-picker";
-import { PacePicker } from "~/domains/goal/components/pace-picker";
+import { GoalFields } from "~/domains/goal/components/goal-fields";
 import { TargetSummary } from "~/domains/goal/components/target-summary";
-import type { Goal, Objective } from "~/domains/goal/types/goal-types";
-import {
-	calculateTargets,
-	defaultGoalFor,
-	findPace,
-} from "~/domains/goal/utils/goal";
+import { goalSchema } from "~/domains/goal/schemas/goal-schema";
+import type { Goal } from "~/domains/goal/types/goal-types";
+import { calculateTargets } from "~/domains/goal/utils/goal";
 import type { BodyProfile } from "~/domains/profile/types/profile-types";
 import {
 	type BmrFormula,
 	calculateBmr,
 	calculateTdee,
 } from "~/domains/profile/utils/energy";
-import { FormSection } from "~/shared/components/form-section";
 import { useAutosave } from "~/shared/hooks/use-autosave";
 
 interface GoalFormProps {
@@ -40,11 +34,10 @@ export function GoalForm({
 	bmrFormula,
 }: GoalFormProps) {
 	const [goal, setGoal] = useState(initialGoal);
-	const [isCustomPace, setIsCustomPace] = useState(
-		initialGoal.objective !== "maintain" &&
-			!findPace(initialGoal.objective, initialGoal.calorieAdjustment),
-	);
 	const [hasSaved, setHasSaved] = useState(!isExample);
+	// Muda quando a meta é trocada de fora (rascunho da calculadora), pra os
+	// campos recalcularem o estado interno (ritmo personalizado).
+	const [fieldsKey, setFieldsKey] = useState(0);
 
 	const { status, schedule } = useAutosave<Goal>({
 		save: async (value) => {
@@ -67,15 +60,21 @@ export function GoalForm({
 		weightKg: profile.weightKg,
 	});
 
+	useCalculatorDraftImport({
+		key: "goal",
+		schema: goalSchema,
+		enabled: isExample,
+		onImport: (draft) => {
+			setGoal(draft);
+			setFieldsKey((key) => key + 1);
+			schedule(draft);
+			toast.success("Trouxemos a meta que você montou na calculadora.");
+		},
+	});
+
 	function update(next: Goal) {
 		setGoal(next);
 		schedule(next);
-	}
-
-	// Trocar de objetivo volta pro ritmo recomendado e macros sugeridos dele.
-	function handleObjectiveChange(objective: Objective) {
-		setIsCustomPace(false);
-		update(defaultGoalFor(objective));
 	}
 
 	return (
@@ -89,51 +88,13 @@ export function GoalForm({
 				className="sticky top-3 z-10 md:top-6 md:order-2"
 			/>
 
-			<div className="flex flex-col gap-8 md:order-1">
-				<FormSection title="Objetivo" description="O que você quer agora?">
-					<ObjectivePicker
-						value={goal.objective}
-						onValueChange={handleObjectiveChange}
-					/>
-				</FormSection>
-
-				{goal.objective !== "maintain" && (
-					<FormSection
-						title="Ritmo"
-						description={
-							goal.objective === "lose"
-								? "Quanto mais rápido, mais difícil de manter. O recomendado é seguro para a maioria."
-								: "Ganhar devagar ajuda a ganhar mais músculo e menos gordura."
-						}
-					>
-						<PacePicker
-							objective={goal.objective}
-							adjustment={goal.calorieAdjustment}
-							isCustom={isCustomPace}
-							onPresetChange={(calorieAdjustment) => {
-								setIsCustomPace(false);
-								update({ ...goal, calorieAdjustment });
-							}}
-							onCustomToggle={() => setIsCustomPace(true)}
-							onCustomChange={(calorieAdjustment) =>
-								update({ ...goal, calorieAdjustment })
-							}
-						/>
-					</FormSection>
-				)}
-
-				<FormSection
-					title="Macros"
-					description="Sugeridos para o seu objetivo. Ajuste só se quiser."
-				>
-					<GoalWarnings warnings={targets.warnings} />
-					<MacroTargets
-						goal={goal}
-						targets={targets}
-						onChange={(macros) => update({ ...goal, ...macros })}
-					/>
-				</FormSection>
-			</div>
+			<GoalFields
+				key={fieldsKey}
+				goal={goal}
+				targets={targets}
+				onChange={update}
+				className="md:order-1"
+			/>
 		</div>
 	);
 }

@@ -8,8 +8,9 @@ interface TargetSummaryProps {
 	targets: GoalTargets;
 	tdee: number;
 	calorieAdjustment: number;
-	status: AutosaveStatus;
-	isExample: boolean;
+	/** Sem `status` (calculadora pública), o selo de salvamento some. */
+	status?: AutosaveStatus;
+	isExample?: boolean;
 	className?: string;
 }
 
@@ -24,7 +25,7 @@ export function TargetSummary({
 	tdee,
 	calorieAdjustment,
 	status,
-	isExample,
+	isExample = false,
 	className,
 }: TargetSummaryProps) {
 	const macros = [
@@ -49,7 +50,7 @@ export function TargetSummary({
 		>
 			<div className="flex items-center justify-between gap-2">
 				<p className="text-sm opacity-90">Meta diária</p>
-				<SaveStatus status={status} isExample={isExample} />
+				{status && <SaveStatus status={status} isExample={isExample} />}
 			</div>
 
 			<p className="font-heading font-semibold text-4xl tabular-nums md:text-5xl">

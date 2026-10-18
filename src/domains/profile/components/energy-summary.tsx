@@ -6,15 +6,16 @@ import { cn } from "~/shared/lib/utils";
 
 interface EnergySummaryProps {
 	energy: EnergyBreakdown;
-	status: AutosaveStatus;
-	isExample: boolean;
+	/** Sem `status` (calculadora pública), o selo de salvamento some. */
+	status?: AutosaveStatus;
+	isExample?: boolean;
 	className?: string;
 }
 
 export function EnergySummary({
 	energy,
 	status,
-	isExample,
+	isExample = false,
 	className,
 }: EnergySummaryProps) {
 	// Composição do gasto, na ordem em que soma. Treinos desligados somem.
@@ -36,7 +37,7 @@ export function EnergySummary({
 		>
 			<div className="flex items-center justify-between gap-2">
 				<p className="text-sm opacity-90">Gasto calórico diário</p>
-				<SaveStatus status={status} isExample={isExample} />
+				{status && <SaveStatus status={status} isExample={isExample} />}
 			</div>
 
 			<p className="font-heading font-semibold text-4xl tabular-nums md:text-5xl">

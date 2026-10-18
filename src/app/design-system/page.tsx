@@ -131,7 +131,7 @@ export default function DesignSystemPage() {
 				<Card>
 					<CardHeader>
 						<CardTitle>Resumo do dia</CardTitle>
-						<CardDescription>Déficit de 471 kcal</CardDescription>
+						<CardDescription>471 kcal abaixo do gasto</CardDescription>
 					</CardHeader>
 					<CardContent className="flex flex-col gap-4">
 						<div className="flex items-center gap-2">

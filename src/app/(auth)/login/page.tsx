@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 
 import {
@@ -44,9 +45,12 @@ export default function LoginPage() {
 					<GoogleSignInButton />
 				</div>
 
-				<p className="text-balance text-muted-foreground text-xs">
-					Usamos sua conta Google apenas para identificar você. Seus dados de
-					dieta ficam vinculados a ela.
+				<p className="text-balance text-muted-foreground text-xs leading-relaxed [&_a]:font-medium [&_a]:text-foreground [&_a]:underline [&_a]:underline-offset-4">
+					Ao entrar, você concorda com os{" "}
+					<Link href="/termos">Termos de uso</Link> e com a{" "}
+					<Link href="/privacidade">Política de privacidade</Link>, incluindo o
+					uso dos seus dados de corpo e dieta pra calcular o seu plano. O{" "}
+					{APP_NAME} não substitui nutricionista.
 				</p>
 			</CardContent>
 			<RedirectIfAuthenticated />

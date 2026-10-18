@@ -6,13 +6,22 @@ import { SkipLink } from "~/shared/components/skip-link";
 import { Button } from "~/shared/components/ui/button";
 import { APP_NAME, APP_TAGLINE } from "~/shared/lib/app-config";
 
+// Âncoras com `/` na frente: o layout também serve calculadoras e páginas
+// legais, de onde o link precisa voltar pra landing.
 const NAV = [
-	{ href: "#recursos", label: "Recursos" },
-	{ href: "#como-funciona", label: "Como funciona" },
-	{ href: "#duvidas", label: "Dúvidas" },
+	{ href: "/#recursos", label: "Recursos" },
+	{ href: "/#como-funciona", label: "Como funciona" },
+	{ href: "/calculadoras", label: "Calculadoras" },
+	{ href: "/#duvidas", label: "Dúvidas" },
 ] as const;
 
-// Páginas públicas (landing): sem sessão, sem barra de abas.
+const FOOTER_LINKS = [
+	{ href: "/calculadoras", label: "Calculadoras" },
+	{ href: "/termos", label: "Termos de uso" },
+	{ href: "/privacidade", label: "Privacidade" },
+] as const;
+
+// Páginas públicas (landing, calculadoras, termos): sem barra de abas.
 export default function MarketingLayout({ children }: LayoutProps<"/">) {
 	return (
 		<div className="flex min-h-svh flex-col">
@@ -26,7 +35,7 @@ export default function MarketingLayout({ children }: LayoutProps<"/">) {
 					>
 						<Logo />
 					</Link>
-					<nav aria-label="Seções" className="hidden md:block">
+					<nav aria-label="Principal" className="hidden md:block">
 						<ul className="flex items-center gap-1">
 							{NAV.map((item) => (
 								<li key={item.href}>
@@ -56,16 +65,32 @@ export default function MarketingLayout({ children }: LayoutProps<"/">) {
 			</div>
 
 			<footer className="border-border border-t">
-				<div className="mx-auto flex w-full max-w-6xl flex-col gap-2 px-4 py-8 text-muted-foreground text-sm sm:flex-row sm:items-center sm:justify-between sm:px-6">
-					<p>
-						<span className="font-heading font-semibold text-foreground">
-							{APP_NAME}
-						</span>{" "}
-						· {APP_TAGLINE}
-					</p>
+				<div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 text-muted-foreground text-sm sm:px-6">
+					<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+						<p>
+							<span className="font-heading font-semibold text-foreground">
+								{APP_NAME}
+							</span>{" "}
+							· {APP_TAGLINE}
+						</p>
+						<nav aria-label="Rodapé">
+							<ul className="flex flex-wrap gap-x-5 gap-y-2">
+								{FOOTER_LINKS.map((link) => (
+									<li key={link.href}>
+										<Link
+											href={link.href}
+											className="rounded-sm underline-offset-4 outline-none hover:text-foreground hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50"
+										>
+											{link.label}
+										</Link>
+									</li>
+								))}
+							</ul>
+						</nav>
+					</div>
 					<p className="text-xs">
-						Ferramenta de planejamento. Não substitui acompanhamento de
-						nutricionista ou médico.
+						Ferramenta de cálculo e planejamento. Não faz prescrição dietética e
+						não substitui acompanhamento de nutricionista ou médico.
 					</p>
 				</div>
 			</footer>

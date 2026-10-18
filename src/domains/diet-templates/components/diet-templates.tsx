@@ -79,8 +79,9 @@ export function DietTemplates({
 					Dietas prontas
 				</h2>
 				<p className="text-muted-foreground text-sm">
-					Escolha um modelo e a dieta é montada com as quantidades certas pra
-					você. Depois é só ajustar.
+					Modelos de exemplo com as quantidades recalculadas pras metas que você
+					definiu. Não são prescrição: use como ponto de partida e ajuste como
+					quiser.
 				</p>
 			</div>
 
@@ -100,7 +101,7 @@ export function DietTemplates({
 						<div className="flex flex-col gap-1 rounded-2xl bg-muted px-4 py-3">
 							<p className="text-muted-foreground text-xs">
 								{template.personalized
-									? "Pra você"
+									? "Nas suas metas"
 									: "Quantidades de referência"}{" "}
 								· {template.mealCount} refeições
 							</p>
@@ -131,8 +132,8 @@ export function DietTemplates({
 						<SheetTitle>{viewing?.name}</SheetTitle>
 						<SheetDescription>
 							{viewing?.personalized
-								? "Quantidades ajustadas às suas metas"
-								: "Quantidades de referência (preencha TMB e Meta pra ajustar)"}
+								? "Modelo de exemplo, recalculado pras suas metas"
+								: "Modelo de exemplo com quantidades de referência (preencha TMB e Meta pra ajustar)"}
 						</SheetDescription>
 						{viewing && (
 							<div className="flex flex-col items-center gap-1 pt-1">
@@ -173,7 +174,7 @@ export function DietTemplates({
 								? `Sua dieta atual (${currentMealCount} ${currentMealCount === 1 ? "refeição" : "refeições"}) será substituída por esta. Isso não pode ser desfeito.`
 								: "A dieta será montada com as refeições e alimentos do modelo."}{" "}
 							{confirming?.personalized
-								? "As quantidades já vêm ajustadas às suas metas."
+								? "As quantidades são recalculadas pras metas que você definiu; confira e ajuste como quiser."
 								: "Preencha TMB e Meta depois pra ajustar as quantidades."}
 						</AlertDialogDescription>
 					</AlertDialogHeader>

@@ -1,3 +1,4 @@
+import { PrintFooter } from "~/domains/diet/components/print-footer";
 import { PrintHeader } from "~/domains/diet/components/print-header";
 import type { DietMeal } from "~/domains/diet/types/diet-types";
 import { itemMacros, mealMacros } from "~/domains/diet/utils/diet";
@@ -9,7 +10,8 @@ import { cn } from "~/shared/lib/utils";
 // Modo "Visualizar": a dieta só pra leitura, uma refeição abaixo da outra,
 // com o nome completo de cada alimento e a quantidade. É também o que vai
 // pro PDF (impressão do navegador). Sem estado: renderiza no servidor (a
-// landing usa sem JS); o cabeçalho/ajuste do PDF só entra com `printable`.
+// landing usa sem JS); o cabeçalho/ajuste e a assinatura do PDF só entram
+// com `printable`.
 export function DietPreview({
 	meals,
 	printable = false,
@@ -23,6 +25,7 @@ export function DietPreview({
 			{meals.map((meal) => (
 				<PreviewMeal key={meal.id} meal={meal} />
 			))}
+			{printable && <PrintFooter />}
 		</div>
 	);
 }
