@@ -64,6 +64,13 @@
       "when": 1792259273665,
       "tag": "0008_overjoyed_the_initiative",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792331625160,
+      "tag": "0009_brief_thunderbolt",
+      "breakpoints": true
     }
   ]
 }

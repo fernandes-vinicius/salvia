@@ -5,7 +5,10 @@ import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { DietView } from "~/domains/diet";
 import { getDiet } from "~/domains/diet/services/diet-service";
 import { calculateTargets } from "~/domains/goal";
-import { findGoalByUserId } from "~/domains/goal/services/goal-service";
+import {
+	findGoalByUserId,
+	findGoalCalibration,
+} from "~/domains/goal/services/goal-service";
 import { calculateBmr, calculateTdee } from "~/domains/profile";
 import { findProfileByUserId } from "~/domains/profile/services/profile-service";
 import { getSettingsByUserId } from "~/domains/settings/services/settings-service";
@@ -34,16 +37,20 @@ export default function DietaPage() {
 
 async function DietContent() {
 	const user = await getCurrentUser();
-	const [meals, profile, goal, settings] = await Promise.all([
+	const [meals, profile, goal, settings, calibration] = await Promise.all([
 		getDiet(user.id),
 		findProfileByUserId(user.id),
 		findGoalByUserId(user.id),
 		getSettingsByUserId(user.id),
+		findGoalCalibration(user.id),
 	]);
 
 	// Gasto e meta vêm das abas TMB e Meta; sem eles, a grade funciona mas o
-	// resumo não mostra excedente nem comparação com a meta.
-	const tdee = profile ? calculateTdee(profile, settings.bmrFormula) : null;
+	// resumo não mostra excedente nem comparação com a meta. O gasto inclui o
+	// ajuste pelo peso real (aba Meta).
+	const tdee = profile
+		? calculateTdee(profile, settings.bmrFormula) + calibration.kcal
+		: null;
 	const targets =
 		profile && goal && tdee !== null
 			? calculateTargets(goal, {

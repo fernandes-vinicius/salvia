@@ -6,8 +6,11 @@ import { cn } from "~/shared/lib/utils";
 
 interface TargetSummaryProps {
 	targets: GoalTargets;
+	/** Gasto calculado pela fórmula (sem o ajuste pelo peso). */
 	tdee: number;
 	calorieAdjustment: number;
+	/** Ajuste do gasto pelo peso real (kcal/dia), quando houver. */
+	calibrationKcal?: number;
 	/** Sem `status` (calculadora pública), o selo de salvamento some. */
 	status?: AutosaveStatus;
 	isExample?: boolean;
@@ -24,6 +27,7 @@ export function TargetSummary({
 	targets,
 	tdee,
 	calorieAdjustment,
+	calibrationKcal = 0,
 	status,
 	isExample = false,
 	className,
@@ -58,7 +62,10 @@ export function TargetSummary({
 				<span className="ml-1.5 font-normal text-lg opacity-90">kcal</span>
 			</p>
 			<p className="text-sm opacity-90">
-				Gasto {formatNumber(tdee)} {formatAdjustment(calorieAdjustment)}
+				Gasto {formatNumber(tdee)}
+				{calibrationKcal !== 0 &&
+					` ${formatAdjustment(calibrationKcal)} pelo seu peso`}{" "}
+				{formatAdjustment(calorieAdjustment)}
 			</p>
 
 			<div

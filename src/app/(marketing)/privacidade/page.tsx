@@ -49,6 +49,16 @@ export default function PrivacyPage() {
 						no login, guardados junto da sessão pra mantê-la segura.
 					</li>
 					<li>
+						<strong>Uso do app:</strong> os dias em que você abriu o app (só a
+						data, sem o que você fez), pra medir se o app está sendo útil ao
+						longo das semanas.
+					</li>
+					<li>
+						<strong>Estatísticas de visita:</strong> páginas visitadas, de onde
+						veio o acesso, país, navegador e tipo de aparelho, de forma anônima
+						e agregada, sem cookies e sem identificar você.
+					</li>
+					<li>
 						<strong>Preferências no aparelho:</strong> tema (claro ou escuro) e
 						os valores digitados nas calculadoras ficam só no armazenamento
 						local do seu navegador.
@@ -71,6 +81,14 @@ export default function PrivacyPage() {
 						aparelho.
 					</li>
 					<li>Identificar você e proteger a sua conta.</li>
+					<li>
+						Sugerir ajustes na sua meta a partir das pesagens que você registra
+						(o ajuste só é aplicado se você confirmar).
+					</li>
+					<li>
+						Entender, em números agregados, quais páginas e recursos são usados,
+						pra melhorar o app.
+					</li>
 					<li>Responder seus pedidos de suporte.</li>
 				</ul>
 				<p>
@@ -105,7 +123,7 @@ export default function PrivacyPage() {
 					</li>
 					<li>
 						<strong>Vercel</strong>: hospedagem do site, com servidores em São
-						Paulo.
+						Paulo, e estatísticas anônimas de visita (Vercel Web Analytics).
 					</li>
 					<li>
 						<strong>Neon</strong>: banco de dados, hospedado em São Paulo (AWS
@@ -168,8 +186,9 @@ export default function PrivacyPage() {
 
 			<LegalSection title="9. Cookies">
 				<p>
-					Usamos só o cookie de sessão, necessário pra manter você conectado.
-					Não usamos cookies de publicidade nem de rastreamento de terceiros.
+					Usamos só o cookie de sessão, necessário pra manter você conectado. As
+					estatísticas de visita funcionam sem cookies. Não usamos cookies de
+					publicidade nem de rastreamento de terceiros.
 				</p>
 			</LegalSection>
 

@@ -4,8 +4,10 @@ import dynamic from "next/dynamic";
 import { useState } from "react";
 
 import {
+	SAMPLE_CALIBRATION,
 	SAMPLE_GOAL,
 	SAMPLE_MEASUREMENTS,
+	SAMPLE_SHOPPING,
 	SAMPLE_TARGETS,
 } from "~/domains/landing/utils/sample-data";
 import type { MeasurementKey } from "~/domains/measurements/types/measurement-types";
@@ -40,6 +42,22 @@ const EvolutionChart = dynamic(
 	},
 );
 
+const CalibrationCard = dynamic(
+	() =>
+		import("~/domains/goal/components/calibration-card").then(
+			(mod) => mod.CalibrationCard,
+		),
+	{ ssr: false, loading: () => <Placeholder className="h-56" /> },
+);
+
+const ShoppingGroups = dynamic(
+	() =>
+		import("~/domains/shopping/components/shopping-groups").then(
+			(mod) => mod.ShoppingGroups,
+		),
+	{ ssr: false, loading: () => <Placeholder className="h-[26rem]" /> },
+);
+
 // Telas interativas do app com os dados da persona. Na landing ficam dentro
 // de `ShowcaseFrame` (inert), então os callbacks nunca disparam.
 
@@ -64,6 +82,36 @@ export function SampleMeasurements() {
 				onSelect={setSelected}
 			/>
 		</>
+	);
+}
+
+export function SampleCalibration() {
+	return (
+		<CalibrationCard
+			analysis={SAMPLE_CALIBRATION}
+			calibration={{ kcal: 0, since: null }}
+		/>
+	);
+}
+
+/** Seções que mais mostram a conversão (pronto → cru, unidades). */
+const SHOWN_SECTIONS = new Set([
+	"Açougue e peixaria",
+	"Laticínios e ovos",
+	"Mercearia",
+]);
+const SAMPLE_CHECKED = new Set(["rule:Ovos", "rule:Arroz"]);
+
+export function SampleShopping() {
+	return (
+		<ShoppingGroups
+			groups={SAMPLE_SHOPPING.filter((group) =>
+				SHOWN_SECTIONS.has(group.section),
+			)}
+			checked={SAMPLE_CHECKED}
+			onToggle={noop}
+			className="md:grid-cols-1"
+		/>
 	);
 }
 

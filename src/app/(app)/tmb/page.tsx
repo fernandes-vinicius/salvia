@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 
 import { getCurrentUser } from "~/domains/auth/services/session-service";
+import { findGoalCalibration } from "~/domains/goal/services/goal-service";
 import { EXAMPLE_PROFILE, TmbForm } from "~/domains/profile";
 import { findProfileByUserId } from "~/domains/profile/services/profile-service";
 import { getSettingsByUserId } from "~/domains/settings/services/settings-service";
 import { PageHeader } from "~/shared/components/page-header";
 import { Skeleton } from "~/shared/components/ui/skeleton";
+import { formatNumber } from "~/shared/lib/format";
 
 export const metadata: Metadata = { title: "TMB" };
 
@@ -26,17 +29,36 @@ export default function TmbPage() {
 
 async function TmbContent() {
 	const user = await getCurrentUser();
-	const [profile, settings] = await Promise.all([
+	const [profile, settings, calibration] = await Promise.all([
 		findProfileByUserId(user.id),
 		getSettingsByUserId(user.id),
+		findGoalCalibration(user.id),
 	]);
 
 	return (
-		<TmbForm
-			initialProfile={profile ?? EXAMPLE_PROFILE}
-			isExample={!profile}
-			bmrFormula={settings.bmrFormula}
-		/>
+		<div className="flex flex-col gap-6">
+			{calibration.kcal !== 0 && (
+				<p className="text-pretty rounded-2xl bg-secondary px-4 py-3 text-sm">
+					Pelo seu peso real, o app ajustou esse gasto em{" "}
+					<strong className="tabular-nums">
+						{calibration.kcal > 0 ? "+" : "−"}
+						{formatNumber(Math.abs(calibration.kcal))} kcal
+					</strong>{" "}
+					por dia. A Meta e a Dieta já usam o valor ajustado.{" "}
+					<Link
+						href="/meta"
+						className="font-medium underline underline-offset-4"
+					>
+						Ver na Meta
+					</Link>
+				</p>
+			)}
+			<TmbForm
+				initialProfile={profile ?? EXAMPLE_PROFILE}
+				isExample={!profile}
+				bmrFormula={settings.bmrFormula}
+			/>
+		</div>
 	);
 }
 

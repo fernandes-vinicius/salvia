@@ -8,8 +8,16 @@ import { DietTemplates, previewTemplates } from "~/domains/diet-templates";
 import { getTemplateFoods } from "~/domains/diet-templates/services/diet-template-service";
 import { listCustomFoods } from "~/domains/food/services/food-service";
 import { calculateTargets } from "~/domains/goal";
+import { CalibrationCard } from "~/domains/goal/components/calibration-card";
 import { GOAL_WARNING_MESSAGES } from "~/domains/goal/components/goal-warnings";
-import { findGoalByUserId } from "~/domains/goal/services/goal-service";
+import {
+	findGoalByUserId,
+	findGoalCalibration,
+} from "~/domains/goal/services/goal-service";
+import {
+	analyzeCalibration,
+	toWeighIns,
+} from "~/domains/goal/utils/calibration";
 import { AttentionList } from "~/domains/home/components/attention-list";
 import { GoalCard } from "~/domains/home/components/goal-card";
 import { MeasurementsCard } from "~/domains/home/components/measurements-card";
@@ -30,6 +38,7 @@ import { findProfileByUserId } from "~/domains/profile/services/profile-service"
 import { getSettingsByUserId } from "~/domains/settings/services/settings-service";
 import { Skeleton } from "~/shared/components/ui/skeleton";
 import { APP_TAGLINE } from "~/shared/lib/app-config";
+import { localDateString } from "~/shared/lib/dates";
 
 export const metadata: Metadata = { title: "Início" };
 
@@ -53,6 +62,7 @@ async function HomeContent() {
 		customFoods,
 		measurements,
 		templateFoods,
+		calibration,
 	] = await Promise.all([
 		findProfileByUserId(user.id),
 		findGoalByUserId(user.id),
@@ -62,9 +72,21 @@ async function HomeContent() {
 		listCustomFoods(user.id),
 		listMeasurements(user.id),
 		getTemplateFoods(user.id),
+		findGoalCalibration(user.id),
 	]);
 
-	const tdee = profile ? calculateTdee(profile, settings.bmrFormula) : null;
+	// Gasto da fórmula + o ajuste pelo peso real já aplicado.
+	const tdee = profile
+		? calculateTdee(profile, settings.bmrFormula) + calibration.kcal
+		: null;
+	const calibrationAnalysis = goal
+		? analyzeCalibration({
+				weighIns: toWeighIns(measurements),
+				today: localDateString(),
+				since: calibration.since,
+				calorieAdjustment: goal.calorieAdjustment,
+			})
+		: null;
 	const targets =
 		profile && goal && tdee !== null
 			? calculateTargets(goal, {
@@ -143,6 +165,12 @@ async function HomeContent() {
 			{!hasFoods && templates}
 
 			{targets && <PlanOverview summary={summary} targets={targets} />}
+			{calibrationAnalysis && (
+				<CalibrationCard
+					analysis={calibrationAnalysis}
+					calibration={calibration}
+				/>
+			)}
 
 			<div className="grid gap-4 sm:grid-cols-2 sm:items-start">
 				{goal && targets && tdee !== null && (

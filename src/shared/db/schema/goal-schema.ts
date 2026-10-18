@@ -24,6 +24,13 @@ export const goal = pgTable("goal", {
 	fatPerKg: doublePrecision("fat_per_kg").notNull(),
 	/** g/kg fixado pelo usuário; `null` = automático (o que sobra da meta). */
 	carbsPerKg: doublePrecision("carbs_per_kg"),
+	/**
+	 * Correção do gasto pelo peso real (kcal/dia, soma ao gasto da fórmula).
+	 * Vem do ajuste automático; não é editada pelo formulário da Meta.
+	 */
+	calibrationKcal: integer("calibration_kcal").notNull().default(0),
+	/** Quando a correção foi aplicada (a próxima análise começa daqui). */
+	calibratedAt: timestamp("calibrated_at"),
 	updatedAt: timestamp("updated_at")
 		.defaultNow()
 		.$onUpdate(() => new Date())

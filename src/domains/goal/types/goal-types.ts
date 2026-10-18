@@ -33,3 +33,11 @@ export interface GoalTargets {
 }
 
 export type GoalWarning = "below-bmr" | "carbs-negative" | "carbs-low";
+
+/** Correção do gasto pelo peso real (ajuste automático da meta). */
+export interface GoalCalibration {
+	/** kcal/dia somadas ao gasto da fórmula (negativo = gasta menos). */
+	kcal: number;
+	/** "YYYY-MM-DD" do último ajuste, ou nulo se nunca ajustou. */
+	since: string | null;
+}
