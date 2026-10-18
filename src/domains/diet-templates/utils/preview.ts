@@ -28,6 +28,16 @@ export function previewTemplates(
 			tag: template.tag,
 			description: template.description,
 			mealCount: meals.length,
+			meals: meals.map((meal, mealIndex) => ({
+				id: `${template.id}-${mealIndex}`,
+				name: meal.name,
+				time: meal.time,
+				items: meal.items.map((item, itemIndex) => ({
+					id: `${template.id}-${mealIndex}-${itemIndex}`,
+					food: item.food,
+					quantity: item.quantity,
+				})),
+			})),
 			kcal: kcalFor(macros),
 			macros,
 			personalized: goal !== null,

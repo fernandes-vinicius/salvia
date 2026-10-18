@@ -6,8 +6,8 @@ import type {
 // Dietas prontas do dashboard. Alimentos da TACO pelo `taco` (id da tabela,
 // igual em qualquer banco); os de rótulo vêm de `TEMPLATE_CUSTOM_FOODS`.
 // As quantidades são a referência: ao aplicar, são escaladas pras metas da
-// pessoa (ver `personalizeTemplate`). Pra criar outro modelo (barata,
-// bulking…), é só adicionar à lista.
+// pessoa (ver `personalizeTemplate`). Pra criar outro modelo, é só
+// adicionar à lista.
 
 export const TEMPLATE_CUSTOM_FOODS: Record<string, TemplateCustomFood> = {
 	whey: {
@@ -33,6 +33,19 @@ const TACO = {
 	amendoim: 558, // Amendoim, torrado, salgado
 	leitePo: 459, // Leite, de vaca, integral, pó
 	aveia: 7, // Aveia, flocos, crua
+	ovoCozido: 488, // Ovo, de galinha, inteiro, cozido/10minutos
+	paoFrances: 53, // Pão, trigo, francês
+	feijao: 561, // Feijão, carioca, cozido
+	coxaFrango: 398, // Frango, coxa, sem pele, cozida
+	acemMoido: 326, // Carne, bovina, acém, moído, cozido
+	cuscuz: 533, // Cuscuz, de milho, cozido com sal
+	repolho: 149, // Repolho, branco, cru
+	cenoura: 110, // Cenoura, crua
+	patinho: 377, // Carne, bovina, patinho, sem gordura, grelhado
+	batataDoce: 88, // Batata, doce, cozida
+	beterraba: 97, // Beterraba, cozida
+	queijoMinas: 461, // Queijo, minas, frescal
+	iogurte: 448, // Iogurte, natural
 } as const;
 
 export const DIET_TEMPLATES: DietTemplate[] = [
@@ -89,6 +102,118 @@ export const DIET_TEMPLATES: DietTemplate[] = [
 					{ custom: "whey", quantity: 30 },
 					{ taco: TACO.leitePo, quantity: 20 },
 					{ taco: TACO.aveia, quantity: 40 },
+				],
+			},
+		],
+	},
+	{
+		id: "economica",
+		name: "Econômica",
+		tag: "Barata",
+		description:
+			"4 refeições de feira e mercado: ovo, coxa de frango, carne moída, arroz, feijão e cuscuz. Sem suplemento.",
+		meals: [
+			{
+				name: "Café da manhã",
+				time: "07:00",
+				items: [
+					{ taco: TACO.paoFrances, quantity: 50 },
+					{ taco: TACO.ovoCozido, quantity: 150 },
+					{ taco: TACO.banana, quantity: 100 },
+				],
+			},
+			{
+				name: "Almoço",
+				time: "12:00",
+				items: [
+					{ taco: TACO.arroz, quantity: 150 },
+					{ taco: TACO.feijao, quantity: 140 },
+					{ taco: TACO.coxaFrango, quantity: 150 },
+					{ taco: TACO.repolho, quantity: 50 },
+					{ taco: TACO.cenoura, quantity: 30 },
+				],
+			},
+			{
+				name: "Lanche",
+				time: "16:00",
+				items: [
+					{ taco: TACO.cuscuz, quantity: 150 },
+					{ taco: TACO.ovoCozido, quantity: 100 },
+				],
+			},
+			{
+				name: "Jantar",
+				time: "20:00",
+				items: [
+					{ taco: TACO.arroz, quantity: 120 },
+					{ taco: TACO.feijao, quantity: 100 },
+					{ taco: TACO.acemMoido, quantity: 120 },
+				],
+			},
+		],
+	},
+	{
+		id: "bulking-limpo",
+		name: "Bulking limpo",
+		tag: "Bulking",
+		description:
+			"6 refeições a cada 3 horas, com carboidrato antes do treino e muita comida de verdade pra bater o superávit.",
+		meals: [
+			{
+				name: "Café da manhã",
+				time: "07:00",
+				items: [
+					{ taco: TACO.ovoCozido, quantity: 150 },
+					{ taco: TACO.aveia, quantity: 50 },
+					{ taco: TACO.banana, quantity: 120 },
+					{ taco: TACO.leitePo, quantity: 30 },
+				],
+			},
+			{
+				name: "Lanche da manhã",
+				time: "10:00",
+				items: [
+					{ taco: TACO.paoFrances, quantity: 100 },
+					{ taco: TACO.queijoMinas, quantity: 30 },
+					{ custom: "whey", quantity: 30 },
+				],
+			},
+			{
+				name: "Almoço",
+				time: "13:00",
+				items: [
+					{ taco: TACO.arroz, quantity: 200 },
+					{ taco: TACO.feijao, quantity: 100 },
+					{ taco: TACO.patinho, quantity: 150 },
+					{ taco: TACO.azeite, quantity: 10 },
+					{ taco: TACO.beterraba, quantity: 50 },
+				],
+			},
+			{
+				name: "Pré-treino",
+				time: "16:00",
+				items: [
+					{ taco: TACO.batataDoce, quantity: 200 },
+					{ taco: TACO.frangoGrelhado, quantity: 120 },
+				],
+			},
+			{
+				name: "Jantar",
+				time: "20:00",
+				items: [
+					{ taco: TACO.arroz, quantity: 200 },
+					{ taco: TACO.frangoGrelhado, quantity: 150 },
+					{ taco: TACO.azeite, quantity: 10 },
+					{ taco: TACO.alface, quantity: 50 },
+				],
+			},
+			{
+				name: "Ceia",
+				time: "22:30",
+				items: [
+					{ taco: TACO.iogurte, quantity: 170 },
+					{ taco: TACO.aveia, quantity: 30 },
+					{ taco: TACO.amendoim, quantity: 25 },
 				],
 			},
 		],

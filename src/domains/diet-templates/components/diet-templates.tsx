@@ -4,10 +4,12 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { DietPreview } from "~/domains/diet/components/diet-preview";
 import { applyDietTemplateAction } from "~/domains/diet-templates/actions/diet-template-actions";
 import type { DietTemplatePreview } from "~/domains/diet-templates/types/diet-template-preview";
 import { MacroLine } from "~/domains/food/components/macro-line";
-import { Loader2Icon, Sparkles } from "~/shared/components/icons";
+import { BottomSheetContent } from "~/shared/components/bottom-sheet";
+import { Eye, Loader2Icon, Sparkles } from "~/shared/components/icons";
 import {
 	AlertDialog,
 	AlertDialogCancel,
@@ -19,6 +21,13 @@ import {
 } from "~/shared/components/ui/alert-dialog";
 import { Badge } from "~/shared/components/ui/badge";
 import { Button } from "~/shared/components/ui/button";
+import {
+	Sheet,
+	SheetDescription,
+	SheetFooter,
+	SheetHeader,
+	SheetTitle,
+} from "~/shared/components/ui/sheet";
 import { formatNumber } from "~/shared/lib/format";
 
 interface DietTemplatesProps {
@@ -30,7 +39,7 @@ interface DietTemplatesProps {
 
 // Dietas prontas: um toque cria a dieta inteira, já com as quantidades
 // ajustadas às metas da pessoa (TMB + Meta). Substitui a dieta atual, então
-// pede confirmação.
+// pede confirmação. "Visualizar" mostra a dieta montada antes de decidir.
 export function DietTemplates({
 	templates,
 	currentMealCount,
@@ -40,6 +49,7 @@ export function DietTemplates({
 	const [confirming, setConfirming] = useState<DietTemplatePreview | null>(
 		null,
 	);
+	const [viewing, setViewing] = useState<DietTemplatePreview | null>(null);
 	const [pending, setPending] = useState(false);
 
 	async function apply(template: DietTemplatePreview) {
@@ -74,7 +84,7 @@ export function DietTemplates({
 				</p>
 			</div>
 
-			<ul className="grid gap-3 sm:grid-cols-2">
+			<ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
 				{templates.map((template) => (
 					<li
 						key={template.id}
@@ -99,12 +109,57 @@ export function DietTemplates({
 							</p>
 							<MacroLine macros={template.macros} />
 						</div>
-						<Button className="mt-auto" onClick={() => setConfirming(template)}>
-							Usar esta dieta
-						</Button>
+						<div className="mt-auto flex flex-col gap-2">
+							<Button variant="secondary" onClick={() => setViewing(template)}>
+								<Eye data-icon="inline-start" />
+								Visualizar
+							</Button>
+							<Button onClick={() => setConfirming(template)}>
+								Usar esta dieta
+							</Button>
+						</div>
 					</li>
 				))}
 			</ul>
+
+			<Sheet
+				open={viewing !== null}
+				onOpenChange={(open) => !open && setViewing(null)}
+			>
+				<BottomSheetContent className="max-w-2xl">
+					<SheetHeader className="text-center">
+						<SheetTitle>{viewing?.name}</SheetTitle>
+						<SheetDescription>
+							{viewing?.personalized
+								? "Quantidades ajustadas às suas metas"
+								: "Quantidades de referência (preencha TMB e Meta pra ajustar)"}
+						</SheetDescription>
+						{viewing && (
+							<div className="flex flex-col items-center gap-1 pt-1">
+								<p className="font-heading font-semibold tabular-nums">
+									~{formatNumber(viewing.kcal)} kcal · {viewing.mealCount}{" "}
+									refeições
+								</p>
+								<MacroLine macros={viewing.macros} />
+							</div>
+						)}
+					</SheetHeader>
+					<div className="flex-1 overflow-y-auto bg-background px-4 py-4 md:px-6">
+						{viewing && <DietPreview meals={viewing.meals} />}
+					</div>
+					<SheetFooter>
+						<Button
+							size="lg"
+							onClick={() => {
+								setConfirming(viewing);
+								setViewing(null);
+							}}
+						>
+							Usar esta dieta
+						</Button>
+					</SheetFooter>
+				</BottomSheetContent>
+			</Sheet>
 
 			<AlertDialog
 				open={confirming !== null}
