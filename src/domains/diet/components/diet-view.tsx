@@ -82,6 +82,7 @@ import {
 	DropdownMenuTrigger,
 } from "~/shared/components/ui/dropdown-menu";
 import { Switch } from "~/shared/components/ui/switch";
+import { useStickyTop } from "~/shared/hooks/use-sticky-top";
 import { formatNumber } from "~/shared/lib/format";
 
 interface DietViewProps {
@@ -146,6 +147,10 @@ export function DietView({
 	// re-render comitar: a ref espelhada (atualizada de forma síncrona) garante
 	// que o fim do arrasto leia a posição mais recente (mesmo padrão do listify).
 	const mealsRef = useRef(meals);
+	// Coluna lateral fixa no desktop: gruda no topo ou, se for mais alta que
+	// a tela, pelo fim (acima da barra de abas), sem rolagem própria.
+	const asideRef = useRef<HTMLElement>(null);
+	const asideTop = useStickyTop(asideRef, { top: 24, bottom: 88 });
 	const dragSnapshot = useRef<DietMeal[]>(meals);
 
 	const [addingTo, setAddingTo] = useState<string | null>(null);
@@ -567,10 +572,9 @@ export function DietView({
 			    a legenda da planilha) e a grade à esquerda em 2 colunas. */}
 			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start print:flex print:flex-col print:items-stretch print:gap-4">
 				<aside
-					// biome-ignore lint/a11y/noNoninteractiveTabindex: no desktop a coluna rola sozinha; o foco deixa rolar pelo teclado
-					tabIndex={0}
-					aria-label="Resumo do dia e meta"
-					className="grid gap-4 rounded-3xl outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 md:grid-cols-2 md:items-start lg:sticky lg:top-6 lg:order-last lg:max-h-[calc(100svh-3rem)] lg:grid-cols-1 lg:overflow-y-auto print:static print:order-last print:max-h-none print:break-inside-avoid print:grid-cols-2 print:overflow-visible lg:[scrollbar-width:thin] print:[print-color-adjust:exact]"
+					ref={asideRef}
+					style={{ top: asideTop }}
+					className="grid gap-4 md:grid-cols-2 md:items-start lg:sticky lg:order-last lg:grid-cols-1 print:static print:order-last print:break-inside-avoid print:grid-cols-2 print:[print-color-adjust:exact]"
 				>
 					<DietSummaryCard summary={summary} tdee={tdee} />
 					{targets ? (
