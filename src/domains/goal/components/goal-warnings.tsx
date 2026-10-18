@@ -19,7 +19,10 @@ export function GoalWarnings({ warnings }: { warnings: GoalWarning[] }) {
 			{warnings.map((warning) => (
 				<Alert key={warning} variant="destructive">
 					<TriangleAlertIcon />
-					<AlertDescription>{GOAL_WARNING_MESSAGES[warning]}</AlertDescription>
+					{/* Cor cheia: a padrão (90%) fica abaixo de 4,5:1 sobre o card. */}
+					<AlertDescription className="text-destructive!">
+						{GOAL_WARNING_MESSAGES[warning]}
+					</AlertDescription>
 				</Alert>
 			))}
 		</div>
