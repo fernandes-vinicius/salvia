@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 
 import { authClient } from "~/domains/auth/lib/auth-client";
 import type { User } from "~/domains/auth/types/user-types";
-import { LogOut, Ruler } from "~/shared/components/icons";
+import { LogOut, Ruler, Salad } from "~/shared/components/icons";
 import {
 	Avatar,
 	AvatarFallback,
@@ -78,6 +78,10 @@ export function UserMenu({ user }: { user: User }) {
 				<DropdownMenuItem onClick={() => router.push("/medidas")}>
 					<Ruler />
 					Minhas medidas
+				</DropdownMenuItem>
+				<DropdownMenuItem onClick={() => router.push("/alimentos")}>
+					<Salad />
+					Meus alimentos
 				</DropdownMenuItem>
 				<DropdownMenuSeparator />
 				<DropdownMenuItem onClick={handleSignOut}>

@@ -107,7 +107,7 @@ export function planVerdict(
 export interface AttentionItem {
 	id: string;
 	message: string;
-	href: "/tmb" | "/meta" | "/dieta" | "/configuracoes";
+	href: "/tmb" | "/meta" | "/dieta" | "/alimentos";
 	action: string;
 }
 
@@ -129,14 +129,14 @@ export function suspiciousFoods(foods: CustomFoodSummary[]): AttentionItem[] {
 			items.push({
 				id: `food-impossible-${food.id}`,
 				message: `${food.name} tem mais de 100 g de macros em 100 g. Confira se os valores do rótulo são por 100 g.`,
-				href: "/configuracoes",
+				href: "/alimentos",
 				action: "Revisar alimento",
 			});
 		} else if (PROTEIN_POWDER.test(name) && food.protein < 50) {
 			items.push({
 				id: `food-powder-${food.id}`,
 				message: `${food.name} está com ${formatNumber(food.protein)} g de proteína por 100 g. Isso parece ser o valor de uma dose: proteína em pó costuma ter 70 a 85 g por 100 g.`,
-				href: "/configuracoes",
+				href: "/alimentos",
 				action: "Revisar alimento",
 			});
 		}

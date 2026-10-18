@@ -219,7 +219,7 @@ export default function DesignSystemPage() {
 							id: "food",
 							message:
 								"whey protein está com 25 g de proteína por 100 g. Isso parece ser o valor de uma dose.",
-							href: "/configuracoes",
+							href: "/alimentos",
 							action: "Revisar alimento",
 						},
 					]}
