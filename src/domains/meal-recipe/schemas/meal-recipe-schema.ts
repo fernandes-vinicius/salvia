@@ -1,8 +1,13 @@
 import { z } from "zod";
 
+import {
+	isUnsplashImage,
+	type RecipePhoto,
+} from "~/domains/meal-recipe/utils/recipe-photo";
+
 // O que a IA devolve (saída estruturada). Os ingredientes da refeição não
 // vêm daqui: a tela mostra os da própria dieta, então os macros não mudam.
-export const mealRecipeSchema = z.object({
+export const aiRecipeSchema = z.object({
 	title: z
 		.string()
 		.describe('Nome curto e apetitoso, ex.: "Shake de banana com canela".'),
@@ -35,9 +40,17 @@ export const mealRecipeSchema = z.object({
 		.describe(
 			"Uma dica prática curta (variação de tempero, como servir), ou null.",
 		),
+	imageQuery: z
+		.string()
+		.describe(
+			'Termo de busca de foto EM INGLÊS, 2 ou 3 palavras, só do prato principal pronto, sem acompanhamentos (ex.: "banana smoothie", "chicken rice bowl", "scrambled eggs").',
+		),
 });
 
-export type MealRecipe = z.infer<typeof mealRecipeSchema>;
+/** A receita como a tela mostra: o texto da IA + a foto ilustrativa. */
+export type MealRecipe = Omit<z.infer<typeof aiRecipeSchema>, "imageQuery"> & {
+	photo: RecipePhoto | null;
+};
 
 export const suggestRecipeInputSchema = z.object({
 	mealId: z.uuid(),
@@ -57,6 +70,20 @@ export const recipeInputSchema = z.object({
 	extras: z.array(z.object({ name: text(60), amount: text(60) })).max(12),
 	steps: z.array(text(400)).min(1).max(8),
 	tip: z.string().trim().max(300).nullable(),
+	photo: z
+		.object({
+			url: z.string().max(600).refine(isUnsplashImage),
+			alt: z.string().max(300),
+			authorName: text(120),
+			authorUrl: z.string().max(400).startsWith("https://unsplash.com/"),
+			photoUrl: z.string().max(400).startsWith("https://unsplash.com/"),
+			downloadLocation: z
+				.string()
+				.max(400)
+				.startsWith("https://api.unsplash.com/"),
+		})
+		.nullable()
+		.default(null),
 });
 
 export const saveRecipeInputSchema = z.object({

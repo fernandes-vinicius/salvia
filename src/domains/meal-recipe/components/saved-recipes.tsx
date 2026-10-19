@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useQueryState } from "nuqs";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -128,6 +129,18 @@ export function SavedRecipes({ initialRecipes, meals }: SavedRecipesProps) {
 							onClick={() => setOpenId(recipe.id)}
 							className="flex h-full w-full flex-col gap-1.5 rounded-3xl bg-card p-4 text-left outline-none transition-colors hover:bg-muted focus-visible:ring-[3px] focus-visible:ring-ring/50"
 						>
+							{recipe.photo && (
+								<span className="relative mb-1.5 block aspect-video overflow-hidden rounded-2xl bg-muted">
+									<Image
+										src={recipe.photo.url}
+										alt=""
+										fill
+										unoptimized
+										sizes="(min-width: 40rem) 20rem, 100vw"
+										className="object-cover"
+									/>
+								</span>
+							)}
 							<span className="text-muted-foreground text-xs">
 								{recipe.mealName}
 							</span>

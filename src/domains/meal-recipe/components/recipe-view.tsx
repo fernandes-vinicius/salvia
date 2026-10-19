@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { ReactNode } from "react";
 
 import { householdHint, kcalFor, MacroLine, UNIT_LABELS } from "~/domains/food";
@@ -24,6 +25,42 @@ export function RecipeView({ recipe, snapshot, notice }: RecipeViewProps) {
 
 	return (
 		<article className="flex flex-col gap-5">
+			{recipe.photo && (
+				<figure className="flex flex-col gap-1.5">
+					<div className="relative aspect-video overflow-hidden rounded-2xl bg-muted">
+						{/* O Unsplash já entrega no tamanho e formato certos
+						    (`photoFromUnsplash`): sem otimizar de novo. */}
+						<Image
+							src={recipe.photo.url}
+							alt={recipe.photo.alt || recipe.title}
+							fill
+							unoptimized
+							sizes="(min-width: 42rem) 40rem, 100vw"
+							className="object-cover"
+						/>
+					</div>
+					<figcaption className="text-muted-foreground text-xs">
+						Foto ilustrativa de{" "}
+						<a
+							href={recipe.photo.authorUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="underline underline-offset-2"
+						>
+							{recipe.photo.authorName}
+						</a>{" "}
+						no{" "}
+						<a
+							href={recipe.photo.photoUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="underline underline-offset-2"
+						>
+							Unsplash
+						</a>
+					</figcaption>
+				</figure>
+			)}
 			<header className="flex flex-col gap-1.5">
 				<h3 className="text-balance font-heading font-semibold text-xl">
 					{recipe.title}

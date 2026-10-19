@@ -1,5 +1,10 @@
 "use server";
 
+import {
+	consumeAiQuota,
+	refundAiQuota,
+} from "~/domains/ai-usage/services/ai-usage-service";
+import { limitReachedMessage } from "~/domains/ai-usage/utils/ai-usage";
 import { isBetaUser } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { getDiet } from "~/domains/diet/services/diet-service";
@@ -8,6 +13,7 @@ import {
 	suggestRecipeInputSchema,
 } from "~/domains/meal-recipe/schemas/meal-recipe-schema";
 import { suggestMealRecipe } from "~/domains/meal-recipe/services/meal-recipe-service";
+import { findRecipePhoto } from "~/domains/meal-recipe/services/recipe-photo-service";
 import { safeExtras } from "~/domains/meal-recipe/utils/meal-recipe";
 
 export type SuggestRecipeActionResult =
@@ -39,13 +45,21 @@ export async function suggestRecipeAction(
 		return { ok: false, error: "Adicione alimentos à refeição primeiro." };
 	}
 
+	if (!(await consumeAiQuota(user.id, "recipe"))) {
+		return { ok: false, error: limitReachedMessage("recipe") };
+	}
 	const result = await suggestMealRecipe(meal.items, parsed.data.avoid);
-	if (!result.ok) return result;
+	if (!result.ok) {
+		await refundAiQuota(user.id, "recipe");
+		return result;
+	}
+	const { imageQuery, ...recipe } = result.recipe;
 	return {
 		ok: true,
 		data: {
-			...result.recipe,
-			extras: safeExtras(result.recipe.extras, meal.items),
+			...recipe,
+			extras: safeExtras(recipe.extras, meal.items),
+			photo: await findRecipePhoto(imageQuery),
 		},
 	};
 }

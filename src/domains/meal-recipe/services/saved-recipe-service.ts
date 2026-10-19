@@ -22,6 +22,7 @@ const columns = {
 	tip: savedRecipe.tip,
 	ingredients: savedRecipe.ingredients,
 	macros: savedRecipe.macros,
+	photo: savedRecipe.photo,
 	createdAt: savedRecipe.createdAt,
 };
 
@@ -39,6 +40,7 @@ const toSaved = (
 	tip: row.tip,
 	ingredients: row.ingredients,
 	macros: row.macros,
+	photo: row.photo,
 	createdAt: row.createdAt.toISOString(),
 });
 
@@ -97,6 +99,7 @@ export async function saveRecipe(
 			tip: recipe.tip,
 			ingredients: data.snapshot.ingredients,
 			macros: data.snapshot.macros,
+			photo: recipe.photo,
 		})
 		.returning();
 	return toSaved(row);

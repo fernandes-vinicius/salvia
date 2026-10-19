@@ -12,6 +12,8 @@ const envSchema = z.object({
 	GEMINI_API_KEY: z.string().optional(),
 	GEMINI_MODEL: z.string().optional(),
 	BETA_EMAILS: z.string().optional(),
+	// Fotos ilustrativas das receitas; sem a chave, receitas sem foto.
+	UNSPLASH_ACCESS_KEY: z.string().optional(),
 });
 
 // Validação lazy: só quebra quando algo server-side realmente precisa das
