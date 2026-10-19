@@ -1,15 +1,17 @@
 import "server-only";
 
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { APICallError, generateText, NoObjectGeneratedError, Output } from "ai";
+import { generateText, NoObjectGeneratedError, Output } from "ai";
 
 import {
 	type ExtractedDiet,
 	extractedDietSchema,
 } from "~/domains/diet-import/schemas/diet-import-schema";
-import { getEnv } from "~/shared/lib/env";
-
-const DEFAULT_MODEL = "gemini-3.1-flash-lite";
+import {
+	AI_NOT_CONFIGURED,
+	AI_RATE_LIMITED,
+	getAiModel,
+	isRateLimited,
+} from "~/shared/lib/ai";
 
 const INSTRUCTIONS = `Você lê dietas (plano alimentar) feitas por nutricionistas, enviadas como PDF ou foto, e transcreve as refeições num formato estruturado.
 
@@ -33,18 +35,12 @@ export interface DietDocument {
 export async function readDietDocuments(
 	documents: DietDocument[],
 ): Promise<ReadDietResult> {
-	const { GEMINI_API_KEY, GEMINI_MODEL } = getEnv();
-	if (!GEMINI_API_KEY) {
-		return {
-			ok: false,
-			error: "A leitura com IA não está configurada (falta GEMINI_API_KEY).",
-		};
-	}
-	const google = createGoogleGenerativeAI({ apiKey: GEMINI_API_KEY });
+	const model = getAiModel();
+	if (!model) return { ok: false, error: AI_NOT_CONFIGURED };
 
 	try {
 		const { output } = await generateText({
-			model: google(GEMINI_MODEL || DEFAULT_MODEL),
+			model,
 			instructions: INSTRUCTIONS,
 			output: Output.object({ schema: extractedDietSchema }),
 			messages: [
@@ -64,12 +60,7 @@ export async function readDietDocuments(
 		return { ok: true, diet: output };
 	} catch (error) {
 		console.error("[diet-import] falha ao ler a dieta", error);
-		if (APICallError.isInstance(error) && error.statusCode === 429) {
-			return {
-				ok: false,
-				error: "Muitas leituras agora. Espere um minuto e tente de novo.",
-			};
-		}
+		if (isRateLimited(error)) return { ok: false, error: AI_RATE_LIMITED };
 		if (NoObjectGeneratedError.isInstance(error)) {
 			return {
 				ok: false,

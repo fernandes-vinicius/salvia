@@ -1,4 +1,4 @@
-> Planejado em 19/10/2026. Ainda não implementado.
+> Planejado e implementado em 19/10/2026 (beta fechado).
 
 # Receita da refeição com IA (beta fechado)
 

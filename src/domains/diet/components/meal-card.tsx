@@ -6,36 +6,23 @@ import {
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 
+import {
+	MealMenu,
+	type MealMenuActions,
+} from "~/domains/diet/components/meal-menu";
 import { SortableItemRow } from "~/domains/diet/components/sortable-item-row";
 import type { DietMeal } from "~/domains/diet/types/diet-types";
 import { mealMacros } from "~/domains/diet/utils/diet";
 import { kcalFor } from "~/domains/food/utils/food";
-import {
-	Clock,
-	EllipsisVertical,
-	Pencil,
-	Plus,
-	Trash2,
-} from "~/shared/components/icons";
+import { Clock, Plus } from "~/shared/components/icons";
 import { Button } from "~/shared/components/ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "~/shared/components/ui/dropdown-menu";
 import { formatNonZero, formatNumber } from "~/shared/lib/format";
 import { cn } from "~/shared/lib/utils";
 
-interface MealCardProps {
+interface MealCardProps extends MealMenuActions {
 	meal: DietMeal;
-	canDelete: boolean;
 	onAddFood: () => void;
 	onEditItem: (itemId: string) => void;
-	onRename: () => void;
-	onEditTime: () => void;
-	onDelete: () => void;
 }
 
 // Um bloco da grade (como "Refeição 1 - 9h" na planilha): alimentos em linhas
@@ -43,12 +30,9 @@ interface MealCardProps {
 // receber alimentos arrastados, inclusive quando está vazio).
 export function MealCard({
 	meal,
-	canDelete,
 	onAddFood,
 	onEditItem,
-	onRename,
-	onEditTime,
-	onDelete,
+	...menu
 }: MealCardProps) {
 	const { setNodeRef, isOver } = useDroppable({ id: meal.id });
 	const total = mealMacros(meal);
@@ -77,38 +61,7 @@ export function MealCard({
 						<span>{formatNumber(totalKcal)} kcal</span>
 					</p>
 				</div>
-				<DropdownMenu>
-					<DropdownMenuTrigger
-						render={
-							<Button
-								variant="ghost"
-								size="icon-sm"
-								aria-label={`Opções de ${meal.name}`}
-							/>
-						}
-					>
-						<EllipsisVertical />
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						<DropdownMenuItem onClick={onRename}>
-							<Pencil />
-							Renomear
-						</DropdownMenuItem>
-						<DropdownMenuItem onClick={onEditTime}>
-							<Clock />
-							{meal.time ? "Alterar horário" : "Definir horário"}
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem
-							variant="destructive"
-							disabled={!canDelete}
-							onClick={onDelete}
-						>
-							<Trash2 />
-							Remover refeição
-						</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
+				<MealMenu meal={meal} {...menu} />
 			</header>
 
 			<SortableContext

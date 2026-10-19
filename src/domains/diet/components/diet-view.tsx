@@ -46,6 +46,10 @@ import {
 	type MealEditFocus,
 	MealEditSheet,
 } from "~/domains/diet/components/meal-edit-sheet";
+import {
+	MealMenu,
+	type MealMenuActions,
+} from "~/domains/diet/components/meal-menu";
 import { ShareDietSheet } from "~/domains/diet/components/share-diet-sheet";
 import { TRASH_ID, TrashZone } from "~/domains/diet/components/trash-zone";
 import type { DietItem, DietMeal } from "~/domains/diet/types/diet-types";
@@ -60,6 +64,7 @@ import {
 } from "~/domains/diet/utils/diet";
 import { type Food, MacroLine, macrosFor, UNIT_LABELS } from "~/domains/food";
 import type { GoalTargets } from "~/domains/goal/types/goal-types";
+import { MealRecipeSheet } from "~/domains/meal-recipe";
 import { useCelebrate } from "~/providers/celebration-provider";
 import {
 	EllipsisVertical,
@@ -103,6 +108,8 @@ interface DietViewProps {
 	water: WaterResult | null;
 	/** Recursos em beta liberados (`BETA_EMAILS`), ex.: importar dieta. */
 	beta?: boolean;
+	/** Receitas salvas por refeição (id → quantidade), só no beta. */
+	initialSavedRecipes?: Record<string, number>;
 }
 
 const MODES = ["editar", "visualizar"] as const;
@@ -141,6 +148,7 @@ export function DietView({
 	targets,
 	water,
 	beta = false,
+	initialSavedRecipes = {},
 }: DietViewProps) {
 	const router = useRouter();
 	// Id estável pro dnd-kit: sem ele, o contador global dos ids de
@@ -195,6 +203,21 @@ export function DietView({
 	const [deletingMealId, setDeletingMealId] = useState<string | null>(null);
 	const [confirmingReset, setConfirmingReset] = useState(false);
 	const [sharing, setSharing] = useState(false);
+	const [recipeMealId, setRecipeMealId] = useState<string | null>(null);
+	const [savedRecipes, setSavedRecipes] = useState(initialSavedRecipes);
+
+	// Menu ⋮ da refeição: o mesmo nos modos Editar e Visualizar.
+	const menuFor = (meal: DietMeal): MealMenuActions => ({
+		canDelete: meals.length > 1,
+		onRename: () => setEditingMeal({ id: meal.id, focus: "name" }),
+		onEditTime: () => setEditingMeal({ id: meal.id, focus: "time" }),
+		onDelete: () => setDeletingMealId(meal.id),
+		onSuggestRecipe: beta ? () => setRecipeMealId(meal.id) : undefined,
+		onOpenSavedRecipes: beta
+			? () => router.push(`/receitas?refeicao=${meal.id}`)
+			: undefined,
+		savedRecipes: savedRecipes[meal.id] ?? 0,
+	});
 	const [resetting, setResetting] = useState(false);
 	const [addingMeal, setAddingMeal] = useState(false);
 	const [activeItemId, setActiveItemId] = useState<string | null>(null);
@@ -731,7 +754,11 @@ export function DietView({
 				</aside>
 
 				{preview ? (
-					<DietPreview meals={meals} printable />
+					<DietPreview
+						meals={meals}
+						printable
+						mealActions={(meal) => <MealMenu meal={meal} {...menuFor(meal)} />}
+					/>
 				) : (
 					<DndContext
 						id={dndId}
@@ -749,21 +776,14 @@ export function DietView({
 						onDragEnd={handleDragEnd}
 						onDragCancel={handleDragCancel}
 					>
-						<div className="grid gap-4 md:grid-cols-2 md:items-start">
+						<div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:items-start">
 							{meals.map((meal) => (
 								<MealCard
 									key={meal.id}
 									meal={meal}
-									canDelete={meals.length > 1}
 									onAddFood={() => setAddingTo(meal.id)}
 									onEditItem={setEditingItemId}
-									onRename={() =>
-										setEditingMeal({ id: meal.id, focus: "name" })
-									}
-									onEditTime={() =>
-										setEditingMeal({ id: meal.id, focus: "time" })
-									}
-									onDelete={() => setDeletingMealId(meal.id)}
+									{...menuFor(meal)}
 								/>
 							))}
 							<button
@@ -790,6 +810,16 @@ export function DietView({
 			</div>
 
 			<ShareDietSheet open={sharing} onOpenChange={setSharing} />
+			<MealRecipeSheet
+				meal={meals.find((meal) => meal.id === recipeMealId) ?? null}
+				onOpenChange={(open) => !open && setRecipeMealId(null)}
+				onSaved={(mealId) =>
+					setSavedRecipes((counts) => ({
+						...counts,
+						[mealId]: (counts[mealId] ?? 0) + 1,
+					}))
+				}
+			/>
 
 			<AddFoodSheet
 				meal={findMeal(addingTo)}
