@@ -26,3 +26,17 @@ Lista viva das ideias de recursos pagos. O grátis continua com tudo o que exist
 - **Custo**: imagem/PDF custa mais tokens que texto; limitar por mês no Pro (ex.: 5 importações) e reaproveitar a base de IA (AI Gateway, limite por usuário) do roadmap.
 - **Linguagem**: continua sendo a dieta do nutricionista; o app não altera nem "corrige" a prescrição, só organiza.
 - **Grátis como degustação**: talvez 1 importação grátis pra mostrar o valor (decidir quando lançar).
+
+---
+
+## 2. Receita da refeição com IA
+
+**Registrada em:** 19/10/2026 · **Status:** planejada ([`plano-receita-da-refeicao.md`](plano-receita-da-refeicao.md)), sai em beta fechado como a importação.
+
+**Problema:** enjoar da mesma refeição ("com exatamente isso aqui, dá pra fazer algo diferente?") e acabar furando a dieta.
+
+**Como funcionaria:** no menu ⋮ da refeição, "Sugerir receita": a IA monta uma receita prática usando **só os alimentos e as quantidades da refeição** (whey + banana + leite + aveia → shake proteico). Liberados só extras que não mudam os macros (temperos, ervas, folhas, legumes, água, gelo, café sem açúcar, adoçante). "Outra receita" gera outra, sem repetir, até achar uma boa.
+
+**Por que vale pagar:** ataca o motivo nº 1 de largar a dieta (monotonia) sem mexer nos macros; uso frequente, custo baixo (só texto).
+
+**Cuidados:** os ingredientes mostrados vêm da própria dieta, não do texto da IA; filtro de extras calóricos no servidor; linguagem simples, sem falar de saúde.
