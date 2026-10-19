@@ -42,11 +42,7 @@ export const ResumoDoDia: Story = {
 	name: "Resumo do dia",
 	render: () => (
 		<div className="max-w-sm">
-			<DietSummaryCard
-				summary={SAMPLE_SUMMARY}
-				tdee={SAMPLE_ENERGY.tdee}
-				costPerDay={18.4}
-			/>
+			<DietSummaryCard summary={SAMPLE_SUMMARY} tdee={SAMPLE_ENERGY.tdee} />
 		</div>
 	),
 };

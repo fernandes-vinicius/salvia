@@ -33,7 +33,7 @@ export const FAQ_QUESTIONS: FaqItem[] = [
 	{
 		question: "Dá pra saber quanto a dieta custa?",
 		answer:
-			"Dá. A lista de compras mostra o custo estimado da semana com preços médios de referência, e você troca pelo preço que paga no seu mercado. O custo do dia aparece no resumo da dieta.",
+			"Dá. A lista de compras mostra o custo estimado da semana com preços médios de referência, e você troca pelo preço que paga no seu mercado.",
 	},
 	{
 		question: "De onde vêm os dados dos alimentos?",
