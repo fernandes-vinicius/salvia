@@ -11,12 +11,13 @@ import {
 	deleteRecipeAction,
 	restoreRecipeAction,
 } from "~/domains/meal-recipe/actions/saved-recipe-actions";
+import { RecipeShareSheet } from "~/domains/meal-recipe/components/recipe-share-sheet";
 import { RecipeView } from "~/domains/meal-recipe/components/recipe-view";
 import type { SavedRecipe } from "~/domains/meal-recipe/types/saved-recipe-types";
 import { recipeText } from "~/domains/meal-recipe/utils/meal-recipe";
 import { mealChangedSince } from "~/domains/meal-recipe/utils/saved-recipe";
 import { BottomSheetContent } from "~/shared/components/bottom-sheet";
-import { Clock, Copy, Loader2Icon, Trash2 } from "~/shared/components/icons";
+import { Clock, Loader2Icon, Share, Trash2 } from "~/shared/components/icons";
 import { Button } from "~/shared/components/ui/button";
 import {
 	Sheet,
@@ -155,6 +156,12 @@ export function SavedRecipes({ initialRecipes, meals }: SavedRecipesProps) {
 								{formatNumber(recipe.minutes)} min
 								<span aria-hidden>·</span>
 								{formatNumber(kcalFor(recipe.macros))} kcal
+								{recipe.shareToken && (
+									<span className="ml-auto flex items-center gap-1 text-muted-foreground text-xs">
+										<Share className="size-3" aria-hidden />
+										link ativo
+									</span>
+								)}
 							</span>
 						</button>
 					</li>
@@ -166,6 +173,13 @@ export function SavedRecipes({ initialRecipes, meals }: SavedRecipesProps) {
 				meals={meals}
 				onOpenChange={(next) => !next && setOpenId(null)}
 				onDelete={handleDelete}
+				onShareChange={(recipeId, token) =>
+					setRecipes((list) =>
+						list.map((entry) =>
+							entry.id === recipeId ? { ...entry, shareToken: token } : entry,
+						),
+					)
+				}
 			/>
 		</div>
 	);
@@ -181,11 +195,13 @@ function SavedRecipeSheet({
 	meals,
 	onOpenChange,
 	onDelete,
+	onShareChange,
 }: {
 	recipe: SavedRecipe | null;
 	meals: DietMeal[];
 	onOpenChange: (open: boolean) => void;
 	onDelete: (recipe: SavedRecipe) => Promise<void>;
+	onShareChange: (recipeId: string, token: string | null) => void;
 }) {
 	const [deleting, setDeleting] = useState(false);
 	const origin = recipe?.mealId
@@ -196,18 +212,16 @@ function SavedRecipeSheet({
 			? mealChangedSince(recipe.ingredients, origin.items)
 			: false;
 
-	async function handleCopy(saved: SavedRecipe) {
-		const items = saved.ingredients.map(({ name, unit, quantity }) => ({
-			food: { name, unit },
-			quantity,
-		}));
-		try {
-			await navigator.clipboard.writeText(recipeText(saved, items));
-			toast.success("Receita copiada.");
-		} catch {
-			toast.error("Não foi possível copiar.");
-		}
-	}
+	const [sharing, setSharing] = useState(false);
+	const text = recipe
+		? recipeText(
+				recipe,
+				recipe.ingredients.map(({ name, unit, quantity }) => ({
+					food: { name, unit },
+					quantity,
+				})),
+			)
+		: "";
 
 	return (
 		<Sheet open={recipe !== null} onOpenChange={onOpenChange}>
@@ -233,9 +247,9 @@ function SavedRecipeSheet({
 							/>
 						</div>
 						<div className="grid grid-cols-2 gap-2 border-border border-t p-4">
-							<Button variant="outline" onClick={() => handleCopy(recipe)}>
-								<Copy data-icon="inline-start" />
-								Copiar
+							<Button variant="outline" onClick={() => setSharing(true)}>
+								<Share data-icon="inline-start" />
+								Compartilhar
 							</Button>
 							<Button
 								variant="outline"
@@ -261,6 +275,12 @@ function SavedRecipeSheet({
 					</>
 				)}
 			</BottomSheetContent>
+			<RecipeShareSheet
+				recipe={sharing ? recipe : null}
+				text={text}
+				onOpenChange={setSharing}
+				onShareChange={onShareChange}
+			/>
 		</Sheet>
 	);
 }

@@ -6,8 +6,8 @@ import { type NextRequest, NextResponse } from "next/server";
 // no DAL (`getCurrentUser`). Usuário logado em `/login` é tratado no client
 // (`RedirectIfAuthenticated`) pra não gerar loop com cookie expirado.
 // `/` é a landing pública; com sessão, vai direto pro app. Termos,
-// privacidade, calculadoras e dietas compartilhadas (`/d/:token`) são
-// públicos com ou sem sessão.
+// privacidade, calculadoras, dietas e receitas compartilhadas (`/d/:token`,
+// `/r/:token`) são públicos com ou sem sessão.
 const PUBLIC_PATHS = new Set(["/", "/login", "/termos", "/privacidade"]);
 
 function isPublicPath(pathname: string) {
@@ -16,8 +16,8 @@ function isPublicPath(pathname: string) {
 	if (pathname === "/calculadoras" || pathname.startsWith("/calculadoras/")) {
 		return true;
 	}
-	// Dieta compartilhada por link (só leitura, sem dados pessoais).
-	if (pathname.startsWith("/d/")) return true;
+	// Dieta e receita compartilhadas por link (só leitura, sem dados pessoais).
+	if (pathname.startsWith("/d/") || pathname.startsWith("/r/")) return true;
 	// Página offline do PWA (pré-cacheada pelo service worker).
 	if (pathname === "/~offline") return true;
 	return process.env.NODE_ENV !== "production" && pathname === "/design-system";

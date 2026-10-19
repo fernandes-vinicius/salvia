@@ -16,11 +16,21 @@ interface RecipeViewProps {
 	snapshot: RecipeSnapshot;
 	/** Aviso acima dos ingredientes (ex.: "sua refeição mudou"). */
 	notice?: ReactNode;
+	/** Título do quadro de macros (na página pública: "Por porção"). */
+	macrosLabel?: string;
+	/** Nível do título: h3 dentro de painéis, h1 na página pública. */
+	titleAs?: "h1" | "h3";
 }
 
 // A receita, fácil de ler no celular: o que é, os mesmos macros da refeição,
 // ingredientes (da dieta), extras sem caloria e o passo a passo.
-export function RecipeView({ recipe, snapshot, notice }: RecipeViewProps) {
+export function RecipeView({
+	recipe,
+	snapshot,
+	notice,
+	macrosLabel = "Mesmos macros da refeição",
+	titleAs: Title = "h3",
+}: RecipeViewProps) {
 	const { ingredients, macros } = snapshot;
 
 	return (
@@ -62,9 +72,9 @@ export function RecipeView({ recipe, snapshot, notice }: RecipeViewProps) {
 				</figure>
 			)}
 			<header className="flex flex-col gap-1.5">
-				<h3 className="text-balance font-heading font-semibold text-xl">
+				<Title className="text-balance font-heading font-semibold text-xl">
 					{recipe.title}
-				</h3>
+				</Title>
 				<p className="text-pretty text-muted-foreground text-sm">
 					{recipe.summary}
 				</p>
@@ -75,9 +85,7 @@ export function RecipeView({ recipe, snapshot, notice }: RecipeViewProps) {
 			</header>
 
 			<div className="flex flex-col gap-1 rounded-2xl bg-muted px-4 py-3">
-				<p className="text-muted-foreground text-xs">
-					Mesmos macros da refeição
-				</p>
+				<p className="text-muted-foreground text-xs">{macrosLabel}</p>
 				<p className="font-heading font-semibold tabular-nums">
 					{formatNumber(kcalFor(macros))} kcal
 				</p>

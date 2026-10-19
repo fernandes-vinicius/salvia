@@ -31,7 +31,7 @@ Lista viva das ideias de recursos pagos. O grátis continua com tudo o que exist
 
 ## 2. Receita da refeição com IA
 
-**Registrada em:** 19/10/2026 · **Status:** em beta fechado desde 19/10/2026 (menu ⋮ da refeição; plano em [`plano-receita-da-refeicao.md`](plano-receita-da-refeicao.md)). Receitas salvas em "Minhas receitas" ([`plano-receitas-salvas.md`](plano-receitas-salvas.md)). Falta antes de abrir: IA paga + Política de privacidade (citar Google/Gemini e Unsplash, que recebe o IP ao carregar a foto).
+**Registrada em:** 19/10/2026 · **Status:** em beta fechado desde 19/10/2026 (menu ⋮ da refeição; plano em [`plano-receita-da-refeicao.md`](plano-receita-da-refeicao.md)). Receitas salvas em "Minhas receitas" ([`plano-receitas-salvas.md`](plano-receitas-salvas.md)) e compartilháveis por link (`/r/:token`, prévia com foto no WhatsApp/LinkedIn; bom canal de aquisição). Falta antes de abrir: IA paga + Política de privacidade (citar Google/Gemini e Unsplash, que recebe o IP ao carregar a foto).
 
 **Problema:** enjoar da mesma refeição ("com exatamente isso aqui, dá pra fazer algo diferente?") e acabar furando a dieta.
 
