@@ -110,6 +110,7 @@ Para quem treina e conta macro sem nutricionista; o que falta é motivo pra volt
 - [ ] Cadastrar alimento pelo código de barras (Open Food Facts); versão Pro: foto do rótulo lida pela IA.
 - [ ] Dia de treino × dia de descanso (duas versões da dieta): bom recurso Pro sem IA.
 - [ ] Fotos de evolução (frente/lado/costas, comparação lado a lado): Pro, depois do VPS (armazenamento e LGPD).
+- [x] Comemorações animadas ao cumprir metas (check-in, dia completo, marcos de sequência, pesagem, dieta na meta, fibra), com interruptor em Configurações: feito em out/2026.
 - [x] Porções caseiras (colher, concha, fatia): feito em out/2026 (`household-measures.ts`); próximo passo: medidas nos alimentos próprios (campo no cadastro) e ampliar a lista.
 - [x] Custo da dieta (preço de referência + preço do seu mercado): feito em out/2026 (lista de compras e Resumo da Dieta). Próximos passos: revisar os preços de referência todo mês, custo por grama de proteína nas trocas ("trocar por ovo economiza R$ 4/dia"), "dieta mais barata que bate as metas" no Pro.
 - [ ] Menores: lembrete de pesagem e de check-in (push do PWA), alertas de sódio e ferro (a TACO já tem).

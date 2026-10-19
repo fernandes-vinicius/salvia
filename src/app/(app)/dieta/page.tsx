@@ -13,6 +13,7 @@ import { calculateBmr, calculateTdee } from "~/domains/profile";
 import { findProfileByUserId } from "~/domains/profile/services/profile-service";
 import { getSettingsByUserId } from "~/domains/settings/services/settings-service";
 import { listUserPrices } from "~/domains/shopping/services/price-service";
+import { CelebrationProvider } from "~/providers/celebration-provider";
 import { PageHeader } from "~/shared/components/page-header";
 import { Skeleton } from "~/shared/components/ui/skeleton";
 
@@ -64,16 +65,18 @@ async function DietContent() {
 			: null;
 
 	return (
-		<DietView
-			// Remonta quando o servidor devolve outras refeições (ex.: depois de
-			// `router.refresh()` por mudança em outra aba).
-			key={meals.map((meal) => meal.id).join(",")}
-			initialMeals={meals}
-			weightKg={profile?.weightKg ?? null}
-			tdee={tdee}
-			targets={targets}
-			prices={prices}
-		/>
+		<CelebrationProvider enabled={settings.celebrations}>
+			<DietView
+				// Remonta quando o servidor devolve outras refeições (ex.: depois de
+				// `router.refresh()` por mudança em outra aba).
+				key={meals.map((meal) => meal.id).join(",")}
+				initialMeals={meals}
+				weightKg={profile?.weightKg ?? null}
+				tdee={tdee}
+				targets={targets}
+				prices={prices}
+			/>
+		</CelebrationProvider>
 	);
 }
 

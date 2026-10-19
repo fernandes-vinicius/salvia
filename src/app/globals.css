@@ -17,6 +17,55 @@
 	--inset-shadow-*: initial;
 	--drop-shadow-*: initial;
 	--text-shadow-*: initial;
+
+	/* Comemorações (check-in, metas): sempre com `motion-safe:`. */
+	--animate-pop: pop 360ms cubic-bezier(0.34, 1.56, 0.64, 1);
+	--animate-check: check-draw 320ms ease-out both;
+	--animate-celebrate-in: celebrate-in 420ms cubic-bezier(0.34, 1.56, 0.64, 1)
+		both;
+
+	/* "Pop" do like: cresce, passa um pouco e assenta. */
+	@keyframes pop {
+		0% {
+			transform: scale(1);
+		}
+		40% {
+			transform: scale(1.18);
+		}
+		70% {
+			transform: scale(0.96);
+		}
+		100% {
+			transform: scale(1);
+		}
+	}
+
+	/* ✓ que se desenha (ícones lucide usam stroke). */
+	@keyframes check-draw {
+		from {
+			stroke-dasharray: 24;
+			stroke-dashoffset: 24;
+		}
+		to {
+			stroke-dasharray: 24;
+			stroke-dashoffset: 0;
+		}
+	}
+
+	/* Texto/selo que entra comemorando ("Dia completo", 🔥 +1). */
+	@keyframes celebrate-in {
+		0% {
+			opacity: 0;
+			transform: scale(0.6) translateY(4px);
+		}
+		60% {
+			opacity: 1;
+			transform: scale(1.08);
+		}
+		100% {
+			transform: scale(1);
+		}
+	}
 }
 
 @theme inline {

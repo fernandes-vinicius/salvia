@@ -83,6 +83,36 @@ export function dayFiber(meals: DietMeal[]) {
 	);
 }
 
+// --- Planejado × meta -------------------------------------------------------
+
+/** Até ±3% da meta conta como "na meta". */
+export const TARGET_TOLERANCE = 0.03;
+
+export function withinTarget(planned: number, target: number) {
+	return target > 0 && Math.abs(planned - target) <= target * TARGET_TOLERANCE;
+}
+
+/**
+ * A dieta bate a meta: calorias, proteína animal, carboidrato e gordura,
+ * todos dentro da tolerância (o "Na meta" em todas as linhas do card).
+ */
+export function isOnTarget(
+	summary: DietSummary,
+	targets: {
+		calories: number;
+		protein: { grams: number };
+		carbs: { grams: number };
+		fat: { grams: number };
+	},
+) {
+	return (
+		withinTarget(summary.kcal, targets.calories) &&
+		withinTarget(summary.lines.proteinAnimal.grams, targets.protein.grams) &&
+		withinTarget(summary.lines.carbs.grams, targets.carbs.grams) &&
+		withinTarget(summary.lines.fat.grams, targets.fat.grams)
+	);
+}
+
 // --- Fibras -----------------------------------------------------------------
 
 /** Mínimo da OMS pra adultos (diretriz de carboidratos, 2023). */

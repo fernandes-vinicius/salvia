@@ -9,6 +9,7 @@ import { settings } from "~/shared/db/schema";
 
 export const DEFAULT_SETTINGS: UserSettings = {
 	bmrFormula: DEFAULT_BMR_FORMULA,
+	celebrations: true,
 };
 
 /** Sempre retorna configurações completas (padrão se o usuário não salvou). */
@@ -16,7 +17,10 @@ export async function getSettingsByUserId(
 	userId: string,
 ): Promise<UserSettings> {
 	const [row] = await db
-		.select({ bmrFormula: settings.bmrFormula })
+		.select({
+			bmrFormula: settings.bmrFormula,
+			celebrations: settings.celebrations,
+		})
 		.from(settings)
 		.where(eq(settings.userId, userId))
 		.limit(1);

@@ -11,11 +11,17 @@ import type {
 	CheckinStatus,
 } from "~/domains/checkin/types/checkin-types";
 import {
+	celebrationFor,
 	checkinStreak,
 	dayCounts,
+	milestoneMessage,
 	type WeekDayState,
 	weekSummary,
 } from "~/domains/checkin/utils/checkin";
+import {
+	useCelebrate,
+	useCelebrationsEnabled,
+} from "~/providers/celebration-provider";
 import {
 	ArrowLeftRight,
 	Check,
@@ -76,18 +82,30 @@ export function CheckinCard({
 }: CheckinCardProps) {
 	const router = useRouter();
 	const [checkins, setCheckins] = useState(initialCheckins);
+	const celebrate = useCelebrate();
+	const animate = useCelebrationsEnabled();
+	// Botão que acabou de ser marcado (pop + ✓ desenhado) e se o dia acabou de
+	// completar (texto e selo 🔥 entram animados). Só em transições.
+	const [popped, setPopped] = useState<string | null>(null);
+	const [justCompleted, setJustCompleted] = useState(false);
 
 	const statusOf = (mealId: string) =>
 		checkins.find((c) => c.day === today && c.mealId === mealId)?.status ??
 		null;
 
-	async function mark(meal: CheckinMeal, status: CheckinStatus) {
+	async function mark(
+		meal: CheckinMeal,
+		status: CheckinStatus,
+		origin: DOMRect,
+	) {
 		const next = statusOf(meal.id) === status ? null : status;
 		const previous = checkins;
-		setCheckins((current) => [
-			...current.filter((c) => !(c.day === today && c.mealId === meal.id)),
+		const updated = [
+			...checkins.filter((c) => !(c.day === today && c.mealId === meal.id)),
 			...(next ? [{ mealId: meal.id, day: today, status: next }] : []),
-		]);
+		];
+		setCheckins(updated);
+		celebrateChange(previous, updated, meal.id, status, origin);
 
 		const result = await setCheckinAction({ mealId: meal.id, status: next });
 		if (!result.ok) {
@@ -99,6 +117,48 @@ export function CheckinCard({
 				toast.error(result.error);
 			}
 		}
+	}
+
+	function celebrateChange(
+		before: Checkin[],
+		after: Checkin[],
+		mealId: string,
+		status: CheckinStatus,
+		origin: DOMRect,
+	) {
+		const level = celebrationFor({
+			before,
+			after,
+			mealCount: meals.length,
+			today,
+		});
+		if (!level) return;
+
+		setPopped(`${mealId}:${status}`);
+		setTimeout(() => setPopped(null), 450);
+		celebrate("tap", origin);
+		if (level === "tap") return;
+
+		setJustCompleted(true);
+		// Depois das partículas do botão, a festa maior.
+		setTimeout(() => celebrate(level), 250);
+		if (level === "milestone") showMilestone(after);
+	}
+
+	/** Aviso do marco, uma vez por dia (não repete ao desmarcar/remarcar). */
+	function showMilestone(after: Checkin[]) {
+		const key = `salvia:marco:${today}`;
+		try {
+			if (localStorage.getItem(key)) return;
+			localStorage.setItem(key, "1");
+		} catch {
+			// Sem armazenamento: o aviso pode repetir, sem problema.
+		}
+		const streak = checkinStreak(after, meals.length, today);
+		toast.success(`🔥 ${streak} dias seguidos!`, {
+			description: milestoneMessage(streak),
+			duration: 6000,
+		});
 	}
 
 	const mealCount = meals.length;
@@ -121,14 +181,29 @@ export function CheckinCard({
 						<CircleCheck className="size-4 text-primary" />
 						Segui a dieta hoje?
 					</h2>
-					<p className="text-muted-foreground text-sm tabular-nums">
+					<p
+						key={complete ? "complete" : "progress"}
+						className={cn(
+							"text-muted-foreground text-sm tabular-nums",
+							complete &&
+								justCompleted &&
+								animate &&
+								"origin-left font-medium text-primary motion-safe:animate-celebrate-in",
+						)}
+					>
 						{complete
 							? "Dia completo. Boa!"
 							: `${Math.min(followed, mealCount)} de ${mealCount} refeições seguidas`}
 					</p>
 				</div>
 				{streak > 0 && (
-					<p className="flex shrink-0 items-center gap-1 rounded-full bg-secondary px-2.5 py-1 font-medium text-secondary-foreground text-xs tabular-nums">
+					<p
+						key={streak}
+						className={cn(
+							"flex shrink-0 items-center gap-1 rounded-full bg-secondary px-2.5 py-1 font-medium text-secondary-foreground text-xs tabular-nums",
+							justCompleted && animate && "motion-safe:animate-celebrate-in",
+						)}
+					>
 						<Flame className="size-3.5" aria-hidden />
 						{streak === 1 ? "1 dia seguido" : `${streak} dias seguidos`}
 					</p>
@@ -157,6 +232,8 @@ export function CheckinCard({
 									(button) => !button.needsOptions || meal.hasOptions,
 								).map((button) => {
 									const pressed = current === button.status;
+									const pop =
+										animate && popped === `${meal.id}:${button.status}`;
 									return (
 										<Button
 											key={button.status}
@@ -169,9 +246,19 @@ export function CheckinCard({
 													: "outline"
 											}
 											aria-pressed={pressed}
-											onClick={() => mark(meal, button.status)}
+											className={cn(pop && "motion-safe:animate-pop")}
+											onClick={(event) =>
+												mark(
+													meal,
+													button.status,
+													event.currentTarget.getBoundingClientRect(),
+												)
+											}
 										>
-											<button.icon data-icon="inline-start" />
+											<button.icon
+												data-icon="inline-start"
+												className={cn(pop && "motion-safe:animate-check")}
+											/>
 											{button.label}
 										</Button>
 									);

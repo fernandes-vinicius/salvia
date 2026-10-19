@@ -5,6 +5,7 @@ import {
 	changedLayouts,
 	equivalentQuantity,
 	fiberTarget,
+	isOnTarget,
 	mealMacros,
 	moveItemTo,
 	nextMealName,
@@ -234,5 +235,34 @@ describe("equivalentQuantity", () => {
 		expect(
 			equivalentQuantity({ quantity: 100, food: arroz }, frango),
 		).toBeNull();
+	});
+});
+
+describe("isOnTarget", () => {
+	const targets = {
+		calories: 2000,
+		protein: { grams: 150 },
+		carbs: { grams: 200 },
+		fat: { grams: 67 },
+	};
+	const summaryWith = (kcal: number, p: number, c: number, f: number) => ({
+		kcal,
+		fiber: 0,
+		surplus: null,
+		lines: {
+			proteinAnimal: { grams: p, kcal: 0, percent: 0, perKg: null },
+			proteinVegetal: { grams: 0, kcal: 0, percent: 0, perKg: null },
+			carbs: { grams: c, kcal: 0, percent: 0, perKg: null },
+			fat: { grams: f, kcal: 0, percent: 0, perKg: null },
+		},
+	});
+
+	it("na meta quando tudo está dentro de ±3%", () => {
+		expect(isOnTarget(summaryWith(2040, 148, 204, 66), targets)).toBe(true);
+	});
+
+	it("fora quando qualquer linha passa da tolerância", () => {
+		expect(isOnTarget(summaryWith(2000, 140, 200, 67), targets)).toBe(false);
+		expect(isOnTarget(summaryWith(2100, 150, 200, 67), targets)).toBe(false);
 	});
 });

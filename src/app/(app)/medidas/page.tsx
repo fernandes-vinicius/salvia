@@ -4,6 +4,8 @@ import { Suspense } from "react";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { MeasurementsView } from "~/domains/measurements";
 import { listMeasurements } from "~/domains/measurements/services/measurement-service";
+import { getSettingsByUserId } from "~/domains/settings/services/settings-service";
+import { CelebrationProvider } from "~/providers/celebration-provider";
 import { PageHeader } from "~/shared/components/page-header";
 import { Skeleton } from "~/shared/components/ui/skeleton";
 
@@ -25,8 +27,15 @@ export default function MedidasPage() {
 
 async function MeasurementsContent() {
 	const user = await getCurrentUser();
-	const measurements = await listMeasurements(user.id);
-	return <MeasurementsView initialMeasurements={measurements} />;
+	const [measurements, settings] = await Promise.all([
+		listMeasurements(user.id),
+		getSettingsByUserId(user.id),
+	]);
+	return (
+		<CelebrationProvider enabled={settings.celebrations}>
+			<MeasurementsView initialMeasurements={measurements} />
+		</CelebrationProvider>
+	);
 }
 
 function MeasurementsSkeleton() {

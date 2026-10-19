@@ -1,0 +1,1 @@
+ALTER TABLE "settings" ADD COLUMN "celebrations" boolean DEFAULT true NOT NULL;
