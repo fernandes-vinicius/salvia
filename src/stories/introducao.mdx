@@ -1,0 +1,32 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Introdução" />
+
+# Design system do Sálvia
+
+Paleta **verde-sálvia + creme**, clean e minimalista, pensada pra quem treina e conta macro sem nutricionista. Este Storybook mostra os mesmos componentes do app, com os mesmos tokens do `src/app/globals.css`.
+
+## Como navegar
+
+- **Fundamentos**: cores (com o contraste calculado na hora), tipografia, raios e ícones.
+- **Componentes**: os primitivos de interface (botão, campos, alerta, painel…), baseados no shadcn/ui sobre Base UI.
+- **App**: componentes compartilhados do Sálvia (cartão de escolha, slider de medida, cabeçalho de página…).
+- **Dieta**: componentes de domínio com o dia de exemplo da landing.
+
+Use o seletor de tema na barra de cima (pincel) pra ver tudo no **claro** e no **escuro**, e a aba **Accessibility** pra conferir cada story com o axe.
+
+## Regras do design system
+
+- **Só tokens semânticos**: `bg-primary`, `bg-secondary`, `text-muted-foreground`… Nunca cores cruas do Tailwind (`green-600`, `stone-100`).
+- **Sem sombras**: `shadow-*` não gera CSS (namespaces zerados no `@theme`). Separe por superfície: `bg-card` sobre `bg-background`, `bg-secondary` pra destaque; borda só quando precisar, `ring-1 ring-foreground/5`.
+- **Contraste**: texto ≥ 4,5:1 em todos os fundos claros. `text-muted-foreground` passa em creme, card, muted e secondary; macros em texto usam os tons `-ink`.
+- **Tipografia**: títulos e números em **Manrope** (`font-heading`) com `tabular-nums`; corpo em **Inter**.
+- **Macros**: proteína animal, proteína vegetal, carboidrato e gordura têm cor própria (`macro-*`); a base é pra barras e bolinhas, o `-ink` pra letras e valores.
+- **Linguagem simples**: "perder peso", "ganhar massa", "comer a menos do que você gasta". Nada de "cutting", "déficit" ou "secar" em texto visível.
+
+## Comandos
+
+```sh
+bun run storybook        # http://localhost:6006
+bun run build-storybook  # gera storybook-static/
+```

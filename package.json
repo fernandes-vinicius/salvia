@@ -23,6 +23,9 @@
 		"metrics:prod": "bun --env-file=.env.neon scripts/metrics.ts",
 		"feedback": "bun scripts/feedback.ts",
 		"feedback:prod": "bun --env-file=.env.neon scripts/feedback.ts",
+		"storybook": "storybook dev -p 6006",
+		"build-storybook": "storybook build -o storybook-static",
+		"deploy-storybook": "storybook build -o storybook-static && VERCEL_ORG_ID=team_k0Yat5stKAFPYUNnYvBHpTbY VERCEL_PROJECT_ID=prj_Cnfzqau7GX83RqDwZets567Bcx5Q vercel deploy storybook-static --prod --yes",
 		"generate-pwa-assets": "pwa-assets-generator"
 	},
 	"dependencies": {
@@ -56,7 +59,12 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.2",
+		"@storybook/addon-a11y": "10.6.2",
+		"@storybook/addon-docs": "10.6.2",
+		"@storybook/addon-themes": "10.6.2",
+		"@storybook/nextjs-vite": "10.6.2",
 		"@tailwindcss/turbopack": "^4",
+		"@tailwindcss/vite": "^4.3.3",
 		"@testing-library/jest-dom": "^7.0.1",
 		"@testing-library/react": "^16.3.3",
 		"@testing-library/user-event": "^14.6.8",
@@ -69,8 +77,10 @@
 		"drizzle-kit": "^0.31.11",
 		"esbuild": "^0.28.2",
 		"jsdom": "^30.1.3",
+		"storybook": "10.6.2",
 		"tailwindcss": "^4",
 		"typescript": "^5",
+		"vite": "^8.3.4",
 		"vitest": "^5.0.5"
 	},
 	"packageManager": "bun@1.3.14",
