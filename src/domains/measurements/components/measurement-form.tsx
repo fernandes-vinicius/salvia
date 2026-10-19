@@ -16,6 +16,7 @@ import {
 	MEASUREMENT_GROUPS,
 	todayIso,
 } from "~/domains/measurements/utils/measurements";
+import { useCelebrate } from "~/providers/celebration-provider";
 import { Loader2Icon, Trash2 } from "~/shared/components/icons";
 import { Button } from "~/shared/components/ui/button";
 import {
@@ -42,6 +43,7 @@ export function MeasurementForm({
 	onDelete,
 }: MeasurementFormProps) {
 	const [pending, setPending] = useState(false);
+	const celebrate = useCelebrate();
 	const initial = measurement ?? suggested;
 
 	const [form, fields] = useForm({
@@ -72,6 +74,10 @@ export function MeasurementForm({
 			setPending(false);
 			if (result.ok) {
 				toast.success(measurement ? "Medição atualizada." : "Medição salva.");
+				// Pesagem nova é uma meta cumprida (alimenta o ajuste pelo peso).
+				if (!measurement && submission.value.weightKg != null) {
+					celebrate("goal");
+				}
 				onSaved(result.data);
 			} else {
 				toast.error(result.error);

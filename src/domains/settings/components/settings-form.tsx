@@ -20,7 +20,9 @@ import {
 	FlaskConical,
 	Loader2Icon,
 	type LucideIcon,
+	PartyPopper,
 } from "~/shared/components/icons";
+import { SwitchCard } from "~/shared/components/switch-card";
 import { RadioGroup } from "~/shared/components/ui/radio-group";
 import { type AutosaveStatus, useAutosave } from "~/shared/hooks/use-autosave";
 import { formatNumber } from "~/shared/lib/format";
@@ -56,36 +58,52 @@ export function SettingsForm({ initialSettings, profile }: SettingsFormProps) {
 	}
 
 	return (
-		<FormSection
-			title="Fórmula da taxa metabólica (TMB)"
-			description="Muda o cálculo de quanto você gasta em repouso e, com isso, o gasto diário e a meta nas abas TMB e Meta."
-		>
-			<RadioGroup
-				aria-label="Fórmula da TMB"
-				value={settings.bmrFormula}
-				onValueChange={(value) =>
-					update({ ...settings, bmrFormula: value as BmrFormula })
-				}
-				className="gap-2"
+		<div className="flex flex-col gap-10">
+			<FormSection
+				title="Fórmula da taxa metabólica (TMB)"
+				description="Muda o cálculo de quanto você gasta em repouso e, com isso, o gasto diário e a meta nas abas TMB e Meta."
 			>
-				{BMR_FORMULAS.map((formula) => (
-					<ChoiceCard
-						key={formula.value}
-						value={formula.value}
-						icon={FORMULA_ICONS[formula.value]}
-						title={formula.label}
-						description={formula.description}
-						tags={formula.value === "mifflin" ? ["Recomendada"] : undefined}
-						hint={
-							profile
-								? `Com seus dados: ${formatNumber(calculateBmr(profile, formula.value))} kcal em repouso`
-								: undefined
-						}
-					/>
-				))}
-			</RadioGroup>
-			<InlineSaveStatus status={status} />
-		</FormSection>
+				<RadioGroup
+					aria-label="Fórmula da TMB"
+					value={settings.bmrFormula}
+					onValueChange={(value) =>
+						update({ ...settings, bmrFormula: value as BmrFormula })
+					}
+					className="gap-2"
+				>
+					{BMR_FORMULAS.map((formula) => (
+						<ChoiceCard
+							key={formula.value}
+							value={formula.value}
+							icon={FORMULA_ICONS[formula.value]}
+							title={formula.label}
+							description={formula.description}
+							tags={formula.value === "mifflin" ? ["Recomendada"] : undefined}
+							hint={
+								profile
+									? `Com seus dados: ${formatNumber(calculateBmr(profile, formula.value))} kcal em repouso`
+									: undefined
+							}
+						/>
+					))}
+				</RadioGroup>
+				<InlineSaveStatus status={status} />
+			</FormSection>
+			<FormSection
+				title="Comemorações"
+				description="Confete e animações quando você cumpre uma meta: refeição marcada, dia completo, sequência de dias, pesagem."
+			>
+				<SwitchCard
+					icon={PartyPopper}
+					title="Comemorações animadas"
+					description="Se o celular estiver com “reduzir movimento”, elas não aparecem."
+					checked={settings.celebrations}
+					onCheckedChange={(celebrations) =>
+						update({ ...settings, celebrations })
+					}
+				/>
+			</FormSection>
+		</div>
 	);
 }
 

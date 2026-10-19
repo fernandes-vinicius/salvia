@@ -1,4 +1,5 @@
 import type { DietSummary } from "~/domains/diet/types/diet-types";
+import { withinTarget } from "~/domains/diet/utils/diet";
 import type { GoalTargets } from "~/domains/goal/types/goal-types";
 import { formatNumber } from "~/shared/lib/format";
 import { cn } from "~/shared/lib/utils";
@@ -8,12 +9,9 @@ interface GoalProgressProps {
 	targets: GoalTargets;
 }
 
-/** Até ±3% da meta conta como "na meta". */
-const TOLERANCE = 0.03;
-
 function diffLabel(planned: number, target: number, unit: string) {
 	const diff = planned - target;
-	if (target > 0 && Math.abs(diff) <= target * TOLERANCE) return "Na meta";
+	if (withinTarget(planned, target)) return "Na meta";
 	return diff < 0
 		? `Faltam ${formatNumber(-diff)} ${unit}`
 		: `+${formatNumber(diff)} ${unit} acima`;

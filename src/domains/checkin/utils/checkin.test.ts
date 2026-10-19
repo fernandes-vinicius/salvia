@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { Checkin } from "~/domains/checkin/types/checkin-types";
 import {
 	addDays,
+	celebrationFor,
 	checkinStreak,
 	isFullDay,
 	weekSummary,
@@ -85,5 +86,69 @@ describe("weekSummary", () => {
 		// (4 + 2 + 0) seguidas ÷ (3 dias × 4 refeições) = 50%.
 		expect(adherence).toBe(50);
 		expect(weekSummary([], 4, TODAY).adherence).toBeNull();
+	});
+});
+
+describe("celebrationFor", () => {
+	const mark = (
+		mealId: string,
+		status: Checkin["status"] = "done",
+	): Checkin => ({
+		mealId,
+		day: TODAY,
+		status,
+	});
+
+	it("tap ao marcar uma refeição e nada ao desmarcar ou furar", () => {
+		expect(
+			celebrationFor({
+				before: [],
+				after: [mark("a")],
+				mealCount: 3,
+				today: TODAY,
+			}),
+		).toBe("tap");
+		expect(
+			celebrationFor({
+				before: [mark("a")],
+				after: [],
+				mealCount: 3,
+				today: TODAY,
+			}),
+		).toBeNull();
+		expect(
+			celebrationFor({
+				before: [],
+				after: [mark("a", "skipped")],
+				mealCount: 3,
+				today: TODAY,
+			}),
+		).toBeNull();
+	});
+
+	it("day ao completar o dia, milestone quando a sequência chega num marco", () => {
+		const two = [mark("a"), mark("b")];
+		expect(
+			celebrationFor({
+				before: two,
+				after: [...two, mark("c", "option")],
+				mealCount: 3,
+				today: TODAY,
+			}),
+		).toBe("day");
+
+		// Dois dias completos antes de hoje: completar hoje = 3 seguidos.
+		const history = [
+			...followedDay(addDays(TODAY, -2), 3),
+			...followedDay(addDays(TODAY, -1), 3),
+		];
+		expect(
+			celebrationFor({
+				before: [...history, ...two],
+				after: [...history, ...two, mark("c")],
+				mealCount: 3,
+				today: TODAY,
+			}),
+		).toBe("milestone");
 	});
 });

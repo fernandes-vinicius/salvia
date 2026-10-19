@@ -59,6 +59,7 @@ export {
 	NotebookPen,
 	OctagonXIcon,
 	PackagePlus,
+	PartyPopper,
 	Pencil,
 	PersonStanding,
 	Plus,

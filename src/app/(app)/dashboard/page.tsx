@@ -38,6 +38,7 @@ import { listMeasurements } from "~/domains/measurements/services/measurement-se
 import { calculateBmr, calculateTdee } from "~/domains/profile";
 import { findProfileByUserId } from "~/domains/profile/services/profile-service";
 import { getSettingsByUserId } from "~/domains/settings/services/settings-service";
+import { CelebrationProvider } from "~/providers/celebration-provider";
 import { Skeleton } from "~/shared/components/ui/skeleton";
 import { APP_TAGLINE } from "~/shared/lib/app-config";
 import { localDateString } from "~/shared/lib/dates";
@@ -166,7 +167,7 @@ async function HomeContent() {
 	const firstName = user.name.split(" ")[0];
 
 	return (
-		<>
+		<CelebrationProvider enabled={settings.celebrations}>
 			<header className="flex flex-col gap-1">
 				<h1 className="font-heading font-semibold text-2xl sm:text-3xl">
 					Olá, {firstName}
@@ -205,7 +206,7 @@ async function HomeContent() {
 			</div>
 
 			{hasFoods && templates}
-		</>
+		</CelebrationProvider>
 	);
 }
 

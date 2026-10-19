@@ -51,7 +51,9 @@ import { TRASH_ID, TrashZone } from "~/domains/diet/components/trash-zone";
 import type { DietItem, DietMeal } from "~/domains/diet/types/diet-types";
 import {
 	changedLayouts,
+	fiberTarget,
 	findMealOfItem,
+	isOnTarget,
 	moveItemTo,
 	nextMealName,
 	summarizeDiet,
@@ -61,6 +63,7 @@ import type { GoalTargets } from "~/domains/goal/types/goal-types";
 import type { Price } from "~/domains/shopping/data/reference-prices";
 import { shoppingCost } from "~/domains/shopping/utils/prices";
 import { buildShoppingList } from "~/domains/shopping/utils/shopping-list";
+import { useCelebrate } from "~/providers/celebration-provider";
 import {
 	EllipsisVertical,
 	Eye,
@@ -204,6 +207,26 @@ export function DietView({
 	const summary = summarizeDiet(meals, { weightKg, tdee });
 	// Custo de 1 dia pela lista de compras (preço da pessoa ou de referência).
 	const dayCost = shoppingCost(buildShoppingList(meals, 1), new Map(prices));
+
+	// Comemora quando uma mudança faz a dieta bater a meta (todas as linhas
+	// "Na meta") ou a fibra chegar no recomendado. O estado de quando a tela
+	// abriu não conta: só a passagem de "fora" pra "dentro".
+	const celebrate = useCelebrate();
+	const onTarget = targets !== null && isOnTarget(summary, targets);
+	const fiberOk = Math.round(summary.fiber) >= fiberTarget(summary.kcal);
+	const reached = useRef({ onTarget, fiberOk });
+	useEffect(() => {
+		const before = reached.current;
+		reached.current = { onTarget, fiberOk };
+		if ((onTarget && !before.onTarget) || (fiberOk && !before.fiberOk)) {
+			const card = document.querySelector(
+				onTarget && !before.onTarget
+					? 'section[aria-label="Planejado × meta"]'
+					: 'section[aria-label="Resumo do dia"]',
+			);
+			celebrate("goal", card?.getBoundingClientRect());
+		}
+	}, [onTarget, fiberOk, celebrate]);
 	const mealIds = new Set(meals.map((meal) => meal.id));
 	const findMeal = (id: string | null) =>
 		meals.find((meal) => meal.id === id) ?? null;
