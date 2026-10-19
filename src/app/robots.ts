@@ -3,7 +3,9 @@ import type { MetadataRoute } from "next";
 import { SITE_URL } from "~/shared/lib/app-config";
 
 // Só a landing e o login são públicos; o app logado e as rotas técnicas
-// ficam fora dos buscadores (as páginas também têm `noindex`).
+// ficam fora dos buscadores (as páginas também têm `noindex`). Receitas
+// compartilhadas (`/r/`) não entram aqui: o robô do LinkedIn obedece o
+// robots e sem acesso não monta a prévia do link (elas têm `noindex`).
 export default function robots(): MetadataRoute.Robots {
 	return {
 		rules: {
@@ -17,6 +19,7 @@ export default function robots(): MetadataRoute.Robots {
 				"/dieta",
 				"/medidas",
 				"/alimentos",
+				"/receitas",
 				"/d/",
 				"/configuracoes",
 				"/design-system",

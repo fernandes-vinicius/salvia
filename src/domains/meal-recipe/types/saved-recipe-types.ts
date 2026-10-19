@@ -8,6 +8,8 @@ export interface SavedRecipe extends MealRecipe {
 	mealName: string;
 	ingredients: RecipeIngredient[];
 	macros: Macros;
+	/** Link público ligado (`/r/:token`), ou null. */
+	shareToken: string | null;
 	/** ISO. */
 	createdAt: string;
 }

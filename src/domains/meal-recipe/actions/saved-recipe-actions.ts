@@ -16,10 +16,14 @@ import {
 	MAX_SAVED_RECIPES,
 	restoreRecipe,
 	saveRecipe,
+	shareRecipe,
+	unshareRecipe,
 } from "~/domains/meal-recipe/services/saved-recipe-service";
 import type { SavedRecipe } from "~/domains/meal-recipe/types/saved-recipe-types";
 import { safeExtras } from "~/domains/meal-recipe/utils/meal-recipe";
+import { recipeShareUrl } from "~/domains/meal-recipe/utils/recipe-share";
 import { recipeSnapshot } from "~/domains/meal-recipe/utils/saved-recipe";
+import { SITE_URL } from "~/shared/lib/app-config";
 
 export type SavedRecipeResult<T = null> =
 	| { ok: true; data: T }
@@ -98,6 +102,34 @@ export async function restoreRecipeAction(
 	const mealId = meals.some((meal) => meal.id === parsed.data.mealId)
 		? parsed.data.mealId
 		: null;
-	await restoreRecipe(user.id, { ...parsed.data, mealId });
+	// O link público não volta: excluir já desativou.
+	await restoreRecipe(user.id, { ...parsed.data, mealId, shareToken: null });
+	return { ok: true, data: null };
+}
+
+/** Liga o link público da receita e devolve o endereço. */
+export async function shareRecipeAction(
+	recipeId: unknown,
+): Promise<SavedRecipeResult<{ token: string; url: string }>> {
+	const user = await betaUser();
+	if (!user) return fail(BETA_ONLY);
+	const parsed = z.uuid().safeParse(recipeId);
+	const token = parsed.success ? await shareRecipe(user.id, parsed.data) : null;
+	if (!token) return fail("Essa receita não existe mais.");
+	return {
+		ok: true,
+		data: { token, url: recipeShareUrl(SITE_URL.href, token) },
+	};
+}
+
+export async function unshareRecipeAction(
+	recipeId: unknown,
+): Promise<SavedRecipeResult> {
+	const user = await betaUser();
+	if (!user) return fail(BETA_ONLY);
+	const parsed = z.uuid().safeParse(recipeId);
+	if (!parsed.success || !(await unshareRecipe(user.id, parsed.data))) {
+		return fail("Essa receita não existe mais.");
+	}
 	return { ok: true, data: null };
 }

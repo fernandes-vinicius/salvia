@@ -1,5 +1,7 @@
 import "server-only";
 
+import { randomBytes } from "node:crypto";
+
 import { and, count, desc, eq, isNotNull } from "drizzle-orm";
 
 import type { MealRecipe } from "~/domains/meal-recipe/schemas/meal-recipe-schema";
@@ -23,6 +25,7 @@ const columns = {
 	ingredients: savedRecipe.ingredients,
 	macros: savedRecipe.macros,
 	photo: savedRecipe.photo,
+	shareToken: savedRecipe.shareToken,
 	createdAt: savedRecipe.createdAt,
 };
 
@@ -41,6 +44,7 @@ const toSaved = (
 	ingredients: row.ingredients,
 	macros: row.macros,
 	photo: row.photo,
+	shareToken: row.shareToken,
 	createdAt: row.createdAt.toISOString(),
 });
 
@@ -123,4 +127,45 @@ export async function deleteRecipe(userId: string, recipeId: string) {
 		.where(and(eq(savedRecipe.id, recipeId), eq(savedRecipe.userId, userId)))
 		.returning({ id: savedRecipe.id });
 	return rows.length > 0;
+}
+
+/** 16 caracteres url-safe (96 bits): impossível de adivinhar. */
+const newToken = () => randomBytes(12).toString("base64url");
+
+/** Liga o link público da receita (reaproveita o que já existe). */
+export async function shareRecipe(userId: string, recipeId: string) {
+	const owned = and(
+		eq(savedRecipe.id, recipeId),
+		eq(savedRecipe.userId, userId),
+	);
+	const [row] = await db
+		.select({ token: savedRecipe.shareToken })
+		.from(savedRecipe)
+		.where(owned)
+		.limit(1);
+	if (!row) return null;
+	if (row.token) return row.token;
+	const token = newToken();
+	await db.update(savedRecipe).set({ shareToken: token }).where(owned);
+	return token;
+}
+
+/** Desliga o link (quem tiver o endereço vê "link não está mais ativo"). */
+export async function unshareRecipe(userId: string, recipeId: string) {
+	const rows = await db
+		.update(savedRecipe)
+		.set({ shareToken: null })
+		.where(and(eq(savedRecipe.id, recipeId), eq(savedRecipe.userId, userId)))
+		.returning({ id: savedRecipe.id });
+	return rows.length > 0;
+}
+
+/** Receita pública do link; null se ele foi desativado ou a receita apagada. */
+export async function getSharedRecipe(token: string) {
+	const [row] = await db
+		.select(columns)
+		.from(savedRecipe)
+		.where(eq(savedRecipe.shareToken, token))
+		.limit(1);
+	return row ? toSaved(row) : null;
 }

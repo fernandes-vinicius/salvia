@@ -39,6 +39,8 @@ export const savedRecipe = pgTable(
 		macros: jsonb("macros").$type<Macros>().notNull(),
 		/** Foto ilustrativa do Unsplash (só URL e crédito, nada da imagem). */
 		photo: jsonb("photo").$type<RecipePhoto>(),
+		/** Link público `/r/:token` (nulo = não compartilhada). */
+		shareToken: text("share_token").unique(),
 		createdAt: timestamp("created_at").defaultNow().notNull(),
 	},
 	(table) => [index("saved_recipe_user_id_idx").on(table.userId)],
