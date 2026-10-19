@@ -194,7 +194,7 @@ async function HomeContent() {
 				/>
 			)}
 
-			<div className="grid gap-4 sm:grid-cols-2 sm:items-start">
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-start">
 				{goal && targets && tdee !== null && (
 					<GoalCard goal={goal} targets={targets} tdee={tdee} />
 				)}
@@ -214,7 +214,7 @@ function HomeSkeleton() {
 		<>
 			<Skeleton className="h-9 w-48" />
 			<Skeleton className="h-56 rounded-3xl" />
-			<div className="grid gap-4 sm:grid-cols-2">
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 				<Skeleton className="h-40 rounded-3xl" />
 				<Skeleton className="h-40 rounded-3xl" />
 			</div>

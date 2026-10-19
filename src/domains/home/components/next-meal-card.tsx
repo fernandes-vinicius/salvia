@@ -87,7 +87,7 @@ function NextMealContent({
 				<ul className="flex flex-col gap-1 text-sm">
 					{meal.items.map((item) => (
 						<li key={item.id} className="flex justify-between gap-3">
-							<span className="truncate">{item.food.name}</span>
+							<span className="min-w-0 truncate">{item.food.name}</span>
 							<span className="shrink-0 text-muted-foreground tabular-nums">
 								{formatNumber(item.quantity, 1)}{" "}
 								{UNIT_LABELS[item.food.unit].short}

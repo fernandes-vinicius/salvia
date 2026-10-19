@@ -35,6 +35,7 @@ Nome/tagline centralizados em `~/shared/lib/app-config.ts` (`APP_NAME`, `APP_TAG
   - `~/domains/auth/lib/auth` e `session-service` são server-only; o barrel `~/domains/auth` só exporta coisas seguras pro client.
   - Mudou plugins ou campos do Better Auth? Atualize também `auth-cli-config.ts` e rode `bun run auth:generate && bun run db:generate`.
   - Tabelas novas da dieta: `src/shared/db/schema/<nome>-schema.ts` + export no `schema/index.ts`, com `userId` referenciando `user.id`.
+- Grades que empilham no celular: `grid grid-cols-1 sm:grid-cols-2` (nunca só `grid sm:grid-cols-2`). Sem o `grid-cols-1` a coluna implícita cresce até o texto mais largo (ex.: `truncate` num flex) e a página ganha scroll lateral com a fonte do celular aumentada. Linhas com título + botões usam `flex-wrap`; conferir também com a fonte em 130%.
 - Desenvolvimento **mobile first** (estilos base pro celular, `sm:`/`md:` pra telas maiores; conferir em ~390 px) e **TDD** (escrever o teste, ver falhar, depois o código).
 - Testes: importar `describe/it/expect/vi` de `vitest` explicitamente.
 - Edição estilo "salva sozinho" (ex.: aba TMB): estado local no client + `useAutosave` (`~/shared/hooks/use-autosave`, debounce + fila + flush ao sair) chamando uma Server Action que valida com Zod e checa o usuário via `getCurrentUser()`. Cálculos derivados rodam no client a partir do estado (funções puras em `domains/<x>/utils`), sem esperar o servidor.

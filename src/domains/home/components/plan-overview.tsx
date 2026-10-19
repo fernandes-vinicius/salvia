@@ -77,7 +77,7 @@ export function PlanOverview({ summary, targets }: PlanOverviewProps) {
 				</p>
 			</div>
 
-			<ul className="grid gap-3 rounded-2xl bg-primary-foreground/10 p-4 sm:grid-cols-3">
+			<ul className="grid grid-cols-1 gap-3 rounded-2xl bg-primary-foreground/10 p-4 sm:grid-cols-3">
 				{macros.map((macro) => {
 					const macroRatio =
 						macro.target > 0 ? macro.planned / macro.target : 0;
