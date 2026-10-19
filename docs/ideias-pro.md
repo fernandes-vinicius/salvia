@@ -1,6 +1,6 @@
 # Ideias de recursos pagos (Sálvia Pro)
 
-Lista viva das ideias de recursos pagos. O grátis continua com tudo o que existe hoje; o Pro (R$ 9,90/mês ou R$ 79,90/ano, ver [`plano-infra-e-planos.md`](plano-infra-e-planos.md)) reúne o que tem custo (IA) ou valor extra. Cada ideia nova entra aqui com o problema, como funcionaria e os cuidados.
+Lista viva das ideias de recursos pagos. O grátis continua com tudo o que existe hoje; o Pro (R$ 9,90/mês ou R$ 79,90/ano, ver [`plano-infra-e-planos.md`](plano-infra-e-planos.md)) reúne o que tem custo (IA) ou valor extra. Cada ideia nova entra aqui com o problema, como funcionaria e os cuidados. Custos de IA por assinante e ponto de equilíbrio em [`modelo-de-negocio.md`](modelo-de-negocio.md).
 
 ---
 

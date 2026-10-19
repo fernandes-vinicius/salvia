@@ -113,7 +113,7 @@ export function FeedbackSheet({ open, onOpenChange }: FeedbackSheetProps) {
 						aria-label="Tipo de mensagem"
 						value={kind}
 						onValueChange={(next) => setKind(next as FeedbackKind)}
-						className="grid-cols-3 gap-2"
+						className="grid-cols-1 gap-2 sm:grid-cols-3"
 					>
 						{KINDS.map((option) => (
 							<ChoiceCard

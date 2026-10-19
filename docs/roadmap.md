@@ -137,6 +137,8 @@ Feito (out/2026): grade de refeições, TACO + alimentos próprios, resumo estil
 
 ## Negócio: monetização, custo e marketing
 
+> Contas do negócio (custo mínimo, IA por assinante, ponto de equilíbrio): [`modelo-de-negocio.md`](modelo-de-negocio.md).
+
 > Plano decidido em 18/10/2026 (VPS + Coolify em São Paulo, Stripe, Grátis × Sálvia Pro a R$ 9,90/mês ou R$ 79,90/ano, AdSense depois): [`plano-infra-e-planos.md`](plano-infra-e-planos.md). Ele substitui as opções de infra e cobrança listadas abaixo.
 
 Análise de out/2026. Já feito: Termos de uso e Política de privacidade (LGPD) com exclusão de conta, aviso "ferramenta, não prescrição", calculadoras públicas (TMB, macros, proteína) que levam os números pro app, e assinatura "Feito com Sálvia" no PDF.

@@ -1,3 +1,5 @@
+import type { BodyProfile } from "~/domains/profile/types/profile-types";
+
 export type Climate = "mild" | "hot" | "sweaty";
 
 /** Base pra adultos saudáveis: ~35 ml por kg (estimativa clínica usual). */
@@ -59,4 +61,26 @@ export function waterPerDay({
 		),
 		trainingMl: round100(trainingMl),
 	};
+}
+
+/**
+ * Água sugerida pro dia a dia (Resumo do dia da Dieta): peso + a média
+ * diária de treino da semana (musculação e cardio ligados), clima ameno.
+ */
+export function suggestedWater({
+	weightKg,
+	strength,
+	cardio,
+}: Pick<BodyProfile, "weightKg" | "strength" | "cardio">): WaterResult {
+	const weekly = [strength, cardio]
+		.filter((routine) => routine.enabled)
+		.reduce(
+			(sum, routine) => sum + routine.daysPerWeek * routine.minutesPerSession,
+			0,
+		);
+	return waterPerDay({
+		weightKg,
+		trainingMinutes: weekly / 7,
+		climate: "mild",
+	});
 }

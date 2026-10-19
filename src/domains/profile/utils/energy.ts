@@ -221,14 +221,15 @@ export function calculateTdee(
 	return calculateEnergy(profile, formula).tdee;
 }
 
-// Ponto de partida pra quem ainda não salvou nada. A tela deixa claro que
-// são valores de exemplo.
+// Ponto de partida pra quem ainda não salvou nada: a pessoa de referência da
+// dieta de 2.000 kcal (20 anos, 70 kg, 170 cm, sedentária, sem treino ≈ 2.018
+// kcal com Mifflin-St Jeor). A tela deixa claro que são valores de exemplo.
 export const EXAMPLE_PROFILE: BodyProfile = {
 	sex: "male",
-	ageYears: 30,
+	ageYears: 20,
 	weightKg: 70,
 	heightCm: 170,
-	neatFactor: 1.15,
+	neatFactor: 1.1,
 	strength: { enabled: false, daysPerWeek: 3, minutesPerSession: 60, met: 5.5 },
 	cardio: { enabled: false, daysPerWeek: 3, minutesPerSession: 30, met: 7.5 },
 };
