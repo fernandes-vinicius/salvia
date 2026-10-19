@@ -79,6 +79,8 @@ const named = (name: string): PurchaseRule => ({ name });
 export const PURCHASE_RULES: Record<string, PurchaseRule> = {
 	"Arroz, tipo 1, cozido": { name: "Arroz", rawPerGram: 0.36 },
 	"Feijão, carioca, cozido": { name: "Feijão carioca", rawPerGram: 0.4 },
+	"Feijão, preto, cozido": { name: "Feijão preto", rawPerGram: 0.4 },
+	"Arroz, integral, cozido": { name: "Arroz integral", rawPerGram: 0.4 },
 	"Cuscuz, de milho, cozido com sal": {
 		name: "Flocão de milho",
 		rawPerGram: 0.45,
@@ -150,6 +152,8 @@ export const PURCHASE_RULES: Record<string, PurchaseRule> = {
 	// Versões cruas: somam com as prontas acima.
 	"Arroz, tipo 1, cru": raw("Arroz"),
 	"Feijão, carioca, cru": raw("Feijão carioca"),
+	"Feijão, preto, cru": raw("Feijão preto"),
+	"Arroz, integral, cru": raw("Arroz integral"),
 	"Frango, peito, sem pele, cru": raw("Peito de frango sem pele"),
 	"Frango, peito, com pele, cru": raw("Peito de frango com pele"),
 	"Frango, coxa, sem pele, crua": raw("Coxa de frango sem pele"),

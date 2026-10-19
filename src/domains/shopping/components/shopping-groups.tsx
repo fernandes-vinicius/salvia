@@ -1,6 +1,15 @@
 "use client";
 
-import type { ShoppingGroup } from "~/domains/shopping/utils/shopping-list";
+import {
+	formatMoney,
+	formatPrice,
+	type ItemPrice,
+} from "~/domains/shopping/utils/prices";
+import type {
+	ShoppingGroup,
+	ShoppingItem,
+} from "~/domains/shopping/utils/shopping-list";
+import { Pencil } from "~/shared/components/icons";
 import { Checkbox } from "~/shared/components/ui/checkbox";
 import { cn } from "~/shared/lib/utils";
 
@@ -8,6 +17,9 @@ interface ShoppingGroupsProps {
 	groups: ShoppingGroup[];
 	checked: Set<string>;
 	onToggle: (key: string, value: boolean) => void;
+	/** Com preços: custo de cada item e botão pra editar o preço. */
+	prices?: ReadonlyMap<string, ItemPrice | null>;
+	onEditPrice?: (item: ShoppingItem) => void;
 	className?: string;
 }
 
@@ -17,6 +29,8 @@ export function ShoppingGroups({
 	groups,
 	checked,
 	onToggle,
+	prices,
+	onEditPrice,
 	className,
 }: ShoppingGroupsProps) {
 	return (
@@ -59,12 +73,56 @@ export function ShoppingGroups({
 											)}
 										</span>
 									</label>
+									{prices && onEditPrice && (
+										<PriceRow
+											item={item}
+											price={prices.get(item.key) ?? null}
+											onEdit={() => onEditPrice(item)}
+										/>
+									)}
 								</li>
 							);
 						})}
 					</ul>
 				</section>
 			))}
+		</div>
+	);
+}
+
+// Custo do item no período + o preço usado (toque pra trocar pelo seu).
+function PriceRow({
+	item,
+	price,
+	onEdit,
+}: {
+	item: ShoppingItem;
+	price: ItemPrice | null;
+	onEdit: () => void;
+}) {
+	return (
+		<div className="-mt-1.5 flex items-center justify-between gap-3 pb-2.5 pl-7 text-xs">
+			<span className="text-muted-foreground tabular-nums">
+				{price?.cost != null ? `≈ ${formatMoney(price.cost)}` : "sem preço"}
+			</span>
+			<button
+				type="button"
+				onClick={onEdit}
+				aria-label={`Editar o preço de ${item.name}`}
+				className="flex items-center gap-1 rounded-full px-2 py-0.5 text-primary tabular-nums outline-none transition-colors hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 print:hidden"
+			>
+				{price ? (
+					<>
+						{formatPrice(price.price)}
+						{price.source === "user" && (
+							<span className="text-muted-foreground"> · seu preço</span>
+						)}
+					</>
+				) : (
+					"Definir preço"
+				)}
+				<Pencil className="size-3" aria-hidden />
+			</button>
 		</div>
 	);
 }
