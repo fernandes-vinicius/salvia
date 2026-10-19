@@ -106,11 +106,14 @@ Para quem treina e conta macro sem nutricionista; o que falta é motivo pra volt
 
 - [x] Enviar sugestão (menu do perfil) e compartilhar a dieta por link (`/d/:token`): feitos em out/2026.
 - [x] Check-in do dia ("segui a dieta?": ✓ comi, ↔ comi a opção, ✗ furei), com sequência e adesão da semana: feito em out/2026 (card no Início). Próximos passos: levar a adesão pro ajuste pelo peso ("seu peso não caiu, mas você seguiu só 60% das refeições"), lembrete por notificação, check-in também na aba Dieta.
-- [ ] Início da dieta + revisões de 15 e 30 dias ("Dia 18 · próxima revisão em 12 dias"), com o veredito e o ajuste em gramas de carbo.
+- [ ] Início da dieta + revisões de 15 e 30 dias ("Dia 18 · próxima revisão em 12 dias"), com o veredito e o ajuste em gramas de carbo. Usa a adesão do check-in no período ("o peso não caiu, mas você seguiu 60% das refeições").
 - [ ] Cadastrar alimento pelo código de barras (Open Food Facts); versão Pro: foto do rótulo lida pela IA.
 - [ ] Dia de treino × dia de descanso (duas versões da dieta): bom recurso Pro sem IA.
 - [ ] Fotos de evolução (frente/lado/costas, comparação lado a lado): Pro, depois do VPS (armazenamento e LGPD).
-- [ ] Menores: custo da dieta por semana, porções caseiras, lembrete de pesagem (push do PWA), alertas de sódio e ferro (a TACO já tem).
+- [x] Porções caseiras (colher, concha, fatia): feito em out/2026 (`household-measures.ts`); próximo passo: medidas nos alimentos próprios (campo no cadastro) e ampliar a lista.
+- [ ] Menores: custo da dieta por semana, lembrete de pesagem e de check-in (push do PWA), alertas de sódio e ferro (a TACO já tem).
+- [ ] Link da dieta compartilhada: interruptor "Mostrar meu nome" (desligado por padrão; "Montada por Vinicius Fernandes" ou só o primeiro nome), com linha na Política de privacidade.
+- Depois: IA (Sálvia Pro, seção "IA no app") e infra + cobrança ([`plano-infra-e-planos.md`](plano-infra-e-planos.md)), que é o pré-requisito da IA.
 
 ## Aba Dieta — próximos passos
 

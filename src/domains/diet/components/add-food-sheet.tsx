@@ -90,6 +90,7 @@ function AddFoodFlow({ onAdd }: { onAdd: AddFoodSheetProps["onAdd"] }) {
 				</div>
 				<QuantityEditor
 					unit={food.unit}
+					name={food.name}
 					value={quantity}
 					onChange={(next) => setStep({ ...step, quantity: next })}
 				/>

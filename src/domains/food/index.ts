@@ -19,3 +19,4 @@ export {
 	sumMacros,
 	UNIT_LABELS,
 } from "~/domains/food/utils/food";
+export { householdHint } from "~/domains/food/utils/household";

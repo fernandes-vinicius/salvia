@@ -197,6 +197,7 @@ function ItemEditor({
 			<MacroLine macros={macrosFor(item.food, item.quantity)} />
 			<QuantityEditor
 				unit={item.food.unit}
+				name={item.food.name}
 				value={item.quantity}
 				onChange={(quantity) => {
 					onQuantityChange(item.id, quantity);
@@ -432,6 +433,7 @@ function SwapFlow({
 
 				<QuantityEditor
 					unit={food.unit}
+					name={food.name}
 					value={quantity}
 					onChange={(next) => onStep({ ...step, quantity: next })}
 				/>
