@@ -11,6 +11,31 @@ O Sálvia vai continuar grátis em tudo o que já existe; a receita virá do **S
 
 **Decisões já tomadas com você:** Next em **VPS + Coolify**; cobrança pela **Stripe**; nome **Sálvia Pro**; **AdSense fica pra depois** (pouco tráfego, exige domínio próprio + banner de cookies, piora o Lighthouse). A IA em si é a fase seguinte, fora deste plano.
 
+## Atualização 19/10/2026: começar sem domínio
+
+**Decisão:** nada de domínio pago antes da primeira venda (o erro do Vitrine foi comprar cedo). Fica assim:
+
+| Fase | Onde roda | Endereço | Custo |
+|---|---|---|---|
+| **0. Validar (agora, tudo grátis)** | Vercel Hobby + Neon free (como hoje) | `salvia-dieta.vercel.app` | **R$ 0** |
+| **1. Primeira venda** | VPS SP + Coolify, Cloudflare free na frente (DNS, SSL, cache, analytics) | domínio `.com.br` comprado só aqui | ~R$ 35–50/mês |
+
+**Por que não "só Cloudflare free" sem domínio:**
+- O proxy/DNS/SSL grátis da Cloudflare só funciona com um domínio seu. Sem domínio, o único endereço grátis é `*.workers.dev`, e aí o app teria que **rodar** nos Workers.
+- Workers free: 100 mil requisições/dia, mas **10 ms de CPU por requisição**. Uma página do Next renderizada no servidor passa disso fácil (erro 1102). O plano pago custa US$ 5 (~R$ 28/mês).
+- O adaptador OpenNext ainda tem bugs abertos com Next 16 + `cacheComponents` (ver Contexto). Migrar pra React Router (como o Acesso Amador) custaria semanas.
+- A Vercel Hobby já dá o endereço grátis com HTTPS. A proibição de uso comercial só vale quando começar a cobrar (pagamento ou anúncio). Até lá, ficar onde está é o mais barato e não dá trabalho nenhum.
+
+**Gatilho pra Fase 1:** o primeiro recurso Pro estar pronto pra vender. Aí entra o domínio (R$ 40/ano, ~R$ 3,35/mês, menos que meia assinatura) + VPS. A troca de endereço custa um login novo por pessoa e o redirecionamento 301 (passo 4 abaixo); quanto menos usuários na hora, mais barato.
+
+**Sequência de lançamento do Pro (IA paga), gastando só quando entrar dinheiro:**
+1. **Primeiro recurso de IA, ainda na Vercel grátis**: importar dieta do nutri ([`ideias-pro.md`](ideias-pro.md) #1). Sai como "Pro em teste", grátis por um tempo e com limite por pessoa. Sem cobrança, então a Hobby continua valendo. Custo: só a IA, centavos por uso, com teto mensal na conta da Anthropic.
+2. **Medir**: quantos usam, quantos importam mais de uma vez, o que dizem no "Enviar sugestão". Botão "Assinar Pro (em breve)" com o preço, contando cliques: é o teste de quem pagaria.
+3. **Cobrança pronta em modo teste**: Stripe com cartões de teste (`@better-auth/stripe`, domínio `billing`, `/planos`, `/assinatura`, termos/privacidade), escondida por flag.
+4. **Dia do lançamento** (só se os passos 1–2 mostrarem interesse): compra o domínio, sobe a VPS (Fase 1 abaixo), liga a flag e a Stripe em modo real. A partir daqui custa ~R$ 40–50/mês, pagos com 5–6 assinantes.
+
+**Usar a Cloudflare free desde já, sem domínio:** R2 (10 GB grátis) pro backup semanal do `pg_dump` e, se precisar, Turnstile (anti-robô grátis) no feedback ou no login.
+
 ## Custos mensais estimados
 
 | Item | Custo |

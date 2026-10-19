@@ -8,6 +8,10 @@ const envSchema = z.object({
 	BETTER_AUTH_URL: z.url(),
 	GOOGLE_CLIENT_ID: z.string().min(1),
 	GOOGLE_CLIENT_SECRET: z.string().min(1),
+	// IA (beta): sem a chave, os recursos de IA avisam que estão indisponíveis.
+	GEMINI_API_KEY: z.string().optional(),
+	GEMINI_MODEL: z.string().optional(),
+	BETA_EMAILS: z.string().optional(),
 });
 
 // Validação lazy: só quebra quando algo server-side realmente precisa das

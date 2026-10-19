@@ -107,6 +107,49 @@ export async function resetDiet(userId: string): Promise<DietMeal[]> {
 	return meals.map((meal) => ({ ...meal, items: [] }));
 }
 
+export interface NewDietMeal {
+	name: string;
+	time: string | null;
+	items: { foodId: string; quantity: number; options: NewOption[] }[];
+}
+
+/**
+ * Troca a dieta inteira (ex.: importada de um documento), numa transação:
+ * apaga as refeições atuais (itens e opções vão junto, cascade) e grava as
+ * novas. Os alimentos já precisam ter sido checados.
+ */
+export async function replaceDiet(userId: string, meals: NewDietMeal[]) {
+	await db.transaction(async (tx) => {
+		await tx.delete(dietMeal).where(eq(dietMeal.userId, userId));
+		for (const [position, meal] of meals.entries()) {
+			const [row] = await tx
+				.insert(dietMeal)
+				.values({ userId, name: meal.name, time: meal.time, position })
+				.returning({ id: dietMeal.id });
+			for (const [index, item] of meal.items.entries()) {
+				const [itemRow] = await tx
+					.insert(dietItem)
+					.values({
+						mealId: row.id,
+						foodId: item.foodId,
+						quantity: item.quantity,
+						position: index,
+					})
+					.returning({ id: dietItem.id });
+				if (item.options.length === 0) continue;
+				await tx.insert(dietItemOption).values(
+					item.options.map((option, optionIndex) => ({
+						itemId: itemRow.id,
+						foodId: option.foodId,
+						quantity: option.quantity,
+						position: optionIndex,
+					})),
+				);
+			}
+		}
+	});
+}
+
 async function ownedMeal(userId: string, mealId: string) {
 	const [meal] = await db
 		.select({ id: dietMeal.id, position: dietMeal.position })

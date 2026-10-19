@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { isBetaUser } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { suggestedWater } from "~/domains/calculators/utils/water";
 import { DietView } from "~/domains/diet";
@@ -73,6 +74,7 @@ async function DietContent() {
 				tdee={tdee}
 				targets={targets}
 				water={profile ? suggestedWater(profile) : null}
+				beta={isBetaUser(user)}
 			/>
 		</CelebrationProvider>
 	);

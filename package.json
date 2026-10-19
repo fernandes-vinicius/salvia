@@ -28,6 +28,7 @@
 		"generate-pwa-assets": "pwa-assets-generator"
 	},
 	"dependencies": {
+		"@ai-sdk/google": "^4.0.100",
 		"@base-ui/react": "^1.9.0",
 		"@better-auth/drizzle-adapter": "^1.7.10",
 		"@conform-to/react": "^1.21.2",
@@ -37,6 +38,7 @@
 		"@dnd-kit/utilities": "^3.2.2",
 		"@serwist/turbopack": "^9.5.13",
 		"@vercel/analytics": "^2.0.1",
+		"ai": "^7.0.145",
 		"better-auth": "^1.7.10",
 		"canvas-confetti": "1.9.4",
 		"class-variance-authority": "^0.7.1",

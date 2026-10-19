@@ -6,6 +6,7 @@ import {
 	countDistinct,
 	eq,
 	ilike,
+	inArray,
 	isNull,
 	or,
 	type SQL,
@@ -74,6 +75,17 @@ export async function findVisibleFood(userId: string, foodId: string) {
 		.where(and(eq(food.id, foodId), visibleTo(userId)))
 		.limit(1);
 	return row ?? null;
+}
+
+/** Todos os ids são de alimentos que o usuário pode usar? */
+export async function allFoodsVisible(userId: string, foodIds: string[]) {
+	const unique = [...new Set(foodIds)];
+	if (unique.length === 0) return true;
+	const rows = await db
+		.select({ id: food.id })
+		.from(food)
+		.where(and(inArray(food.id, unique), visibleTo(userId)));
+	return rows.length === unique.length;
 }
 
 export async function createCustomFood(
