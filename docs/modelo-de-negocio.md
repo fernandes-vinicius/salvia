@@ -7,7 +7,7 @@ Documento vivo. Parte 1 (custos) feita em 19/10/2026; as próximas partes entram
 ## Parte 1 — Contas de padaria (custo mínimo)
 
 ### 1. Fase 0 — validar sem cobrar (hoje): **R$ 0/mês**
-Vercel Hobby + Neon free + GitHub + Cloudflare (DNS/analytics) + Storybook na Vercel. Domínio `.com.br` opcional (R$ 40/ano ≈ R$ 3,35/mês). Limite: Hobby proíbe uso comercial, então serve só enquanto for grátis.
+Vercel Hobby (`salvia-dieta.vercel.app`) + Neon free + GitHub + Storybook na Vercel. **Sem domínio** (decidido em 19/10/2026): ele só é comprado na primeira venda, junto com a VPS (ver "Atualização 19/10/2026" em [`plano-infra-e-planos.md`](plano-infra-e-planos.md)). Limite: a Hobby proíbe uso comercial, então serve só enquanto tudo for grátis.
 
 ### 2. Fase 1 — cobrando (custo fixo mínimo)
 | Item | R$/mês |

@@ -71,6 +71,7 @@ import {
 	RotateCcw,
 	Share,
 	ShoppingCart,
+	Sparkles,
 } from "~/shared/components/icons";
 import {
 	AlertDialog,
@@ -100,6 +101,8 @@ interface DietViewProps {
 	targets: GoalTargets | null;
 	/** Água sugerida pelo perfil; null sem TMB preenchida. */
 	water: WaterResult | null;
+	/** Recursos em beta liberados (`BETA_EMAILS`), ex.: importar dieta. */
+	beta?: boolean;
 }
 
 const MODES = ["editar", "visualizar"] as const;
@@ -137,6 +140,7 @@ export function DietView({
 	tdee,
 	targets,
 	water,
+	beta = false,
 }: DietViewProps) {
 	const router = useRouter();
 	// Id estável pro dnd-kit: sem ele, o contador global dos ids de
@@ -689,6 +693,12 @@ export function DietView({
 							<Share />
 							Compartilhar dieta
 						</DropdownMenuItem>
+						{beta && (
+							<DropdownMenuItem onClick={() => router.push("/dieta/importar")}>
+								<Sparkles />
+								Importar dieta (beta)
+							</DropdownMenuItem>
+						)}
 						<DropdownMenuSeparator />
 						<DropdownMenuItem
 							variant="destructive"

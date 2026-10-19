@@ -6,7 +6,7 @@ Lista viva das ideias de recursos pagos. O grátis continua com tudo o que exist
 
 ## 1. Importar dieta do nutricionista (PDF ou foto) com IA
 
-**Registrada em:** 19/10/2026
+**Registrada em:** 19/10/2026 · **Status:** em beta fechado desde 19/10/2026 (`/dieta/importar`, só `BETA_EMAILS`, Gemini grátis). Falta antes de abrir: IA paga + Política de privacidade, limite mensal por pessoa, importar somando à dieta atual (hoje substitui).
 
 **Problema:** muita gente já tem uma dieta feita por nutricionista, em PDF, foto do papel ou print do WhatsApp. Passar isso pro app à mão (buscar alimento por alimento, ajustar gramas) é a parte que mais desanima no começo.
 
