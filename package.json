@@ -25,7 +25,6 @@
 		"feedback:prod": "bun --env-file=.env.neon scripts/feedback.ts",
 		"storybook": "storybook dev -p 6006",
 		"build-storybook": "storybook build -o storybook-static",
-		"deploy-storybook": "storybook build -o storybook-static && VERCEL_ORG_ID=team_k0Yat5stKAFPYUNnYvBHpTbY VERCEL_PROJECT_ID=prj_Cnfzqau7GX83RqDwZets567Bcx5Q vercel deploy storybook-static --prod --yes",
 		"generate-pwa-assets": "pwa-assets-generator"
 	},
 	"dependencies": {
