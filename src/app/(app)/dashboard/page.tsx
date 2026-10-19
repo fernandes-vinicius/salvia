@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { getCurrentUser } from "~/domains/auth/services/session-service";
+import { addDays, CheckinCard, type CheckinMeal } from "~/domains/checkin";
+import { listCheckins } from "~/domains/checkin/services/checkin-service";
 import { summarizeDiet } from "~/domains/diet";
 import { getDiet } from "~/domains/diet/services/diet-service";
 import { DietTemplates, previewTemplates } from "~/domains/diet-templates";
@@ -54,6 +56,7 @@ export default function DashboardPage() {
 
 async function HomeContent() {
 	const user = await getCurrentUser();
+	const today = localDateString();
 	const [
 		profile,
 		goal,
@@ -63,6 +66,7 @@ async function HomeContent() {
 		measurements,
 		templateFoods,
 		calibration,
+		checkins,
 	] = await Promise.all([
 		findProfileByUserId(user.id),
 		findGoalByUserId(user.id),
@@ -73,6 +77,8 @@ async function HomeContent() {
 		listMeasurements(user.id),
 		getTemplateFoods(user.id),
 		findGoalCalibration(user.id),
+		// Dois meses bastam pra sequência e semana do check-in.
+		listCheckins(user.id, addDays(today, -60)),
 	]);
 
 	// Gasto da fórmula + o ajuste pelo peso real já aplicado.
@@ -82,7 +88,7 @@ async function HomeContent() {
 	const calibrationAnalysis = goal
 		? analyzeCalibration({
 				weighIns: toWeighIns(measurements),
-				today: localDateString(),
+				today,
 				since: calibration.since,
 				calorieAdjustment: goal.calorieAdjustment,
 			})
@@ -133,6 +139,15 @@ async function HomeContent() {
 	];
 
 	const hasFoods = meals.some((meal) => meal.items.length > 0);
+	// Check-in só das refeições com alimentos (as vazias viram aviso acima).
+	const checkinMeals: CheckinMeal[] = meals
+		.filter((meal) => meal.items.length > 0)
+		.map((meal) => ({
+			id: meal.id,
+			name: meal.name,
+			time: meal.time,
+			hasOptions: meal.items.some((item) => item.options.length > 0),
+		}));
 	const templates = (
 		<DietTemplates
 			templates={previewTemplates(
@@ -161,6 +176,13 @@ async function HomeContent() {
 
 			<SetupChecklist steps={steps} />
 			<AttentionList items={attention} />
+			{checkinMeals.length > 0 && (
+				<CheckinCard
+					meals={checkinMeals}
+					today={today}
+					initialCheckins={checkins}
+				/>
+			)}
 			{/* Sem dieta ainda: as prontas são o atalho mais útil, vêm antes. */}
 			{!hasFoods && templates}
 

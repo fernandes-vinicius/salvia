@@ -105,7 +105,7 @@ Planejado em out/2026. Ordem pensada pra começar pelo que não usa IA e ir aume
 Para quem treina e conta macro sem nutricionista; o que falta é motivo pra voltar todo dia.
 
 - [x] Enviar sugestão (menu do perfil) e compartilhar a dieta por link (`/d/:token`): feitos em out/2026.
-- [ ] Check-in do dia ("segui a dieta?": ✓ comi, ↔ comi a opção, ✗ furei), com sequência e adesão da semana; deixa o ajuste pelo peso mais justo e dá dado real pros insights de IA.
+- [x] Check-in do dia ("segui a dieta?": ✓ comi, ↔ comi a opção, ✗ furei), com sequência e adesão da semana: feito em out/2026 (card no Início). Próximos passos: levar a adesão pro ajuste pelo peso ("seu peso não caiu, mas você seguiu só 60% das refeições"), lembrete por notificação, check-in também na aba Dieta.
 - [ ] Início da dieta + revisões de 15 e 30 dias ("Dia 18 · próxima revisão em 12 dias"), com o veredito e o ajuste em gramas de carbo.
 - [ ] Cadastrar alimento pelo código de barras (Open Food Facts); versão Pro: foto do rótulo lida pela IA.
 - [ ] Dia de treino × dia de descanso (duas versões da dieta): bom recurso Pro sem IA.

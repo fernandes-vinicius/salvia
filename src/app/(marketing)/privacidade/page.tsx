@@ -42,7 +42,9 @@ export default function PrivacyPage() {
 					<li>
 						<strong>Dados de saúde e corpo:</strong> sexo, idade, peso, altura,
 						rotina de atividade e treinos, objetivo, metas de calorias e macros,
-						dieta, alimentos cadastrados e medidas corporais.
+						dieta, alimentos cadastrados, medidas corporais e o check-in das
+						refeições (se você comeu, comeu a opção ou furou cada refeição do
+						dia).
 					</li>
 					<li>
 						<strong>Sessão e segurança:</strong> endereço IP e navegador usados
