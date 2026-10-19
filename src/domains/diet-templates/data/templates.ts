@@ -37,11 +37,6 @@ const TACO = {
 	ovoCozido: 488, // Ovo, de galinha, inteiro, cozido/10minutos
 	paoFrances: 53, // Pão, trigo, francês
 	feijao: 561, // Feijão, carioca, cozido
-	coxaFrango: 398, // Frango, coxa, sem pele, cozida
-	acemMoido: 326, // Carne, bovina, acém, moído, cozido
-	cuscuz: 533, // Cuscuz, de milho, cozido com sal
-	repolho: 149, // Repolho, branco, cru
-	cenoura: 110, // Cenoura, crua
 	patinho: 377, // Carne, bovina, patinho, sem gordura, grelhado
 	batataDoce: 88, // Batata, doce, cozida
 	beterraba: 97, // Beterraba, cozida
@@ -103,52 +98,6 @@ export const DIET_TEMPLATES: DietTemplate[] = [
 					{ custom: "whey", quantity: 30 },
 					{ taco: TACO.leitePo, quantity: 20 },
 					{ taco: TACO.aveia, quantity: 40 },
-				],
-			},
-		],
-	},
-	{
-		id: "economica",
-		name: "Econômica",
-		tag: "Barata",
-		description:
-			"4 refeições de feira e mercado: ovo, coxa de frango, carne moída, arroz, feijão e cuscuz. Sem suplemento.",
-		meals: [
-			{
-				name: "Café da manhã",
-				time: "07:00",
-				items: [
-					{ taco: TACO.paoFrances, quantity: 50 },
-					{ taco: TACO.ovoCozido, quantity: 150 },
-					{ taco: TACO.banana, quantity: 100 },
-				],
-			},
-			{
-				name: "Almoço",
-				time: "12:00",
-				items: [
-					{ taco: TACO.arroz, quantity: 150 },
-					{ taco: TACO.feijao, quantity: 140 },
-					{ taco: TACO.coxaFrango, quantity: 150 },
-					{ taco: TACO.repolho, quantity: 50 },
-					{ taco: TACO.cenoura, quantity: 30 },
-				],
-			},
-			{
-				name: "Lanche",
-				time: "16:00",
-				items: [
-					{ taco: TACO.cuscuz, quantity: 150 },
-					{ taco: TACO.ovoCozido, quantity: 100 },
-				],
-			},
-			{
-				name: "Jantar",
-				time: "20:00",
-				items: [
-					{ taco: TACO.arroz, quantity: 120 },
-					{ taco: TACO.feijao, quantity: 100 },
-					{ taco: TACO.acemMoido, quantity: 120 },
 				],
 			},
 		],
