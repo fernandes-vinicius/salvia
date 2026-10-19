@@ -3,6 +3,7 @@ import { PrintHeader } from "~/domains/diet/components/print-header";
 import type { DietMeal } from "~/domains/diet/types/diet-types";
 import { itemMacros, mealMacros } from "~/domains/diet/utils/diet";
 import { kcalFor, UNIT_LABELS } from "~/domains/food/utils/food";
+import { householdHint } from "~/domains/food/utils/household";
 import { Clock } from "~/shared/components/icons";
 import { formatNonZero, formatNumber } from "~/shared/lib/format";
 
@@ -58,7 +59,7 @@ function PreviewMeal({ meal }: { meal: DietMeal }) {
 							<th className="pb-1.5 text-left font-normal text-muted-foreground">
 								Alimento
 							</th>
-							<th className="hidden w-20 pb-1.5 text-right font-normal text-muted-foreground sm:table-cell print:table-cell">
+							<th className="hidden w-24 pb-1.5 text-right font-normal text-muted-foreground sm:table-cell print:table-cell">
 								Qtd.
 							</th>
 							<th className="w-12 pb-1.5 text-right font-medium text-macro-protein-ink">
@@ -85,6 +86,7 @@ function PreviewMeal({ meal }: { meal: DietMeal }) {
 						{meal.items.map((item) => {
 							const macros = itemMacros(item);
 							const quantity = `${formatNumber(item.quantity, 1)} ${UNIT_LABELS[item.food.unit].short}`;
+							const hint = householdHint(item.food, item.quantity);
 							return (
 								<tr key={item.id} className="border-border border-t">
 									<td className="py-2 pr-2 leading-snug">
@@ -92,6 +94,7 @@ function PreviewMeal({ meal }: { meal: DietMeal }) {
 										{/* No celular a quantidade fica embaixo do nome. */}
 										<span className="block text-muted-foreground text-xs sm:hidden print:hidden">
 											{quantity}
+											{hint && ` · ${hint.short}`}
 										</span>
 										{item.options.map((option) => (
 											<span
@@ -107,6 +110,11 @@ function PreviewMeal({ meal }: { meal: DietMeal }) {
 									</td>
 									<td className="hidden py-2 text-right text-muted-foreground sm:table-cell print:table-cell">
 										{quantity}
+										{hint && (
+											<span className="block whitespace-nowrap text-xs">
+												{hint.short}
+											</span>
+										)}
 									</td>
 									<td className="py-2 text-right text-macro-protein-ink">
 										{formatNonZero(macros.proteinAnimal)}

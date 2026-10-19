@@ -6,6 +6,7 @@ import { CSS } from "@dnd-kit/utilities";
 import type { DietItem } from "~/domains/diet/types/diet-types";
 import { itemMacros } from "~/domains/diet/utils/diet";
 import { kcalFor, UNIT_LABELS } from "~/domains/food/utils/food";
+import { householdHint } from "~/domains/food/utils/household";
 import { GripVertical } from "~/shared/components/icons";
 import { formatNonZero, formatNumber } from "~/shared/lib/format";
 import { cn } from "~/shared/lib/utils";
@@ -30,6 +31,7 @@ export function SortableItemRow({ item, onEdit }: SortableItemRowProps) {
 	} = useSortable({ id: item.id });
 
 	const macros = itemMacros(item);
+	const hint = householdHint(item.food, item.quantity);
 
 	return (
 		<tr
@@ -68,6 +70,7 @@ export function SortableItemRow({ item, onEdit }: SortableItemRowProps) {
 				</button>
 				<span className="text-muted-foreground text-xs">
 					{formatNumber(item.quantity, 1)} {UNIT_LABELS[item.food.unit].short}
+					{hint && <span title={hint.long}> · {hint.short}</span>}
 				</span>
 				{item.options.map((option) => (
 					<span
