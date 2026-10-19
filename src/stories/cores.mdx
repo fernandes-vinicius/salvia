@@ -1,0 +1,74 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+import { ColorSwatch, SwatchGrid } from "./doc-blocks";
+
+<Meta title="Fundamentos/Cores" />
+
+# Cores
+
+Os valores abaixo são lidos do CSS em tempo real: troque o tema na barra de cima pra ver o escuro. Onde há um par de texto, o cartão mostra o **contraste calculado** (mínimo WCAG AA: 4,5:1).
+
+## Superfícies
+
+<SwatchGrid>
+	<ColorSwatch token="background" on="foreground" description="Fundo do app (creme)." />
+	<ColorSwatch token="card" on="card-foreground" description="Cartões e painéis sobre o fundo." />
+	<ColorSwatch token="muted" on="muted-foreground" description="Áreas de apoio (totais, caixas)." />
+	<ColorSwatch token="popover" on="popover-foreground" description="Menus e popovers." />
+</SwatchGrid>
+
+## Marca e ações
+
+<SwatchGrid>
+	<ColorSwatch token="primary" on="primary-foreground" description="Verde-sálvia profundo: ação principal, destaques." />
+	<ColorSwatch token="secondary" on="secondary-foreground" description="Sálvia claro: destaque suave, selecionado." />
+	<ColorSwatch token="accent" on="accent-foreground" description="Hover de itens de lista." />
+	<ColorSwatch token="destructive" on="card" description="Terracota: excluir, erro, furei." />
+</SwatchGrid>
+
+## Texto e linhas
+
+<SwatchGrid>
+	<ColorSwatch token="foreground" on="background" description="Texto principal." />
+	<ColorSwatch token="muted-foreground" on="background" description="Texto secundário (≥ 4,5:1 em todos os fundos claros)." />
+	<ColorSwatch token="border" description="Linhas divisórias (quase imperceptíveis)." />
+	<ColorSwatch token="input" description="Borda de campos." />
+	<ColorSwatch token="ring" description="Anel de foco." />
+</SwatchGrid>
+
+## Macros
+
+A cor **base** é pra barras e bolinhas; a **ink** é a mesma cor em tom de texto, com contraste garantido.
+
+<SwatchGrid>
+	<ColorSwatch token="macro-protein" description="Proteína animal (base)." />
+	<ColorSwatch token="macro-protein-ink" on="card" description="Proteína animal (texto)." />
+	<ColorSwatch token="macro-protein-vegetal" description="Proteína vegetal (base)." />
+	<ColorSwatch token="macro-protein-vegetal-ink" on="card" description="Proteína vegetal (texto)." />
+	<ColorSwatch token="macro-carb" description="Carboidrato (base, trigo)." />
+	<ColorSwatch token="macro-carb-ink" on="card" description="Carboidrato (texto)." />
+	<ColorSwatch token="macro-fat" description="Gordura (base, terracota)." />
+	<ColorSwatch token="macro-fat-ink" on="card" description="Gordura (texto)." />
+</SwatchGrid>
+
+## Gráficos
+
+Séries em sequência de verdes, com um bege pra contraste (`chart-1..5`).
+
+<SwatchGrid>
+	<ColorSwatch token="chart-1" />
+	<ColorSwatch token="chart-2" />
+	<ColorSwatch token="chart-3" />
+	<ColorSwatch token="chart-4" />
+	<ColorSwatch token="chart-5" />
+</SwatchGrid>
+
+## Como usar
+
+```tsx
+<div className="rounded-3xl bg-card p-4">          {/* superfície */}
+	<p className="text-muted-foreground">…</p>        {/* texto secundário */}
+	<span className="text-macro-carb-ink">153 g</span> {/* valor de macro */}
+	<div className="h-2 rounded-full bg-macro-carb" /> {/* barra de macro */}
+</div>
+```

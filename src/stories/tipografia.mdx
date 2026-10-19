@@ -1,0 +1,40 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+import { Surface, TypeSample } from "./doc-blocks";
+
+<Meta title="Fundamentos/Tipografia" />
+
+# Tipografia
+
+Duas famílias: **Manrope** (`font-heading`) pra títulos e números, **Inter** (`font-sans`, padrão) pro corpo. Números sempre com `tabular-nums`, pra colunas de macros alinharem.
+
+<Surface>
+	<TypeSample label="Título de página" className="font-heading font-semibold text-3xl tracking-tight" usage="PageHeader, h1 das páginas.">
+		Dieta
+	</TypeSample>
+	<TypeSample label="Título de seção" className="font-heading font-semibold text-xl" usage="h2 de cartões grandes e seções.">
+		Planejado × meta
+	</TypeSample>
+	<TypeSample label="Título de cartão" className="font-heading font-semibold" usage="h2/h3 dentro de cartões.">
+		Resumo do dia
+	</TypeSample>
+	<TypeSample label="Número de destaque" className="font-heading font-semibold text-4xl tabular-nums" usage="Gasto calórico, total planejado, custo.">
+		1.992 kcal
+	</TypeSample>
+	<TypeSample label="Corpo" className="text-sm" usage="Texto padrão de telas e listas.">
+		Suas refeições e o total do dia comparado com a sua meta.
+	</TypeSample>
+	<TypeSample label="Apoio" className="text-muted-foreground text-xs" usage="Dicas, legendas, quantidades secundárias.">
+		100 g · ≈ 4 col. sopa
+	</TypeSample>
+	<TypeSample label="Valores de macro" className="font-heading font-semibold tabular-nums text-macro-carb-ink" usage="Coluna C nas tabelas, sempre com o tom -ink.">
+		153 g de carboidrato
+	</TypeSample>
+</Surface>
+
+## Regras
+
+- `font-heading` só em títulos e números; nunca em parágrafos longos.
+- `tabular-nums` em qualquer valor que aparece em coluna ou muda ao vivo.
+- `text-balance` em títulos e `text-pretty` em parágrafos curtos.
+- Texto sobre `bg-primary`: no mínimo 90% de opacidade (100% dentro de painéis `bg-primary-foreground/10`).

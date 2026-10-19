@@ -1,0 +1,17 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+import { IconGallery } from "./icon-gallery";
+
+<Meta title="Fundamentos/Ícones" />
+
+# Ícones
+
+Lucide, sempre importados de `~/shared/components/icons` (nunca direto de `lucide-react`). Precisa de um ícone novo? Adicione ao `export` desse arquivo primeiro.
+
+```tsx
+import { Salad } from "~/shared/components/icons";
+
+<Salad className="size-4 text-primary" />
+```
+
+<IconGallery />

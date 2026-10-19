@@ -1,0 +1,43 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+import { RadiusScale, Surface } from "./doc-blocks";
+
+<Meta title="Fundamentos/Raios e espaçamento" />
+
+# Raios, superfícies e espaçamento
+
+## Raios
+
+Base `--radius: 0.875rem`; o resto é proporcional. Cantos bem arredondados combinam com a paleta suave.
+
+<RadiusScale />
+
+| Uso | Classe |
+| --- | --- |
+| Cartões e painéis | `rounded-3xl` |
+| Caixas internas (totais, itens destacados) | `rounded-2xl` |
+| Botões, campos, chips | `rounded-4xl` (pílula) |
+
+## Superfícies em vez de sombra
+
+O app não usa sombra (as classes `shadow-*` não geram CSS). A hierarquia vem das camadas de cor:
+
+<Surface>
+	<div className="flex flex-col gap-3 rounded-3xl bg-card p-4">
+		<span className="font-heading font-semibold">bg-card sobre bg-background</span>
+		<div className="rounded-2xl bg-muted p-3 text-sm">bg-muted dentro do card (totais, apoio)</div>
+		<div className="rounded-2xl bg-secondary p-3 text-secondary-foreground text-sm">bg-secondary pra destaque (insight, selecionado)</div>
+		<div className="rounded-2xl p-3 text-sm ring-1 ring-foreground/5">ring-1 ring-foreground/5 quando precisar de borda</div>
+	</div>
+</Surface>
+
+## Espaçamento
+
+Escala padrão do Tailwind (4 px). Os padrões mais usados:
+
+| Onde | Classes |
+| --- | --- |
+| Dentro de cartões | `p-4 md:p-5`, `gap-3`/`gap-4` |
+| Entre cartões | `gap-4`/`gap-6` |
+| Entre seções da página | `gap-8` |
+| Página | `container-wrapper` (estreita) ou `container-wide` (Dieta, Medidas) |
