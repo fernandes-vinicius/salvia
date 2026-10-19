@@ -85,8 +85,7 @@ export function DietTemplates({
 				</p>
 			</div>
 
-			{/* Uma embaixo da outra em todas as telas (lado a lado ficava apertado). */}
-			<ul className="flex flex-col gap-3">
+			<ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
 				{templates.map((template) => (
 					<li
 						key={template.id}
@@ -111,7 +110,7 @@ export function DietTemplates({
 							</p>
 							<MacroLine macros={template.macros} />
 						</div>
-						<div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
+						<div className="mt-auto flex flex-col gap-2">
 							<Button variant="secondary" onClick={() => setViewing(template)}>
 								<Eye data-icon="inline-start" />
 								Visualizar
