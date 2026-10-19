@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { getDiet } from "~/domains/diet/services/diet-service";
 import { ShoppingList } from "~/domains/shopping";
+import { listUserPrices } from "~/domains/shopping/services/price-service";
 import { ChevronLeft, ShoppingCart } from "~/shared/components/icons";
 import { PageHeader } from "~/shared/components/page-header";
 import { Button } from "~/shared/components/ui/button";
@@ -36,7 +37,7 @@ export default function ShoppingListPage() {
 				</Button>
 				<PageHeader
 					title="Lista de compras"
-					description="Tudo o que a sua dieta pede pro período escolhido, separado por seção do mercado."
+					description="Tudo o que a sua dieta pede pro período escolhido, separado por seção do mercado, com o custo estimado."
 				/>
 			</div>
 			<Suspense fallback={<ShoppingListSkeleton />}>
@@ -48,7 +49,10 @@ export default function ShoppingListPage() {
 
 async function ShoppingListContent() {
 	const user = await getCurrentUser();
-	const meals = await getDiet(user.id, { createIfEmpty: false });
+	const [meals, prices] = await Promise.all([
+		getDiet(user.id, { createIfEmpty: false }),
+		listUserPrices(user.id),
+	]);
 
 	if (!meals.some((meal) => meal.items.length > 0)) {
 		return (
@@ -76,7 +80,7 @@ async function ShoppingListContent() {
 		);
 	}
 
-	return <ShoppingList meals={meals} />;
+	return <ShoppingList meals={meals} initialPrices={prices} />;
 }
 
 function ShoppingListSkeleton() {

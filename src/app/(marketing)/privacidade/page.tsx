@@ -44,7 +44,8 @@ export default function PrivacyPage() {
 						rotina de atividade e treinos, objetivo, metas de calorias e macros,
 						dieta, alimentos cadastrados, medidas corporais e o check-in das
 						refeições (se você comeu, comeu a opção ou furou cada refeição do
-						dia).
+						dia), além dos preços de mercado que você salvar na lista de
+						compras.
 					</li>
 					<li>
 						<strong>Sessão e segurança:</strong> endereço IP e navegador usados
@@ -58,7 +59,8 @@ export default function PrivacyPage() {
 					<li>
 						<strong>Sugestões que você envia:</strong> o tipo (ideia, problema
 						ou outro), a mensagem e a página do app em que você estava, quando
-						você usa “Enviar sugestão”.
+						você usa “Enviar sugestão”. Elas ficam ligadas à sua conta (nome e
+						e-mail), pra podermos responder.
 					</li>
 					<li>
 						<strong>Estatísticas de visita:</strong> páginas visitadas, de onde

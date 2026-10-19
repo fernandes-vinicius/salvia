@@ -6,5 +6,6 @@ export * from "~/shared/db/schema/feedback-schema";
 export * from "~/shared/db/schema/food-schema";
 export * from "~/shared/db/schema/goal-schema";
 export * from "~/shared/db/schema/measurement-schema";
+export * from "~/shared/db/schema/price-schema";
 export * from "~/shared/db/schema/profile-schema";
 export * from "~/shared/db/schema/settings-schema";

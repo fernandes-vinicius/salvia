@@ -58,6 +58,9 @@ import {
 } from "~/domains/diet/utils/diet";
 import { type Food, MacroLine, macrosFor, UNIT_LABELS } from "~/domains/food";
 import type { GoalTargets } from "~/domains/goal/types/goal-types";
+import type { Price } from "~/domains/shopping/data/reference-prices";
+import { shoppingCost } from "~/domains/shopping/utils/prices";
+import { buildShoppingList } from "~/domains/shopping/utils/shopping-list";
 import {
 	EllipsisVertical,
 	Eye,
@@ -95,6 +98,8 @@ interface DietViewProps {
 	weightKg: number | null;
 	tdee: number | null;
 	targets: GoalTargets | null;
+	/** Preços que a pessoa salvou (`[chave, preço]`), pro custo do dia. */
+	prices: [string, Price][];
 }
 
 const MODES = ["editar", "visualizar"] as const;
@@ -131,6 +136,7 @@ export function DietView({
 	weightKg,
 	tdee,
 	targets,
+	prices,
 }: DietViewProps) {
 	const router = useRouter();
 	// Id estável pro dnd-kit: sem ele, o contador global dos ids de
@@ -196,6 +202,8 @@ export function DietView({
 	}
 
 	const summary = summarizeDiet(meals, { weightKg, tdee });
+	// Custo de 1 dia pela lista de compras (preço da pessoa ou de referência).
+	const dayCost = shoppingCost(buildShoppingList(meals, 1), new Map(prices));
 	const mealIds = new Set(meals.map((meal) => meal.id));
 	const findMeal = (id: string | null) =>
 		meals.find((meal) => meal.id === id) ?? null;
@@ -684,7 +692,11 @@ export function DietView({
 					style={{ top: asideTop }}
 					className="grid gap-4 md:grid-cols-2 md:items-start lg:sticky lg:order-last lg:grid-cols-1 print:static print:order-last print:break-inside-avoid print:grid-cols-2 print:[print-color-adjust:exact]"
 				>
-					<DietSummaryCard summary={summary} tdee={tdee} />
+					<DietSummaryCard
+						summary={summary}
+						tdee={tdee}
+						costPerDay={dayCost.total > 0 ? dayCost.total : null}
+					/>
 					{targets ? (
 						<GoalProgress summary={summary} targets={targets} />
 					) : (

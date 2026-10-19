@@ -5,8 +5,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { DietMeal } from "~/domains/diet/types/diet-types";
 import { ShoppingList } from "~/domains/shopping/components/shopping-list";
+import type { Price } from "~/domains/shopping/data/reference-prices";
 
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+// Server Actions não rodam no teste do componente.
+vi.mock("~/domains/shopping/actions/price-actions", () => ({
+	setUserPriceAction: vi.fn(),
+	resetUserPriceAction: vi.fn(),
+}));
 
 const meals: DietMeal[] = [
 	{
@@ -35,10 +41,10 @@ const meals: DietMeal[] = [
 	},
 ];
 
-function renderList(searchParams = "") {
+function renderList(searchParams = "", prices: [string, Price][] = []) {
 	return render(
 		<NuqsTestingAdapter searchParams={searchParams}>
-			<ShoppingList meals={meals} />
+			<ShoppingList meals={meals} initialPrices={prices} />
 		</NuqsTestingAdapter>,
 	);
 }
@@ -66,5 +72,24 @@ describe("ShoppingList", () => {
 		expect(
 			screen.getByRole("button", { name: /Desmarcar tudo/ }),
 		).toBeInTheDocument();
+	});
+
+	it("mostra o custo com o preço de referência", () => {
+		renderList();
+		// 14 ovos na semana × R$ 10 a dúzia.
+		const cost = screen.getByRole("region", { name: /Custo estimado/ });
+		expect(within(cost).getByText(/R\$\s?11,67/)).toBeInTheDocument();
+		expect(
+			screen.getByRole("button", { name: "Editar o preço de Ovos" }),
+		).toHaveTextContent("R$ 10,00/dz");
+	});
+
+	it("usa o preço que a pessoa salvou no lugar da referência", () => {
+		renderList("", [["ovos", { value: 12, per: "dz" }]]);
+		const cost = screen.getByRole("region", { name: /Custo estimado/ });
+		expect(within(cost).getByText(/R\$\s?14,00/)).toBeInTheDocument();
+		expect(
+			screen.getByRole("button", { name: "Editar o preço de Ovos" }),
+		).toHaveTextContent("seu preço");
 	});
 });

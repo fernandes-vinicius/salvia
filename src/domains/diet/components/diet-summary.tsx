@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import type { DietSummary, MacroKey } from "~/domains/diet/types/diet-types";
 import {
 	FIBER_MIN_GRAMS,
@@ -18,12 +20,18 @@ export const MACRO_LABELS: Record<MacroKey, { label: string; dot: string }> = {
 interface DietSummaryCardProps {
 	summary: DietSummary;
 	tdee: number | null;
+	/** Custo estimado de 1 dia (R$); null sem preço. */
+	costPerDay?: number | null;
 }
 
 // A legenda "OFF" da planilha: g · % · kcal · g/kg por macro, total e
 // excedente/déficit em relação ao gasto diário. Fibra fica à parte (não
 // entra nas kcal), com a recomendação pro dia.
-export function DietSummaryCard({ summary, tdee }: DietSummaryCardProps) {
+export function DietSummaryCard({
+	summary,
+	tdee,
+	costPerDay = null,
+}: DietSummaryCardProps) {
 	const { surplus } = summary;
 	const fiberGoal = fiberTarget(summary.kcal);
 	const fiberLow = Math.round(summary.fiber) < fiberGoal;
@@ -124,6 +132,23 @@ export function DietSummaryCard({ summary, tdee }: DietSummaryCardProps) {
 						{formatNumber(summary.kcal)} kcal
 					</dd>
 				</div>
+				{costPerDay !== null && (
+					<div className="flex items-center justify-between py-2.5">
+						<dt className="text-muted-foreground">Custo do dia</dt>
+						<dd className="tabular-nums">
+							<Link
+								href="/dieta/lista-de-compras"
+								className="rounded-sm underline-offset-4 outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50"
+							>
+								≈{" "}
+								{costPerDay.toLocaleString("pt-BR", {
+									style: "currency",
+									currency: "BRL",
+								})}
+							</Link>
+						</dd>
+					</div>
+				)}
 				{tdee !== null && surplus !== null && (
 					<>
 						<div className="flex items-center justify-between py-2.5">

@@ -111,7 +111,8 @@ Para quem treina e conta macro sem nutricionista; o que falta é motivo pra volt
 - [ ] Dia de treino × dia de descanso (duas versões da dieta): bom recurso Pro sem IA.
 - [ ] Fotos de evolução (frente/lado/costas, comparação lado a lado): Pro, depois do VPS (armazenamento e LGPD).
 - [x] Porções caseiras (colher, concha, fatia): feito em out/2026 (`household-measures.ts`); próximo passo: medidas nos alimentos próprios (campo no cadastro) e ampliar a lista.
-- [ ] Menores: custo da dieta por semana, lembrete de pesagem e de check-in (push do PWA), alertas de sódio e ferro (a TACO já tem).
+- [x] Custo da dieta (preço de referência + preço do seu mercado): feito em out/2026 (lista de compras e Resumo da Dieta). Próximos passos: revisar os preços de referência todo mês, custo por grama de proteína nas trocas ("trocar por ovo economiza R$ 4/dia"), "dieta mais barata que bate as metas" no Pro.
+- [ ] Menores: lembrete de pesagem e de check-in (push do PWA), alertas de sódio e ferro (a TACO já tem).
 - [ ] Link da dieta compartilhada: interruptor "Mostrar meu nome" (desligado por padrão; "Montada por Vinicius Fernandes" ou só o primeiro nome), com linha na Política de privacidade.
 - Depois: IA (Sálvia Pro, seção "IA no app") e infra + cobrança ([`plano-infra-e-planos.md`](plano-infra-e-planos.md)), que é o pré-requisito da IA.
 

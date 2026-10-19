@@ -1,7 +1,8 @@
 // Sugestões e problemas enviados pelo app ("Enviar sugestão" no menu do
 // perfil). Uso: `bun run feedback` (banco local) ou `bun run feedback:prod`
-// (Neon, lê `.env.neon`). Só leitura; mostra a mensagem, o tipo e a página,
-// sem nome nem e-mail. `-- --dias=30` muda o período (padrão: 30 dias).
+// (Neon, lê `.env.neon`). Só leitura; mostra quem mandou (nome e e-mail, pra
+// poder responder), o tipo, a página e a mensagem. `-- --dias=30` muda o
+// período (padrão: 30 dias).
 import { Pool } from "pg";
 
 const url = process.env.DATABASE_URL;
@@ -22,10 +23,13 @@ const { rows } = await pool.query<{
 	message: string;
 	page: string | null;
 	created_at: Date;
+	name: string;
+	email: string;
 }>(
-	`select kind, message, page, created_at from feedback
-	 where created_at >= now() - make_interval(days => $1)
-	 order by created_at desc`,
+	`select f.kind, f.message, f.page, f.created_at, u.name, u.email
+	 from feedback f join "user" u on u.id = f.user_id
+	 where f.created_at >= now() - make_interval(days => $1)
+	 order by f.created_at desc`,
 	[days],
 );
 await pool.end();
@@ -42,5 +46,6 @@ for (const row of rows) {
 		timeZone: "America/Sao_Paulo",
 	});
 	console.log(`[${LABELS[row.kind] ?? row.kind}] ${date} · ${row.page ?? "—"}`);
+	console.log(`  ${row.name} <${row.email}>`);
 	console.log(`  ${row.message.replace(/\n/g, "\n  ")}\n`);
 }

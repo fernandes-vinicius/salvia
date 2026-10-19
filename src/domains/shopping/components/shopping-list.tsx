@@ -5,9 +5,24 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import type { DietMeal } from "~/domains/diet/types/diet-types";
+import {
+	resetUserPriceAction,
+	setUserPriceAction,
+} from "~/domains/shopping/actions/price-actions";
+import { PriceSheet } from "~/domains/shopping/components/price-sheet";
 import { ShoppingGroups } from "~/domains/shopping/components/shopping-groups";
 import {
+	type Price,
+	REFERENCE_PRICES_UPDATED_AT,
+} from "~/domains/shopping/data/reference-prices";
+import {
+	formatMoney,
+	priceKey,
+	shoppingCost,
+} from "~/domains/shopping/utils/prices";
+import {
 	buildShoppingList,
+	type ShoppingItem,
 	shoppingListText,
 } from "~/domains/shopping/utils/shopping-list";
 import { Printer, Share } from "~/shared/components/icons";
@@ -50,9 +65,15 @@ function writeChecked(days: number, checked: Set<string>) {
 	}
 }
 
+interface ShoppingListProps {
+	meals: DietMeal[];
+	/** Preços que a pessoa salvou (`[chave, preço]`). */
+	initialPrices: [string, Price][];
+}
+
 // Lista de compras a partir da dieta: escolhe o período, marca o que já
-// pegou, compartilha (WhatsApp) ou imprime.
-export function ShoppingList({ meals }: { meals: DietMeal[] }) {
+// pegou, vê o custo (preço de referência ou o seu), compartilha ou imprime.
+export function ShoppingList({ meals, initialPrices }: ShoppingListProps) {
 	const [days, setDays] = useQueryState(
 		"dias",
 		parseAsNumberLiteral(PERIOD_DAYS)
@@ -62,9 +83,35 @@ export function ShoppingList({ meals }: { meals: DietMeal[] }) {
 	const [checked, setChecked] = useState<Set<string>>(new Set());
 	useEffect(() => setChecked(readChecked(days)), [days]);
 	usePrintSetup("Lista de compras");
+	const [prices, setPrices] = useState(() => new Map(initialPrices));
+	const [editing, setEditing] = useState<ShoppingItem | null>(null);
 
 	const groups = buildShoppingList(meals, days);
 	const total = groups.reduce((sum, group) => sum + group.items.length, 0);
+	const cost = shoppingCost(groups, prices);
+	const perDay = cost.total / days;
+
+	async function savePrice(item: ShoppingItem, price: Price | null) {
+		const key = priceKey(item.name);
+		const previous = prices;
+		const next = new Map(prices);
+		if (price) next.set(key, price);
+		else next.delete(key);
+		setPrices(next);
+		const result = price
+			? await setUserPriceAction({ name: item.name, ...price })
+			: await resetUserPriceAction(item.name);
+		if (!result.ok) {
+			setPrices(previous);
+			toast.error(result.error);
+			return false;
+		}
+		setEditing(null);
+		toast.success(
+			price ? `Preço de ${item.name} salvo.` : "Voltou ao preço de referência.",
+		);
+		return true;
+	}
 
 	function toggle(key: string, value: boolean) {
 		const next = new Set(checked);
@@ -80,7 +127,7 @@ export function ShoppingList({ meals }: { meals: DietMeal[] }) {
 	}
 
 	async function share() {
-		const text = shoppingListText(groups, days);
+		const text = shoppingListText(groups, days, cost.total);
 		try {
 			if (navigator.share) {
 				await navigator.share({ title: "Lista de compras", text });
@@ -143,7 +190,45 @@ export function ShoppingList({ meals }: { meals: DietMeal[] }) {
 				</h1>
 			</header>
 
-			<ShoppingGroups groups={groups} checked={checked} onToggle={toggle} />
+			{cost.total > 0 && (
+				<section
+					aria-labelledby="diet-cost"
+					className="flex flex-col gap-1 rounded-3xl bg-secondary p-4 text-secondary-foreground md:p-5 print:border print:border-border print:bg-transparent"
+				>
+					<h2 id="diet-cost" className="font-medium text-sm">
+						Custo estimado ·{" "}
+						{PERIODS.find((period) => period.days === days)?.label}
+					</h2>
+					<p className="font-heading font-semibold text-3xl tabular-nums">
+						≈ {formatMoney(cost.total)}
+					</p>
+					<p className="text-sm tabular-nums">
+						{formatMoney(perDay)} por dia · {formatMoney(perDay * 30)} por mês
+					</p>
+					<p className="mt-1 text-pretty text-xs">
+						{cost.missing > 0 &&
+							`${cost.missing} ${cost.missing === 1 ? "item ainda sem preço" : "itens ainda sem preço"}: toque em "Definir preço". `}
+						Preços de referência são médias aproximadas de{" "}
+						{REFERENCE_PRICES_UPDATED_AT}; toque num preço pra usar o do seu
+						mercado.
+					</p>
+				</section>
+			)}
+
+			<ShoppingGroups
+				groups={groups}
+				checked={checked}
+				onToggle={toggle}
+				prices={cost.byItem}
+				onEditPrice={setEditing}
+			/>
+
+			<PriceSheet
+				item={editing}
+				current={editing ? (cost.byItem.get(editing.key) ?? null) : null}
+				onOpenChange={(open) => !open && setEditing(null)}
+				onSave={savePrice}
+			/>
 
 			<div className="flex flex-col gap-2 text-muted-foreground text-xs sm:flex-row sm:items-center sm:justify-between">
 				<p className="text-pretty">

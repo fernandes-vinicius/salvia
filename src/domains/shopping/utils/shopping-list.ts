@@ -16,6 +16,14 @@ export interface ShoppingItem {
 	amount: string;
 	/** Explicação curta (cru × pronto, dúzias, peso aproximado). */
 	detail: string | null;
+	/** Quantidade exata (sem arredondar) pra calcular o custo. */
+	quantity: {
+		/** Medido em: g/ml (crus) ou unidades (alimento por unidade). */
+		unit: FoodUnit;
+		value: number;
+		/** Unidades de mercado (ovos, bananas, pães), quando a regra define. */
+		count: number | null;
+	};
 }
 
 export interface ShoppingGroup {
@@ -53,12 +61,23 @@ function describeDozens(count: number) {
 }
 
 function toItem(key: string, acc: Accumulator): ShoppingItem {
+	const quantity = {
+		unit: acc.unit,
+		value: acc.total,
+		count:
+			acc.unit === "unit"
+				? acc.total
+				: acc.rule?.unit && acc.unit === "g"
+					? acc.total / acc.rule.unit.grams
+					: null,
+	};
 	if (acc.unit === "unit") {
 		return {
 			key,
 			name: acc.name,
 			amount: `${formatNumber(Math.ceil(acc.total))} un.`,
 			detail: null,
+			quantity,
 		};
 	}
 
@@ -74,6 +93,7 @@ function toItem(key: string, acc: Accumulator): ShoppingItem {
 			name: acc.name,
 			amount: `${formatNumber(count)} ${count === 1 ? unit.singular : unit.plural}`,
 			detail: details.join(" · "),
+			quantity,
 		};
 	}
 
@@ -88,6 +108,7 @@ function toItem(key: string, acc: Accumulator): ShoppingItem {
 				: converted || acc.rule?.rawPerGram !== undefined
 					? "peso cru"
 					: null,
+		quantity,
 	};
 }
 
@@ -142,7 +163,12 @@ export function buildShoppingList(
 }
 
 /** Texto pra colar no WhatsApp/notas (negrito com *). */
-export function shoppingListText(groups: ShoppingGroup[], days: number) {
+export function shoppingListText(
+	groups: ShoppingGroup[],
+	days: number,
+	/** Custo estimado (R$), quando há preços. */
+	cost?: number,
+) {
 	const header = `*Lista de compras · ${days} ${days === 1 ? "dia" : "dias"}*`;
 	const body = groups.map(
 		(group) =>
@@ -150,5 +176,11 @@ export function shoppingListText(groups: ShoppingGroup[], days: number) {
 				.map((item) => `- ${item.name}: ${item.amount}`)
 				.join("\n")}`,
 	);
-	return [header, ...body].join("\n\n");
+	const footer =
+		cost && cost > 0
+			? [
+					`*Custo estimado:* ≈ ${cost.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`,
+				]
+			: [];
+	return [header, ...body, ...footer].join("\n\n");
 }
