@@ -7,6 +7,7 @@ import { authClient } from "~/domains/auth/lib/auth-client";
 import type { User } from "~/domains/auth/types/user-types";
 import { FeedbackSheet } from "~/domains/feedback";
 import {
+	ChefHat,
 	LogOut,
 	MessageSquarePlus,
 	Ruler,
@@ -37,7 +38,14 @@ function getInitials(name: string) {
 		.join("");
 }
 
-export function UserMenu({ user }: { user: User }) {
+export function UserMenu({
+	user,
+	beta = false,
+}: {
+	user: User;
+	/** Recursos em beta liberados (`BETA_EMAILS`), ex.: Minhas receitas. */
+	beta?: boolean;
+}) {
 	const router = useRouter();
 	const [feedbackOpen, setFeedbackOpen] = useState(false);
 
@@ -92,6 +100,12 @@ export function UserMenu({ user }: { user: User }) {
 						<Salad />
 						Meus alimentos
 					</DropdownMenuItem>
+					{beta && (
+						<DropdownMenuItem onClick={() => router.push("/receitas")}>
+							<ChefHat />
+							Minhas receitas
+						</DropdownMenuItem>
+					)}
 					<DropdownMenuSeparator />
 					<DropdownMenuItem onClick={() => setFeedbackOpen(true)}>
 						<MessageSquarePlus />

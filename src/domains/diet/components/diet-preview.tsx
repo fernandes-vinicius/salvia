@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { PrintFooter } from "~/domains/diet/components/print-footer";
 import { PrintHeader } from "~/domains/diet/components/print-header";
 import type { DietMeal } from "~/domains/diet/types/diet-types";
@@ -15,42 +17,66 @@ import { formatNonZero, formatNumber } from "~/shared/lib/format";
 export function DietPreview({
 	meals,
 	printable = false,
+	mealActions,
 }: {
 	meals: DietMeal[];
 	printable?: boolean;
+	/** Menu da refeição (só na Dieta, modo Visualizar; some na impressão). */
+	mealActions?: (meal: DietMeal) => ReactNode;
 }) {
 	return (
 		<div className="flex flex-col gap-4">
 			{printable && <PrintHeader />}
 			{meals.map((meal) => (
-				<PreviewMeal key={meal.id} meal={meal} />
+				<PreviewMeal key={meal.id} meal={meal} actions={mealActions?.(meal)} />
 			))}
 			{printable && <PrintFooter />}
 		</div>
 	);
 }
 
-function PreviewMeal({ meal }: { meal: DietMeal }) {
+function PreviewMeal({
+	meal,
+	actions,
+}: {
+	meal: DietMeal;
+	actions?: ReactNode;
+}) {
 	const total = mealMacros(meal);
+	const info = (
+		<p className="flex shrink-0 items-center gap-1.5 text-muted-foreground text-sm tabular-nums">
+			{meal.time && (
+				<>
+					<Clock className="size-3.5" />
+					<span>{meal.time}</span>
+					<span aria-hidden>·</span>
+				</>
+			)}
+			<span>{formatNumber(kcalFor(total))} kcal</span>
+		</p>
+	);
 
 	return (
 		<section
 			aria-label={meal.name}
 			className="flex flex-col gap-3 rounded-3xl bg-card p-4 md:p-5 print:break-inside-avoid print:border print:border-border"
 		>
-			<header className="flex items-baseline justify-between gap-3">
-				<h3 className="font-heading font-semibold text-lg">{meal.name}</h3>
-				<p className="flex shrink-0 items-center gap-1.5 text-muted-foreground text-sm tabular-nums">
-					{meal.time && (
-						<>
-							<Clock className="size-3.5" />
-							<span>{meal.time}</span>
-							<span aria-hidden>·</span>
-						</>
-					)}
-					<span>{formatNumber(kcalFor(total))} kcal</span>
-				</p>
-			</header>
+			{actions ? (
+				// Com o menu: no celular, horário e kcal descem pra baixo do nome
+				// (como no card do Editar); a partir de `sm`, tudo numa linha.
+				<header className="flex items-center gap-2">
+					<div className="flex min-w-0 flex-1 flex-col gap-0.5 sm:flex-row sm:items-baseline sm:justify-between sm:gap-3">
+						<h3 className="font-heading font-semibold text-lg">{meal.name}</h3>
+						{info}
+					</div>
+					{actions}
+				</header>
+			) : (
+				<header className="flex items-baseline justify-between gap-3">
+					<h3 className="font-heading font-semibold text-lg">{meal.name}</h3>
+					{info}
+				</header>
+			)}
 
 			{meal.items.length > 0 ? (
 				<table className="w-full text-sm tabular-nums">
