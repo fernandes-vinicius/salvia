@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { DietSummaryCard } from "~/domains/diet/components/diet-summary";
 import {
 	SampleCalibration,
+	SampleCheckin,
 	SampleMeasurements,
 	SampleShopping,
 } from "~/domains/landing/components/sample-screens";
@@ -11,13 +12,18 @@ import { SampleTemplates } from "~/domains/landing/components/sample-templates";
 import { ShowcaseFrame } from "~/domains/landing/components/showcase-frame";
 import {
 	SAMPLE_ENERGY,
+	SAMPLE_SHOPPING_COST,
 	SAMPLE_SUMMARY,
 } from "~/domains/landing/utils/sample-data";
 import {
 	Check,
+	Droplet,
 	FileDown,
+	Leaf,
 	type LucideIcon,
+	MessageSquarePlus,
 	Salad,
+	Share,
 	Smartphone,
 	Wheat,
 } from "~/shared/components/icons";
@@ -35,14 +41,34 @@ const EXTRAS: { icon: LucideIcon; title: string; text: string }[] = [
 		text: "O início mostra o que comer agora e se o plano do dia fecha com a meta.",
 	},
 	{
+		icon: Leaf,
+		title: "Fibras do dia",
+		text: "O total de fibra e quanto falta pra recomendação da OMS, com dicas do que comer.",
+	},
+	{
 		icon: FileDown,
 		title: "Dieta em PDF",
 		text: "Modo leitura limpo pra consultar no mercado e exportar pra imprimir.",
 	},
 	{
+		icon: Share,
+		title: "Compartilhe por link",
+		text: "Mande a dieta pro amigo da academia ou pro personal, sem expor seu nome nem suas medidas.",
+	},
+	{
+		icon: Droplet,
+		title: "Água por dia",
+		text: "Quanto beber pelo seu peso, treino e calor, em litros e copos.",
+	},
+	{
 		icon: Smartphone,
 		title: "Instala no celular",
 		text: "Abre da tela inicial, em tela cheia, como um app. Sem loja e sem baixar nada.",
+	},
+	{
+		icon: MessageSquarePlus,
+		title: "Sua ideia conta",
+		text: "Mande sugestões pelo próprio app: é assim que os próximos recursos são escolhidos.",
 	},
 ];
 
@@ -57,8 +83,8 @@ export function LandingFeatures() {
 					Tudo que a sua planilha fazia, e o que ela nunca fez
 				</h2>
 				<p className="text-pretty text-muted-foreground">
-					As telas abaixo são do app de verdade, com o dia de um marombeiro de
-					80 kg que quer perder peso.
+					As telas abaixo são do app de verdade, com o dia de uma pessoa de 80
+					kg que treina e quer perder peso.
 				</p>
 			</div>
 
@@ -67,14 +93,15 @@ export function LandingFeatures() {
 				title="O resumo do dia que você já conhece"
 				points={[
 					"P(A) · C · G · kcal por alimento e por refeição",
-					"Total do dia em gramas, %, kcal e g/kg",
-					"Quanto a dieta fica acima ou abaixo do seu gasto, na hora",
+					"Total do dia em gramas, %, kcal e g/kg, com as fibras",
+					"Quanto fica acima ou abaixo do seu gasto e quanto custa por dia",
 				]}
 				visual={
 					<ShowcaseFrame label="Resumo do dia no app">
 						<DietSummaryCard
 							summary={SAMPLE_SUMMARY}
 							tdee={SAMPLE_ENERGY.tdee}
+							costPerDay={SAMPLE_SHOPPING_COST.total / 7}
 						/>
 					</ShowcaseFrame>
 				}
@@ -82,12 +109,27 @@ export function LandingFeatures() {
 
 			<FeatureRow
 				reverse
+				eyebrow="Constância"
+				title="Marque o que comeu e veja a sequência crescer"
+				points={[
+					"Um toque por refeição: comi ou furei",
+					"Dias seguidos na dieta e como foi a semana",
+					"Comemoração a cada refeição, dia completo e marco de sequência",
+				]}
+				visual={
+					<ShowcaseFrame label="Check-in do dia no app">
+						<SampleCheckin />
+					</ShowcaseFrame>
+				}
+			/>
+
+			<FeatureRow
 				eyebrow="Troca inteligente"
 				title="Trocou o arroz? A conta vem pronta"
 				points={[
 					"Substitua um alimento e receba a quantidade com o mesmo macro",
-					"Copie um item pra outra refeição com um toque",
-					"Arraste pra reordenar ou mudar de refeição",
+					"Deixe opções na dieta: 100 g de banana ou 250 g de mamão",
+					"Quantidade também em colher, concha e fatia, pra quem não pesa tudo",
 				]}
 				visual={
 					<ShowcaseFrame label="Substituir e copiar alimento no app">
@@ -97,6 +139,7 @@ export function LandingFeatures() {
 			/>
 
 			<FeatureRow
+				reverse
 				eyebrow="Começo rápido"
 				title="Não sabe por onde começar? Use uma dieta pronta"
 				points={[
@@ -112,13 +155,12 @@ export function LandingFeatures() {
 			/>
 
 			<FeatureRow
-				reverse
 				eyebrow="No mercado"
-				title="A lista de compras sai da sua dieta"
+				title="A lista de compras sai da sua dieta, com o custo"
 				points={[
 					"Pra 1 dia, 1 semana ou 1 mês, separada por seção do mercado",
 					"Arroz e carnes já no peso cru, ovos e pães em unidades",
-					"Marque o que já pegou e mande pro WhatsApp",
+					"Quanto a semana custa, com o preço do seu mercado se quiser",
 				]}
 				visual={
 					<ShowcaseFrame label="Lista de compras de uma semana no app">
@@ -128,10 +170,11 @@ export function LandingFeatures() {
 			/>
 
 			<FeatureRow
+				reverse
 				eyebrow="Evolução"
-				title="Veja o emagrecimento acontecendo"
+				title="Veja sua evolução acontecendo"
 				points={[
-					"Peso, cintura, braço e mais 12 medidas",
+					"Peso, cintura, braço e mais 12 medidas, perdendo ou ganhando",
 					"Gráfico com o tempo real entre as medições",
 					"Lembrete quando passar um mês sem medir",
 				]}
@@ -143,7 +186,6 @@ export function LandingFeatures() {
 			/>
 
 			<FeatureRow
-				reverse
 				eyebrow="Meta que se ajusta"
 				title="O peso travou? O app percebe e sugere o ajuste"
 				points={[

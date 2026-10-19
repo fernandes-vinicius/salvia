@@ -23,7 +23,6 @@ import {
 	useCelebrationsEnabled,
 } from "~/providers/celebration-provider";
 import {
-	ArrowLeftRight,
 	Check,
 	CircleCheck,
 	Flame,
@@ -37,16 +36,8 @@ const STATUS_BUTTONS: {
 	status: CheckinStatus;
 	label: string;
 	icon: LucideIcon;
-	/** Só aparece se a refeição tem opção ("ou 1 banana"). */
-	needsOptions?: boolean;
 }[] = [
 	{ status: "done", label: "Comi", icon: Check },
-	{
-		status: "option",
-		label: "Opção",
-		icon: ArrowLeftRight,
-		needsOptions: true,
-	},
 	{ status: "skipped", label: "Furei", icon: XIcon },
 ];
 
@@ -73,7 +64,8 @@ interface CheckinCardProps {
 	initialCheckins: Checkin[];
 }
 
-// "Segui a dieta?": um toque por refeição (comi, comi a opção, furei), com a
+// "Segui a dieta?": um toque por refeição (comi ou furei; comer a opção do
+// alimento também é "comi"), com a
 // sequência de dias completos e a semana. Tocar de novo desmarca.
 export function CheckinCard({
 	meals,
@@ -89,9 +81,13 @@ export function CheckinCard({
 	const [popped, setPopped] = useState<string | null>(null);
 	const [justCompleted, setJustCompleted] = useState(false);
 
-	const statusOf = (mealId: string) =>
-		checkins.find((c) => c.day === today && c.mealId === mealId)?.status ??
-		null;
+	// "Comi a opção" (marcações antigas) aparece e se comporta como "Comi".
+	const statusOf = (mealId: string) => {
+		const status =
+			checkins.find((c) => c.day === today && c.mealId === mealId)?.status ??
+			null;
+		return status === "option" ? "done" : status;
+	};
 
 	async function mark(
 		meal: CheckinMeal,
@@ -228,9 +224,7 @@ export function CheckinCard({
 							</span>
 							<fieldset className="flex gap-1.5">
 								<legend className="sr-only">Check-in de {meal.name}</legend>
-								{STATUS_BUTTONS.filter(
-									(button) => !button.needsOptions || meal.hasOptions,
-								).map((button) => {
+								{STATUS_BUTTONS.map((button) => {
 									const pressed = current === button.status;
 									const pop =
 										animate && popped === `${meal.id}:${button.status}`;

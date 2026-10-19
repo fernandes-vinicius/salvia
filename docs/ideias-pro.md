@@ -1,0 +1,28 @@
+# Ideias de recursos pagos (Sálvia Pro)
+
+Lista viva das ideias de recursos pagos. O grátis continua com tudo o que existe hoje; o Pro (R$ 9,90/mês ou R$ 79,90/ano, ver [`plano-infra-e-planos.md`](plano-infra-e-planos.md)) reúne o que tem custo (IA) ou valor extra. Cada ideia nova entra aqui com o problema, como funcionaria e os cuidados.
+
+---
+
+## 1. Importar dieta do nutricionista (PDF ou foto) com IA
+
+**Registrada em:** 19/10/2026
+
+**Problema:** muita gente já tem uma dieta feita por nutricionista, em PDF, foto do papel ou print do WhatsApp. Passar isso pro app à mão (buscar alimento por alimento, ajustar gramas) é a parte que mais desanima no começo.
+
+**Como funcionaria:**
+1. Na aba Dieta (e no "Começo rápido" do Início): "Importar dieta" → enviar PDF, foto ou print (pode ser mais de uma imagem).
+2. A IA lê o documento e devolve, em formato estruturado (schema Zod), as refeições com horário, os alimentos, as quantidades e as **opções/substituições** que o nutri costuma listar ("ou 100 g de cuscuz").
+3. Cada alimento é casado com a TACO (ou com os alimentos da pessoa) pela busca que já existe; medidas caseiras viram gramas com a tabela de `household-measures.ts` ("4 colheres de arroz" → 100 g).
+4. Tela de **revisão antes de salvar**: a pessoa vê refeição por refeição, o que foi reconhecido e o que ficou em dúvida (marcado em destaque), corrige com o mesmo painel de busca/substituir e confirma. Nada entra na dieta sem essa confirmação.
+5. Ao confirmar, substitui ou soma à dieta atual (como as dietas prontas, numa transação), já com as opções do item.
+
+**Por que vale pagar:** economiza o trabalho chato de digitar a dieta, que é a maior barreira de entrada, e combina com o público que já tem nutri mas quer acompanhar macros, custo, lista de compras e check-in no app.
+
+**Cuidados:**
+- **Revisão obrigatória**: a IA pode errar quantidade ou alimento; mostrar o grau de confiança e nunca salvar direto.
+- **Privacidade**: o documento pode ter nome, dados de saúde e do profissional. Enviar só a imagem/texto pro modelo, não guardar o arquivo depois de importar (ou guardar só se a pessoa pedir), e citar o fornecedor de IA na Política de privacidade.
+- **Direitos**: a dieta é da pessoa; o app só lê pra ela. Não usar os documentos pra treinar nada.
+- **Custo**: imagem/PDF custa mais tokens que texto; limitar por mês no Pro (ex.: 5 importações) e reaproveitar a base de IA (AI Gateway, limite por usuário) do roadmap.
+- **Linguagem**: continua sendo a dieta do nutricionista; o app não altera nem "corrige" a prescrição, só organiza.
+- **Grátis como degustação**: talvez 1 importação grátis pra mostrar o valor (decidir quando lançar).

@@ -147,7 +147,6 @@ async function HomeContent() {
 			id: meal.id,
 			name: meal.name,
 			time: meal.time,
-			hasOptions: meal.items.some((item) => item.options.length > 0),
 		}));
 	const templates = (
 		<DietTemplates

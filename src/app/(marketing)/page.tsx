@@ -12,7 +12,9 @@ import { LandingCalculators } from "~/domains/landing/components/landing-calcula
 import { APP_DESCRIPTION, APP_NAME } from "~/shared/lib/app-config";
 
 export const metadata: Metadata = {
-	title: { absolute: `${APP_NAME} · Sua dieta e seus macros, sem planilha` },
+	title: {
+		absolute: `${APP_NAME} · Sua dieta em ordem, com os macros batendo`,
+	},
 	description: APP_DESCRIPTION,
 	alternates: { canonical: "/" },
 };

@@ -18,7 +18,7 @@ const COLORS = {
 	fat: "#C2765A",
 };
 
-const HEADLINE = "Sua dieta de maromba, sem planilha e sem papel.";
+const HEADLINE = "Sua dieta tá uma bagunça? Bora colocar em ordem.";
 
 /**
  * Manrope (fonte dos títulos do app) só com os caracteres usados. Em cache,

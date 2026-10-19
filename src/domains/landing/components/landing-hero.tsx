@@ -15,14 +15,14 @@ export function LandingHero() {
 	return (
 		<section className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 pt-10 pb-16 sm:px-6 md:pt-16 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pb-24">
 			<div className="flex flex-col items-start gap-6">
-				<Badge variant="secondary">Pra quem conta macro</Badge>
+				<Badge variant="secondary">Pra quem treina</Badge>
 				<h1 className="text-balance font-heading font-semibold text-4xl leading-[1.1] tracking-tight sm:text-5xl">
-					Sua dieta de maromba, sem planilha e sem papel.
+					Sua dieta tá uma bagunça? Bora colocar em ordem.
 				</h1>
 				<p className="max-w-xl text-pretty text-lg text-muted-foreground">
-					Calcule seu gasto, defina a meta em g/kg e monte as refeições batendo
-					proteína, carbo e gordura, com a tabela TACO na mão. Do jeito que você
-					já faz, só que sem conta de cabeça.
+					Você treina com disciplina. Sua dieta merece o mesmo capricho: as
+					refeições certas, os macros batendo e a sequência de dias crescendo. A
+					que você montou ou a do seu nutri, tudo num lugar só.
 				</p>
 				<div className="flex flex-wrap items-center gap-3">
 					<Button
