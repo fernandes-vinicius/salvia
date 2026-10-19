@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { getCurrentUser } from "~/domains/auth/services/session-service";
+import { suggestedWater } from "~/domains/calculators/utils/water";
 import { DietView } from "~/domains/diet";
 import { getDiet } from "~/domains/diet/services/diet-service";
 import { calculateTargets } from "~/domains/goal";
@@ -75,6 +76,7 @@ async function DietContent() {
 				tdee={tdee}
 				targets={targets}
 				prices={prices}
+				water={profile ? suggestedWater(profile) : null}
 			/>
 		</CelebrationProvider>
 	);

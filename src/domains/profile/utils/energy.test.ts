@@ -11,7 +11,31 @@ import {
 } from "~/domains/profile/utils/energy";
 
 // 70 kg, 170 cm, 30 anos (valores da planilha original).
-const base: BodyProfile = EXAMPLE_PROFILE;
+// Perfil fixo das contas de fórmula (independente do exemplo da aba TMB).
+const base: BodyProfile = {
+	sex: "male",
+	ageYears: 30,
+	weightKg: 70,
+	heightCm: 170,
+	neatFactor: 1.15,
+	strength: { enabled: false, daysPerWeek: 3, minutesPerSession: 60, met: 5.5 },
+	cardio: { enabled: false, daysPerWeek: 3, minutesPerSession: 30, met: 7.5 },
+};
+
+describe("EXAMPLE_PROFILE (usuário novo na aba TMB)", () => {
+	it("é a pessoa de referência da dieta de 2.000 kcal", () => {
+		expect(EXAMPLE_PROFILE).toMatchObject({
+			ageYears: 20,
+			weightKg: 70,
+			heightCm: 170,
+			neatFactor: 1.1,
+		});
+		expect(EXAMPLE_PROFILE.strength.enabled).toBe(false);
+		expect(EXAMPLE_PROFILE.cardio.enabled).toBe(false);
+		const { tdee } = calculateEnergy(EXAMPLE_PROFILE);
+		expect(Math.abs(tdee - 2000)).toBeLessThanOrEqual(50);
+	});
+});
 
 describe("calculateBmr (Mifflin-St Jeor)", () => {
 	it("masculino: 10·peso + 6,25·altura − 5·idade + 5", () => {

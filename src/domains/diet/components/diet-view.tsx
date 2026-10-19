@@ -21,7 +21,7 @@ import { useRouter } from "next/navigation";
 import { parseAsStringLiteral, useQueryState } from "nuqs";
 import { useEffect, useId, useRef, useState } from "react";
 import { toast } from "sonner";
-
+import type { WaterResult } from "~/domains/calculators/utils/water";
 import {
 	type ActionResult,
 	addItemAction,
@@ -103,6 +103,8 @@ interface DietViewProps {
 	targets: GoalTargets | null;
 	/** Preços que a pessoa salvou (`[chave, preço]`), pro custo do dia. */
 	prices: [string, Price][];
+	/** Água sugerida pelo perfil; null sem TMB preenchida. */
+	water: WaterResult | null;
 }
 
 const MODES = ["editar", "visualizar"] as const;
@@ -140,6 +142,7 @@ export function DietView({
 	tdee,
 	targets,
 	prices,
+	water,
 }: DietViewProps) {
 	const router = useRouter();
 	// Id estável pro dnd-kit: sem ele, o contador global dos ids de
@@ -719,6 +722,7 @@ export function DietView({
 						summary={summary}
 						tdee={tdee}
 						costPerDay={dayCost.total > 0 ? dayCost.total : null}
+						water={water}
 					/>
 					{targets ? (
 						<GoalProgress summary={summary} targets={targets} />

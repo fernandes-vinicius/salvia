@@ -1,12 +1,12 @@
 import Link from "next/link";
-
+import type { WaterResult } from "~/domains/calculators/utils/water";
 import type { DietSummary, MacroKey } from "~/domains/diet/types/diet-types";
 import {
 	FIBER_MIN_GRAMS,
 	fiberTarget,
 	MACRO_KEYS,
 } from "~/domains/diet/utils/diet";
-import { Wheat } from "~/shared/components/icons";
+import { Droplet, Wheat } from "~/shared/components/icons";
 import { formatFixed, formatNumber } from "~/shared/lib/format";
 import { cn } from "~/shared/lib/utils";
 
@@ -22,6 +22,8 @@ interface DietSummaryCardProps {
 	tdee: number | null;
 	/** Custo estimado de 1 dia (R$); null sem preço. */
 	costPerDay?: number | null;
+	/** Água sugerida pelo perfil (peso e treinos); null sem perfil. */
+	water?: WaterResult | null;
 }
 
 // A legenda "OFF" da planilha: g · % · kcal · g/kg por macro, total e
@@ -31,6 +33,7 @@ export function DietSummaryCard({
 	summary,
 	tdee,
 	costPerDay = null,
+	water = null,
 }: DietSummaryCardProps) {
 	const { surplus } = summary;
 	const fiberGoal = fiberTarget(summary.kcal);
@@ -103,6 +106,28 @@ export function DietSummaryCard({
 							recomendado {formatNumber(fiberGoal)} g
 						</td>
 					</tr>
+					{water && (
+						<tr>
+							<th scope="row" className="py-2 text-left font-normal">
+								<span className="flex items-center gap-2 whitespace-nowrap">
+									<Droplet className="size-3.5 shrink-0 text-muted-foreground" />
+									Água
+								</span>
+							</th>
+							<td className="py-2 pl-2 text-right font-medium">
+								{formatFixed(water.recommendedMl / 1000)}
+								<span className="ml-0.5 font-normal text-muted-foreground text-xs">
+									L
+								</span>
+							</td>
+							<td
+								colSpan={3}
+								className="py-2 pl-2 text-right text-muted-foreground text-xs"
+							>
+								mínimo {formatFixed(water.minimumMl / 1000)} L
+							</td>
+						</tr>
+					)}
 				</tbody>
 			</table>
 
