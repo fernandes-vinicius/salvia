@@ -31,7 +31,7 @@ Lista viva das ideias de recursos pagos. O grátis continua com tudo o que exist
 
 ## 2. Receita da refeição com IA
 
-**Registrada em:** 19/10/2026 · **Status:** em beta fechado desde 19/10/2026 (menu ⋮ da refeição; plano em [`plano-receita-da-refeicao.md`](plano-receita-da-refeicao.md)). Receitas salvas em "Minhas receitas" ([`plano-receitas-salvas.md`](plano-receitas-salvas.md)). Falta antes de abrir: IA paga + Política de privacidade, limite mensal.
+**Registrada em:** 19/10/2026 · **Status:** em beta fechado desde 19/10/2026 (menu ⋮ da refeição; plano em [`plano-receita-da-refeicao.md`](plano-receita-da-refeicao.md)). Receitas salvas em "Minhas receitas" ([`plano-receitas-salvas.md`](plano-receitas-salvas.md)). Falta antes de abrir: IA paga + Política de privacidade (citar Google/Gemini e Unsplash, que recebe o IP ao carregar a foto).
 
 **Problema:** enjoar da mesma refeição ("com exatamente isso aqui, dá pra fazer algo diferente?") e acabar furando a dieta.
 
@@ -40,3 +40,7 @@ Lista viva das ideias de recursos pagos. O grátis continua com tudo o que exist
 **Por que vale pagar:** ataca o motivo nº 1 de largar a dieta (monotonia) sem mexer nos macros; uso frequente, custo baixo (só texto).
 
 **Cuidados:** os ingredientes mostrados vêm da própria dieta, não do texto da IA; filtro de extras calóricos no servidor; linguagem simples, sem falar de saúde.
+
+**Custo (estimado em 19/10/2026):** ~1,5 mil tokens por receita (≈ 1 mil de entrada, 400–500 de saída) num modelo barato (Gemini Flash-Lite / Haiku) ≈ R$ 0,002 por receita. Mil receitas ≈ R$ 2; quem gera 10 por dia (300/mês) custa ≈ R$ 0,60/mês. O risco não é o uso normal, é abuso (script gerando sem parar): pôr limite diário por pessoa (ex.: 20/dia) e contar o uso no banco (também serve pra medir custo real do Pro).
+
+**Foto da receita (Unsplash, feito em 19/10/2026 no beta; limite de 20 receitas/dia também):** a IA devolve também um termo de busca em inglês ("banana pancake"); o servidor busca 1 foto na API do Unsplash (grátis; 50 req/h em demo, 5 mil/h depois de aprovado) e mostra acima do título, direto do link do Unsplash (sem guardar imagem; na receita salva fica só a URL e o autor). Regras do Unsplash: crédito "Foto de X no Unsplash" com links e avisar o download quando a foto for usada. Marcar como "foto ilustrativa" (a foto pode ter coisas que não estão na refeição). Gerar a imagem com IA sairia ~R$ 0,15–0,25 cada (50–100× o texto): não compensa.

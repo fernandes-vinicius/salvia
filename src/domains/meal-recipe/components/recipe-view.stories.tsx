@@ -39,6 +39,7 @@ const meta = {
 				"Sirva a omelete com o pão e a banana.",
 			],
 			tip: "Sem forno? Faça a omelete na frigideira tampada em fogo baixo.",
+			photo: null,
 		},
 	},
 } satisfies Meta<typeof RecipeView>;

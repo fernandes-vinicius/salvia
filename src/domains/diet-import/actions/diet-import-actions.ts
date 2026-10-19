@@ -1,5 +1,10 @@
 "use server";
 
+import {
+	consumeAiQuota,
+	refundAiQuota,
+} from "~/domains/ai-usage/services/ai-usage-service";
+import { limitReachedMessage } from "~/domains/ai-usage/utils/ai-usage";
 import { isBetaUser } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { replaceDiet } from "~/domains/diet/services/diet-service";
@@ -39,8 +44,14 @@ export async function readDietAction(
 			mediaType: file.type,
 		})),
 	);
+	if (!(await consumeAiQuota(user.id, "diet-import"))) {
+		return fail(limitReachedMessage("diet-import"));
+	}
 	const result = await readDietDocuments(documents);
-	if (!result.ok) return fail(result.error);
+	if (!result.ok) {
+		await refundAiQuota(user.id, "diet-import");
+		return fail(result.error);
+	}
 
 	const meals = await matchExtractedDiet(user.id, result.diet);
 	if (meals.every((meal) => meal.items.length === 0)) {

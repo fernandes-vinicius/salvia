@@ -77,6 +77,7 @@ describe("recipeText", () => {
 				extras: [{ name: "Gelo", amount: "4 cubos" }],
 				steps: ["Bata tudo.", "Sirva gelado."],
 				tip: null,
+				photo: null,
 			},
 			shake.slice(0, 2),
 		);

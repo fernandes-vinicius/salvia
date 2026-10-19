@@ -10,6 +10,7 @@ import {
 
 import type { Macros } from "~/domains/food/types/food-types";
 import type { MealRecipe } from "~/domains/meal-recipe/schemas/meal-recipe-schema";
+import type { RecipePhoto } from "~/domains/meal-recipe/utils/recipe-photo";
 import type { RecipeIngredient } from "~/domains/meal-recipe/utils/saved-recipe";
 import { user } from "~/shared/db/schema/auth-schema";
 import { dietMeal } from "~/shared/db/schema/diet-schema";
@@ -36,6 +37,8 @@ export const savedRecipe = pgTable(
 		tip: text("tip"),
 		ingredients: jsonb("ingredients").$type<RecipeIngredient[]>().notNull(),
 		macros: jsonb("macros").$type<Macros>().notNull(),
+		/** Foto ilustrativa do Unsplash (só URL e crédito, nada da imagem). */
+		photo: jsonb("photo").$type<RecipePhoto>(),
 		createdAt: timestamp("created_at").defaultNow().notNull(),
 	},
 	(table) => [index("saved_recipe_user_id_idx").on(table.userId)],

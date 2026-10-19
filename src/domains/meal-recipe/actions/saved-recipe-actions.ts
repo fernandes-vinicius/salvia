@@ -1,5 +1,6 @@
 "use server";
 
+import { after } from "next/server";
 import { z } from "zod";
 
 import { isBetaUser } from "~/domains/auth/services/beta-service";
@@ -9,6 +10,7 @@ import {
 	restoreRecipeInputSchema,
 	saveRecipeInputSchema,
 } from "~/domains/meal-recipe/schemas/meal-recipe-schema";
+import { trackPhotoDownload } from "~/domains/meal-recipe/services/recipe-photo-service";
 import {
 	deleteRecipe,
 	MAX_SAVED_RECIPES,
@@ -59,6 +61,10 @@ export async function saveRecipeAction(
 		recipe,
 		snapshot: recipeSnapshot(meal.items),
 	});
+	// Regra da API do Unsplash: avisar quando a foto é usada (depois da
+	// resposta, sem atrasar).
+	const { photo } = recipe;
+	if (photo && saved !== "full") after(() => trackPhotoDownload(photo));
 	if (saved === "full") {
 		return fail(
 			`Você já tem ${MAX_SAVED_RECIPES} receitas salvas. Exclua algumas em Minhas receitas.`,

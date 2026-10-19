@@ -1,4 +1,5 @@
 export * from "~/shared/db/schema/activity-schema";
+export * from "~/shared/db/schema/ai-usage-schema";
 export * from "~/shared/db/schema/auth-schema";
 export * from "~/shared/db/schema/checkin-schema";
 export * from "~/shared/db/schema/diet-schema";

@@ -2,10 +2,9 @@ import "server-only";
 
 import { generateText, NoObjectGeneratedError, Output } from "ai";
 
-import {
-	type MealRecipe,
-	mealRecipeSchema,
-} from "~/domains/meal-recipe/schemas/meal-recipe-schema";
+import type { z } from "zod";
+
+import { aiRecipeSchema } from "~/domains/meal-recipe/schemas/meal-recipe-schema";
 import {
 	mealPrompt,
 	type RecipeItem,
@@ -30,7 +29,7 @@ Regras obrigatórias:
 - Não fale de dieta, saúde, emagrecimento ou calorias, nem use "fit", "light", "saudável" ou "proteico" no título.`;
 
 export type SuggestRecipeResult =
-	| { ok: true; recipe: MealRecipe }
+	| { ok: true; recipe: z.infer<typeof aiRecipeSchema> }
 	| { ok: false; error: string };
 
 /** Uma receita com os alimentos da refeição, diferente das de `avoid`. */
@@ -59,7 +58,7 @@ export async function suggestMealRecipe(
 			instructions: INSTRUCTIONS,
 			prompt,
 			temperature: 1,
-			output: Output.object({ schema: mealRecipeSchema }),
+			output: Output.object({ schema: aiRecipeSchema }),
 		});
 		return {
 			ok: true,
