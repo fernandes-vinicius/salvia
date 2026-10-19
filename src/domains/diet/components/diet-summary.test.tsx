@@ -34,3 +34,11 @@ describe("DietSummaryCard · água", () => {
 		).not.toBeInTheDocument();
 	});
 });
+
+describe("DietSummaryCard · totais", () => {
+	it("não mostra custo do dia (o custo fica na lista de compras)", () => {
+		render(<DietSummaryCard summary={summary} tdee={2400} />);
+		expect(screen.queryByText("Custo do dia")).not.toBeInTheDocument();
+		expect(screen.getByText("Total planejado")).toBeInTheDocument();
+	});
+});

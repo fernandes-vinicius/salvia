@@ -36,7 +36,7 @@ interface PriceSheetProps {
 }
 
 // "Quanto você paga?": o preço do mercado da pessoa vence o de referência
-// nas contas (lista de compras e custo do dia na Dieta).
+// nas contas da lista de compras.
 export function PriceSheet({
 	item,
 	current,

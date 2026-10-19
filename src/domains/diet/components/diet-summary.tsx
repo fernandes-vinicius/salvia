@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { WaterResult } from "~/domains/calculators/utils/water";
 import type { DietSummary, MacroKey } from "~/domains/diet/types/diet-types";
 import {
@@ -20,8 +19,6 @@ export const MACRO_LABELS: Record<MacroKey, { label: string; dot: string }> = {
 interface DietSummaryCardProps {
 	summary: DietSummary;
 	tdee: number | null;
-	/** Custo estimado de 1 dia (R$); null sem preço. */
-	costPerDay?: number | null;
 	/** Água sugerida pelo perfil (peso e treinos); null sem perfil. */
 	water?: WaterResult | null;
 }
@@ -32,7 +29,6 @@ interface DietSummaryCardProps {
 export function DietSummaryCard({
 	summary,
 	tdee,
-	costPerDay = null,
 	water = null,
 }: DietSummaryCardProps) {
 	const { surplus } = summary;
@@ -157,23 +153,6 @@ export function DietSummaryCard({
 						{formatNumber(summary.kcal)} kcal
 					</dd>
 				</div>
-				{costPerDay !== null && (
-					<div className="flex items-center justify-between py-2.5">
-						<dt className="text-muted-foreground">Custo do dia</dt>
-						<dd className="tabular-nums">
-							<Link
-								href="/dieta/lista-de-compras"
-								className="rounded-sm underline-offset-4 outline-none hover:underline focus-visible:ring-[3px] focus-visible:ring-ring/50"
-							>
-								≈{" "}
-								{costPerDay.toLocaleString("pt-BR", {
-									style: "currency",
-									currency: "BRL",
-								})}
-							</Link>
-						</dd>
-					</div>
-				)}
 				{tdee !== null && surplus !== null && (
 					<>
 						<div className="flex items-center justify-between py-2.5">

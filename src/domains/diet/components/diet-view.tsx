@@ -60,9 +60,6 @@ import {
 } from "~/domains/diet/utils/diet";
 import { type Food, MacroLine, macrosFor, UNIT_LABELS } from "~/domains/food";
 import type { GoalTargets } from "~/domains/goal/types/goal-types";
-import type { Price } from "~/domains/shopping/data/reference-prices";
-import { shoppingCost } from "~/domains/shopping/utils/prices";
-import { buildShoppingList } from "~/domains/shopping/utils/shopping-list";
 import { useCelebrate } from "~/providers/celebration-provider";
 import {
 	EllipsisVertical,
@@ -101,8 +98,6 @@ interface DietViewProps {
 	weightKg: number | null;
 	tdee: number | null;
 	targets: GoalTargets | null;
-	/** Preços que a pessoa salvou (`[chave, preço]`), pro custo do dia. */
-	prices: [string, Price][];
 	/** Água sugerida pelo perfil; null sem TMB preenchida. */
 	water: WaterResult | null;
 }
@@ -141,7 +136,6 @@ export function DietView({
 	weightKg,
 	tdee,
 	targets,
-	prices,
 	water,
 }: DietViewProps) {
 	const router = useRouter();
@@ -208,8 +202,6 @@ export function DietView({
 	}
 
 	const summary = summarizeDiet(meals, { weightKg, tdee });
-	// Custo de 1 dia pela lista de compras (preço da pessoa ou de referência).
-	const dayCost = shoppingCost(buildShoppingList(meals, 1), new Map(prices));
 
 	// Comemora quando uma mudança faz a dieta bater a meta (todas as linhas
 	// "Na meta") ou a fibra chegar no recomendado. O estado de quando a tela
@@ -718,12 +710,7 @@ export function DietView({
 					style={{ top: asideTop }}
 					className="grid gap-4 md:grid-cols-2 md:items-start lg:sticky lg:order-last lg:grid-cols-1 print:static print:order-last print:break-inside-avoid print:grid-cols-2 print:[print-color-adjust:exact]"
 				>
-					<DietSummaryCard
-						summary={summary}
-						tdee={tdee}
-						costPerDay={dayCost.total > 0 ? dayCost.total : null}
-						water={water}
-					/>
+					<DietSummaryCard summary={summary} tdee={tdee} water={water} />
 					{targets ? (
 						<GoalProgress summary={summary} targets={targets} />
 					) : (

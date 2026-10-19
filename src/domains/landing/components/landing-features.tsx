@@ -12,7 +12,6 @@ import { SampleTemplates } from "~/domains/landing/components/sample-templates";
 import { ShowcaseFrame } from "~/domains/landing/components/showcase-frame";
 import {
 	SAMPLE_ENERGY,
-	SAMPLE_SHOPPING_COST,
 	SAMPLE_SUMMARY,
 } from "~/domains/landing/utils/sample-data";
 import {
@@ -94,14 +93,13 @@ export function LandingFeatures() {
 				points={[
 					"P(A) · C · G · kcal por alimento e por refeição",
 					"Total do dia em gramas, %, kcal e g/kg, com as fibras",
-					"Quanto fica acima ou abaixo do seu gasto e quanto custa por dia",
+					"Quanto a dieta fica acima ou abaixo do seu gasto, na hora",
 				]}
 				visual={
 					<ShowcaseFrame label="Resumo do dia no app">
 						<DietSummaryCard
 							summary={SAMPLE_SUMMARY}
 							tdee={SAMPLE_ENERGY.tdee}
-							costPerDay={SAMPLE_SHOPPING_COST.total / 7}
 						/>
 					</ShowcaseFrame>
 				}

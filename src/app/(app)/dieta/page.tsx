@@ -13,7 +13,6 @@ import {
 import { calculateBmr, calculateTdee } from "~/domains/profile";
 import { findProfileByUserId } from "~/domains/profile/services/profile-service";
 import { getSettingsByUserId } from "~/domains/settings/services/settings-service";
-import { listUserPrices } from "~/domains/shopping/services/price-service";
 import { CelebrationProvider } from "~/providers/celebration-provider";
 import { PageHeader } from "~/shared/components/page-header";
 import { Skeleton } from "~/shared/components/ui/skeleton";
@@ -40,15 +39,13 @@ export default function DietaPage() {
 
 async function DietContent() {
 	const user = await getCurrentUser();
-	const [meals, profile, goal, settings, calibration, prices] =
-		await Promise.all([
-			getDiet(user.id),
-			findProfileByUserId(user.id),
-			findGoalByUserId(user.id),
-			getSettingsByUserId(user.id),
-			findGoalCalibration(user.id),
-			listUserPrices(user.id),
-		]);
+	const [meals, profile, goal, settings, calibration] = await Promise.all([
+		getDiet(user.id),
+		findProfileByUserId(user.id),
+		findGoalByUserId(user.id),
+		getSettingsByUserId(user.id),
+		findGoalCalibration(user.id),
+	]);
 
 	// Gasto e meta vêm das abas TMB e Meta; sem eles, a grade funciona mas o
 	// resumo não mostra excedente nem comparação com a meta. O gasto inclui o
@@ -75,7 +72,6 @@ async function DietContent() {
 				weightKg={profile?.weightKg ?? null}
 				tdee={tdee}
 				targets={targets}
-				prices={prices}
 				water={profile ? suggestedWater(profile) : null}
 			/>
 		</CelebrationProvider>
