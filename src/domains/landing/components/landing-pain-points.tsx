@@ -2,7 +2,7 @@ import {
 	FileSpreadsheet,
 	type LucideIcon,
 	NotebookPen,
-	Wallet,
+	Shuffle,
 } from "~/shared/components/icons";
 import { APP_NAME } from "~/shared/lib/app-config";
 
@@ -18,9 +18,9 @@ const PAINS: { icon: LucideIcon; title: string; text: string }[] = [
 		text: "Trocou o arroz pela batata e a fórmula sumiu. No celular, então, nem dá pra mexer.",
 	},
 	{
-		icon: Wallet,
-		title: "Nutri todo mês pesa no bolso",
-		text: "Você já sabe o básico: comer menos do que gasta, g/kg, bater a proteína. Falta uma ferramenta, não uma consulta.",
+		icon: Shuffle,
+		title: "Perdeu o controle",
+		text: "Comeu fora, pulou refeição, trocou tudo de última hora. No fim da semana, nem sabe se seguiu a dieta.",
 	},
 ];
 
@@ -33,9 +33,9 @@ export function LandingPainPoints() {
 						Se identifica?
 					</h2>
 					<p className="text-pretty text-muted-foreground">
-						O {APP_NAME} nasceu da planilha de dieta de um marombeiro: a mesma
-						lógica, só que num app que funciona no celular e faz as contas por
-						você.
+						O {APP_NAME} nasceu da planilha de dieta de quem treina e cansou de
+						refazer conta: a mesma lógica, só que num app que funciona no
+						celular e faz as contas por você.
 					</p>
 				</div>
 				<ul className="grid gap-4 md:grid-cols-3">

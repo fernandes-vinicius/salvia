@@ -72,6 +72,7 @@ export {
 	Settings,
 	Share,
 	ShoppingCart,
+	Shuffle,
 	Signal,
 	SignalHigh,
 	SignalLow,

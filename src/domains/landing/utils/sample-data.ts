@@ -1,3 +1,5 @@
+import type { Checkin } from "~/domains/checkin/types/checkin-types";
+import { addDays } from "~/domains/checkin/utils/checkin";
 import type { DietMeal } from "~/domains/diet/types/diet-types";
 import { summarizeDiet } from "~/domains/diet/utils/diet";
 import type { Food } from "~/domains/food/types/food-types";
@@ -10,6 +12,7 @@ import type {
 } from "~/domains/measurements/types/measurement-types";
 import type { BodyProfile } from "~/domains/profile/types/profile-types";
 import { calculateBmr, calculateEnergy } from "~/domains/profile/utils/energy";
+import { shoppingCost } from "~/domains/shopping/utils/prices";
 import { buildShoppingList } from "~/domains/shopping/utils/shopping-list";
 
 // Persona da landing: 28 anos, 80 kg, musculação 5×/semana e cardio 3×, em
@@ -86,6 +89,14 @@ const banana = food("Banana, prata, crua", {
 	fiber: 2.0,
 	proteinSource: "vegetal",
 });
+const mamao = food("Mamão, Papaia, cru", {
+	category: "Frutas e derivados",
+	protein: 0.5,
+	carbs: 10.4,
+	fat: 0.1,
+	fiber: 1.0,
+	proteinSource: "vegetal",
+});
 const frango = food("Frango, peito, sem pele, grelhado", {
 	category: "Carnes e derivados",
 	protein: 32,
@@ -160,7 +171,13 @@ export const SAMPLE_MEALS: DietMeal[] = [
 		items: [
 			{ id: "c1", quantity: 150, food: ovo, options: [] },
 			{ id: "c2", quantity: 40, food: pao, options: [] },
-			{ id: "c3", quantity: 100, food: banana, options: [] },
+			{
+				id: "c3",
+				quantity: 100,
+				food: banana,
+				// Opção com o mesmo carboidrato (como o app sugere).
+				options: [{ id: "c3-mamao", quantity: 250, food: mamao }],
+			},
 		],
 	},
 	{
@@ -262,3 +279,25 @@ export const SAMPLE_CALIBRATION = analyzeCalibration({
 
 /** Uma semana de compras da dieta de exemplo. */
 export const SAMPLE_SHOPPING = buildShoppingList(SAMPLE_MEALS, 7);
+
+/** Custo da semana de compras com os preços de referência. */
+export const SAMPLE_SHOPPING_COST = shoppingCost(SAMPLE_SHOPPING, new Map());
+
+/** "Hoje" fixo da persona (a landing é estática: nada de `new Date()`). */
+export const SAMPLE_TODAY = "2026-10-05";
+
+/**
+ * Check-in da persona: 4 dias seguidos completos e, hoje, as duas primeiras
+ * refeições marcadas.
+ */
+export const SAMPLE_CHECKINS: Checkin[] = [
+	...[-4, -3, -2, -1].flatMap((offset) =>
+		SAMPLE_MEALS.map((meal) => ({
+			mealId: meal.id,
+			day: addDays(SAMPLE_TODAY, offset),
+			status: "done" as const,
+		})),
+	),
+	{ mealId: "cafe", day: SAMPLE_TODAY, status: "done" },
+	{ mealId: "almoco", day: SAMPLE_TODAY, status: "done" },
+];

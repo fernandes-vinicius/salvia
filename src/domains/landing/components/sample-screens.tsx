@@ -5,10 +5,14 @@ import { useState } from "react";
 
 import {
 	SAMPLE_CALIBRATION,
+	SAMPLE_CHECKINS,
 	SAMPLE_GOAL,
+	SAMPLE_MEALS,
 	SAMPLE_MEASUREMENTS,
 	SAMPLE_SHOPPING,
+	SAMPLE_SHOPPING_COST,
 	SAMPLE_TARGETS,
+	SAMPLE_TODAY,
 } from "~/domains/landing/utils/sample-data";
 import type { MeasurementKey } from "~/domains/measurements/types/measurement-types";
 
@@ -54,6 +58,14 @@ const ShoppingGroups = dynamic(
 	() =>
 		import("~/domains/shopping/components/shopping-groups").then(
 			(mod) => mod.ShoppingGroups,
+		),
+	{ ssr: false, loading: () => <Placeholder className="h-[26rem]" /> },
+);
+
+const CheckinCard = dynamic(
+	() =>
+		import("~/domains/checkin/components/checkin-card").then(
+			(mod) => mod.CheckinCard,
 		),
 	{ ssr: false, loading: () => <Placeholder className="h-[26rem]" /> },
 );
@@ -110,7 +122,23 @@ export function SampleShopping() {
 			)}
 			checked={SAMPLE_CHECKED}
 			onToggle={noop}
+			prices={SAMPLE_SHOPPING_COST.byItem}
+			onEditPrice={noop}
 			className="md:grid-cols-1"
+		/>
+	);
+}
+
+export function SampleCheckin() {
+	return (
+		<CheckinCard
+			meals={SAMPLE_MEALS.map((meal) => ({
+				id: meal.id,
+				name: meal.name,
+				time: meal.time,
+			}))}
+			today={SAMPLE_TODAY}
+			initialCheckins={SAMPLE_CHECKINS}
 		/>
 	);
 }

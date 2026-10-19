@@ -62,6 +62,8 @@ Origem: ao definir a gordura na Meta (70 kg, querendo perder peso sem perder mui
 
 ## IA no app (aos poucos)
 
+> Ideias de recursos pagos ficam em [`ideias-pro.md`](ideias-pro.md).
+
 Planejado em out/2026. Ordem pensada pra começar pelo que não usa IA e ir aumentando o risco/custo aos poucos.
 
 ### 0. Base (antes da 1ª funcionalidade com IA)
@@ -125,6 +127,13 @@ Feito (out/2026): grade de refeições, TACO + alimentos próprios, resumo estil
 - ~~Substituições ("ou 100 g de cuscuz" da planilha)~~: feito (out/2026) como opções do item. Próximos passos possíveis: opções nas dietas prontas, lista de compras somando as opções, sugerir opções automaticamente (mesmo grupo de alimento).
 - Celular: resumo e meta ocupam a primeira tela; avaliar versão compacta/recolhível pra grade aparecer antes (desktop já resolvido com coluna lateral).
 - Porções caseiras na TACO (1 fatia, 1 colher) além de gramas.
+
+## Posicionamento (decidido em 19/10/2026)
+
+- **Público**: quem treina e quer a dieta no mesmo nível do treino, tanto quem monta a própria quanto quem tem dieta do nutricionista (o app organiza e acompanha; nunca substitui o profissional).
+- **Mensagem**: tocar na dor real e no pertencimento. Origem: um amigo fitness, ao ver o app: "Tô precisando de um desse… perdi muito peso ultimamente, tá uma bagunça minha dieta". Título da landing: "Sua dieta tá uma bagunça? Bora colocar em ordem."
+- **Evitar**: gíria de academia ("maromba", "marombeiro") e falar mal de nutricionista.
+- **Parceria com nutricionistas**: canal futuro (o nutri indica o app aos pacientes), sem painel de nutri por enquanto; a importação de dieta com IA (`ideias-pro.md` nº 1) é a ponte.
 
 ## Negócio: monetização, custo e marketing
 

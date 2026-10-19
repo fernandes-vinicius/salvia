@@ -1,3 +1,4 @@
+/** `option` ("comi a opção") vem de marcações antigas e conta como "comi". */
 export type CheckinStatus = "done" | "option" | "skipped";
 
 export interface Checkin {
@@ -13,6 +14,4 @@ export interface CheckinMeal {
 	id: string;
 	name: string;
 	time: string | null;
-	/** Algum alimento tem opção ("ou 1 banana"): mostra "Comi a opção". */
-	hasOptions: boolean;
 }
