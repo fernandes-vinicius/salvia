@@ -48,6 +48,7 @@ describe("CalibrationCard", () => {
 					expectedWeeklyKg: -0.45,
 					days: 21,
 					deltaKcal: -300,
+					adherence: null,
 				}}
 				calibration={noCalibration}
 			/>,
@@ -71,6 +72,7 @@ describe("CalibrationCard", () => {
 			expectedWeeklyKg: -0.45,
 			days: 21,
 			deltaKcal: 300,
+			adherence: null,
 		};
 		const { unmount } = render(
 			<CalibrationCard analysis={analysis} calibration={noCalibration} />,
@@ -91,6 +93,7 @@ describe("CalibrationCard", () => {
 					observedWeeklyKg: -0.4,
 					expectedWeeklyKg: -0.45,
 					days: 21,
+					adherence: null,
 				}}
 				calibration={{ kcal: -250, since: "2026-10-01" }}
 			/>,
@@ -100,5 +103,24 @@ describe("CalibrationCard", () => {
 		expect(
 			screen.getByRole("button", { name: "Desfazer ajustes" }),
 		).toBeInTheDocument();
+	});
+
+	it("com adesão baixa, pede pra seguir a dieta em vez de ajustar", () => {
+		render(
+			<CalibrationCard
+				analysis={{
+					kind: "low-adherence",
+					observedWeeklyKg: -0.1,
+					expectedWeeklyKg: -0.45,
+					days: 21,
+					adherence: 60,
+				}}
+				calibration={noCalibration}
+			/>,
+		);
+		expect(screen.getByText("60%")).toBeInTheDocument();
+		expect(
+			screen.queryByRole("button", { name: "Aplicar ajuste" }),
+		).not.toBeInTheDocument();
 	});
 });

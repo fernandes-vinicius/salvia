@@ -37,6 +37,9 @@ export const food = pgTable(
 		fat: doublePrecision("fat").notNull(),
 		/** Fibra alimentar, na mesma base dos macros (não entra nas kcal). */
 		fiber: doublePrecision("fiber").notNull().default(0),
+		/** Sódio e ferro (mg), na mesma base dos macros; 0 = não informado. */
+		sodium: doublePrecision("sodium").notNull().default(0),
+		iron: doublePrecision("iron").notNull().default(0),
 		proteinSource: proteinSourceEnum("protein_source").notNull(),
 		createdAt: timestamp("created_at").defaultNow().notNull(),
 	},

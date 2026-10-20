@@ -5,6 +5,7 @@ import { DeleteAccount } from "~/domains/auth";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { findProfileByUserId } from "~/domains/profile/services/profile-service";
 import { SettingsForm } from "~/domains/settings";
+import { DataExport } from "~/domains/settings/components/data-export";
 import { getSettingsByUserId } from "~/domains/settings/services/settings-service";
 import { PageHeader } from "~/shared/components/page-header";
 import { Skeleton } from "~/shared/components/ui/skeleton";
@@ -35,6 +36,7 @@ async function SettingsContent() {
 	return (
 		<div className="flex flex-col gap-10">
 			<SettingsForm initialSettings={settings} profile={profile} />
+			<DataExport />
 			<DeleteAccount />
 		</div>
 	);

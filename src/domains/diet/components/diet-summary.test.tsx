@@ -7,19 +7,24 @@ import { summarizeDiet } from "~/domains/diet/utils/diet";
 const summary = summarizeDiet([], { weightKg: 75, tdee: 2400 });
 
 describe("DietSummaryCard · água", () => {
-	it("mostra a água sugerida logo abaixo das fibras", () => {
+	it("mostra a água sugerida na última linha, depois de sódio e ferro", () => {
 		render(
 			<DietSummaryCard
 				summary={summary}
 				tdee={2400}
 				water={{ minimumMl: 2600, recommendedMl: 3400, trainingMl: 400 }}
+				micros={{
+					values: { sodium: 900, iron: 9, customWithoutSodium: 0 },
+					ironGoal: 8,
+				}}
 			/>,
 		);
 		const rows = screen.getAllByRole("row");
 		const names = rows.map(
 			(row) => within(row).queryByRole("rowheader")?.textContent,
 		);
-		expect(names.indexOf("Água")).toBe(names.indexOf("Fibras") + 1);
+		expect(names.indexOf("Água")).toBe(names.length - 1);
+		expect(names.indexOf("Ferro")).toBe(names.indexOf("Sódio") + 1);
 
 		const water = rows[names.indexOf("Água")];
 		expect(water).toHaveTextContent("3,4");

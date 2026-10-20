@@ -21,6 +21,10 @@ import {
 	QuantityEditor,
 	UNIT_LABELS,
 } from "~/domains/food";
+import {
+	SwapCostBadge,
+	SwapCostLine,
+} from "~/domains/shopping/components/prices-context";
 import { BottomSheetContent } from "~/shared/components/bottom-sheet";
 import {
 	ArrowLeftRight,
@@ -230,9 +234,12 @@ function ItemEditor({
 										<span className="font-medium text-primary">ou </span>
 										{option.food.name}
 									</span>
-									<span className="text-muted-foreground text-xs tabular-nums">
-										{formatNumber(option.quantity, 1)}{" "}
-										{UNIT_LABELS[option.food.unit].short}
+									<span className="flex flex-wrap gap-x-2 text-muted-foreground text-xs tabular-nums">
+										<span>
+											{formatNumber(option.quantity, 1)}{" "}
+											{UNIT_LABELS[option.food.unit].short}
+										</span>
+										<SwapCostBadge from={item} to={option} />
 									</span>
 									<MacroLine macros={macrosFor(option.food, option.quantity)} />
 								</div>
@@ -421,6 +428,8 @@ function SwapFlow({
 						</dd>
 					</div>
 				</dl>
+
+				<SwapCostLine from={item} to={{ food, quantity }} />
 
 				{equivalent && (
 					<p className="text-muted-foreground text-xs">

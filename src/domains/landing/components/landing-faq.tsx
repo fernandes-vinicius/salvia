@@ -4,7 +4,8 @@ import { APP_NAME } from "~/shared/lib/app-config";
 export const FAQ_QUESTIONS: FaqItem[] = [
 	{
 		question: "É grátis?",
-		answer: "Sim. Entra com a conta Google e usa tudo, sem cartão de crédito.",
+		answer:
+			"Sim. Entra com a conta Google e usa tudo o que está no app hoje, sem cartão de crédito.",
 	},
 	{
 		question: "Substitui o nutricionista?",
@@ -23,7 +24,7 @@ export const FAQ_QUESTIONS: FaqItem[] = [
 	{
 		question: "E se eu não estiver perdendo (ou ganhando) peso?",
 		answer:
-			"Registre seu peso uma vez por semana. Com 3 pesagens em 2 semanas, o app compara com o ritmo esperado e, se estiver fora, sugere comer um pouco mais ou menos. Nada muda sem você confirmar.",
+			"Registre seu peso uma vez por semana. Com 3 pesagens em 2 semanas, o app compara com o ritmo esperado e, se estiver fora, sugere comer um pouco mais ou menos. No dia 15 e no dia 30 da dieta ele faz uma revisão, e o check-in conta: se a dieta não foi seguida, ele avisa antes de mexer na meta. Nada muda sem você confirmar.",
 	},
 	{
 		question: "Preciso pesar a comida?",
@@ -33,7 +34,7 @@ export const FAQ_QUESTIONS: FaqItem[] = [
 	{
 		question: "Dá pra saber quanto a dieta custa?",
 		answer:
-			"Dá. A lista de compras mostra o custo estimado da semana com preços médios de referência, e você troca pelo preço que paga no seu mercado.",
+			"Dá. A lista de compras mostra o custo estimado da semana com preços médios de referência, e você troca pelo preço que paga no seu mercado. Ao trocar um alimento, o app também mostra quanto a troca muda no custo por dia.",
 	},
 	{
 		question: "De onde vêm os dados dos alimentos?",
@@ -44,6 +45,15 @@ export const FAQ_QUESTIONS: FaqItem[] = [
 		question: "A proteína vegetal conta?",
 		answer:
 			"Conta. Por padrão a meta é da proteína total (animal + vegetal), como a maioria dos nutricionistas faz. Se você prefere contar só a animal, é só trocar nas Configurações. O resumo do dia mostra as duas separadas.",
+	},
+	{
+		question: "Vai ter IA no app?",
+		answer: `Vai. Estamos testando com um grupo pequeno: importar a dieta do nutricionista por PDF ou foto, receita da refeição (com receitas salvas e compartilhadas por link), variar a refeição com os mesmos macros, completar o que falta no dia e um resumo da semana. Ainda não estão liberados e vão fazer parte do ${APP_NAME} Pro, que chega em breve.`,
+	},
+	{
+		question: "Meus dados ficam comigo?",
+		answer:
+			"Ficam. Ninguém vê sua dieta nem suas medidas, a não ser que você compartilhe o link. Em Configurações dá pra baixar tudo num arquivo ou excluir a conta com todos os dados.",
 	},
 	{
 		question: "Funciona no celular?",

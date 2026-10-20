@@ -37,7 +37,7 @@ export function LegalSection({
 	children: ReactNode;
 }) {
 	return (
-		<section className="flex flex-col gap-3 text-pretty leading-relaxed [&_a]:font-medium [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-4 [&_li]:pl-1 [&_ul]:flex [&_ul]:list-disc [&_ul]:flex-col [&_ul]:gap-1.5 [&_ul]:pl-5">
+		<section className="flex flex-col gap-3 text-pretty leading-relaxed [&_a]:font-medium [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-4 [&_a]:[overflow-wrap:anywhere] [&_li]:pl-1 [&_ul]:flex [&_ul]:list-disc [&_ul]:flex-col [&_ul]:gap-1.5 [&_ul]:pl-5">
 			<h2 className="font-heading font-semibold text-xl">{title}</h2>
 			{children}
 		</section>

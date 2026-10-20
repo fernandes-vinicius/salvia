@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
 	analyzeCalibration,
+	calibrationWindowStart,
 	describeWeeklyChange,
 	type WeighIn,
 } from "~/domains/goal/utils/calibration";
@@ -102,6 +103,47 @@ describe("analyzeCalibration", () => {
 			weighIns: weekly(80, -0.2, 4),
 		});
 		expect(result).toMatchObject({ kind: "need-data", weighIns: 0 });
+	});
+});
+
+describe("analyzeCalibration com a adesão do check-in", () => {
+	const slow = { ...base, weighIns: weekly(80, -0.2, 4) };
+
+	it("não sugere mudar a meta com adesão baixa", () => {
+		expect(
+			analyzeCalibration({ ...slow, adherence: { percent: 60, days: 20 } }),
+		).toMatchObject({ kind: "low-adherence", adherence: 60 });
+	});
+
+	it("com adesão boa, sugere e conta a adesão", () => {
+		expect(
+			analyzeCalibration({ ...slow, adherence: { percent: 90, days: 20 } }),
+		).toMatchObject({ kind: "suggest", deltaKcal: -300, adherence: 90 });
+	});
+
+	it("com poucos dias de check-in, ignora a adesão", () => {
+		expect(
+			analyzeCalibration({ ...slow, adherence: { percent: 40, days: 3 } }),
+		).toMatchObject({ kind: "suggest", adherence: null });
+	});
+
+	it("no ritmo, a adesão baixa não muda nada", () => {
+		expect(
+			analyzeCalibration({
+				...base,
+				weighIns: weekly(80, -0.45, 4),
+				adherence: { percent: 50, days: 20 },
+			}).kind,
+		).toBe("on-track");
+	});
+});
+
+describe("calibrationWindowStart", () => {
+	it("é o maior entre 6 semanas atrás e o último ajuste", () => {
+		expect(calibrationWindowStart("2026-10-20", null)).toBe("2026-09-08");
+		expect(calibrationWindowStart("2026-10-20", "2026-10-01")).toBe(
+			"2026-10-01",
+		);
 	});
 });
 

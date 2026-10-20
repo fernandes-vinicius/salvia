@@ -64,6 +64,8 @@ await db
 			carbs: sql`excluded.carbs`,
 			fat: sql`excluded.fat`,
 			fiber: sql`excluded.fiber`,
+			sodium: sql`excluded.sodium`,
+			iron: sql`excluded.iron`,
 			proteinSource: sql`excluded.protein_source`,
 		},
 	});

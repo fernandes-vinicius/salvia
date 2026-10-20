@@ -7,6 +7,7 @@ import type { GoalTargets } from "~/domains/goal/types/goal-types";
 import {
 	emptyMealItems,
 	findNextMeal,
+	micronutrientItems,
 	planVerdict,
 	suspiciousFoods,
 	toMinutes,
@@ -176,5 +177,48 @@ describe("emptyMealItems", () => {
 		expect(
 			emptyMealItems([meal("1", null, 1), meal("2", null)]).map((i) => i.id),
 		).toEqual(["meal-empty-2"]);
+	});
+});
+
+describe("micronutrientItems", () => {
+	const salty = {
+		id: "m",
+		name: "Almoço",
+		time: null,
+		items: [
+			{
+				id: "i",
+				quantity: 100,
+				options: [],
+				food: {
+					id: "f",
+					source: "taco" as const,
+					name: "Presunto",
+					category: null,
+					unit: "g" as const,
+					protein: 14,
+					carbs: 2,
+					fat: 3,
+					fiber: 0,
+					sodium: 2500,
+					iron: 2,
+					proteinSource: "animal" as const,
+				},
+			},
+		],
+	};
+
+	it("avisa o sódio alto e o ferro baixo, com link pra dieta", () => {
+		const items = micronutrientItems([salty], 18);
+		expect(items.map((item) => item.id)).toEqual([
+			"micro-sodium-high",
+			"micro-iron-low",
+		]);
+		expect(items[0].message).toContain("2.500 mg");
+		expect(items[0].href).toBe("/dieta");
+	});
+
+	it("sem perfil, só o sódio", () => {
+		expect(micronutrientItems([salty], null)).toHaveLength(1);
 	});
 });

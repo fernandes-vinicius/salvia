@@ -41,8 +41,8 @@ const EXTRAS: { icon: LucideIcon; title: string; text: string }[] = [
 	},
 	{
 		icon: Leaf,
-		title: "Fibras do dia",
-		text: "O total de fibra e quanto falta pra recomendação da OMS, com dicas do que comer.",
+		title: "Fibras, sódio e ferro",
+		text: "Quanto falta de fibra, com aviso quando o sódio passa da conta ou o ferro fica baixo.",
 	},
 	{
 		icon: FileDown,
@@ -129,6 +129,7 @@ export function LandingFeatures() {
 					"Substitua um alimento e receba a quantidade com o mesmo macro",
 					"Deixe opções na dieta: 100 g de banana ou 250 g de mamão",
 					"Quantidade também em colher, concha e fatia, pra quem não pesa tudo",
+					"Veja quanto a troca muda no custo por dia",
 				]}
 				visual={
 					<ShowcaseFrame label="Substituir e copiar alimento no app">
@@ -189,7 +190,8 @@ export function LandingFeatures() {
 				title="O peso travou? O app percebe e sugere o ajuste"
 				points={[
 					"Pese-se uma vez por semana e o app compara com o esperado",
-					"Sugere comer um pouco mais ou menos, em passos pequenos",
+					"Revisão no dia 15 e no dia 30, com o ajuste em gramas de carboidrato",
+					"Conta o check-in: se a dieta não foi seguida, avisa antes de mexer na meta",
 					"Você decide se aplica, e pode desfazer quando quiser",
 				]}
 				visual={
@@ -199,7 +201,7 @@ export function LandingFeatures() {
 				}
 			/>
 
-			<ul className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+			<ul className="grid grid-cols-1 gap-x-8 gap-y-10 px-7 sm:grid-cols-2 sm:px-0 lg:grid-cols-4">
 				{EXTRAS.map(({ icon: Icon, title, text }) => (
 					<li key={title} className="flex flex-col gap-3">
 						<span className="flex size-10 items-center justify-center rounded-full bg-secondary text-primary">

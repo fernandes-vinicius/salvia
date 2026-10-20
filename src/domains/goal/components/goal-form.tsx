@@ -102,6 +102,7 @@ export function GoalForm({
 			/>
 
 			<GoalFields
+				profile={profile}
 				proteinCounting={proteinCounting}
 				key={fieldsKey}
 				goal={goal}

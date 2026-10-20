@@ -6,6 +6,7 @@ import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { suggestedWater } from "~/domains/calculators/utils/water";
 import { DietView } from "~/domains/diet";
 import { getDiet } from "~/domains/diet/services/diet-service";
+import { ironTarget } from "~/domains/diet/utils/micronutrients";
 import { calculateTargets } from "~/domains/goal";
 import {
 	findGoalByUserId,
@@ -15,7 +16,7 @@ import { countSavedByMeal } from "~/domains/meal-recipe/services/saved-recipe-se
 import { calculateBmr, calculateTdee } from "~/domains/profile";
 import { findProfileByUserId } from "~/domains/profile/services/profile-service";
 import { getSettingsByUserId } from "~/domains/settings/services/settings-service";
-import { CelebrationProvider } from "~/providers/celebration-provider";
+import { listUserPrices } from "~/domains/shopping/services/price-service";
 import { PageHeader } from "~/shared/components/page-header";
 import { Skeleton } from "~/shared/components/ui/skeleton";
 
@@ -42,7 +43,7 @@ export default function DietaPage() {
 async function DietContent() {
 	const user = await getCurrentUser();
 	const beta = isBetaUser(user);
-	const [meals, profile, goal, settings, calibration, savedRecipes] =
+	const [meals, profile, goal, settings, calibration, savedRecipes, prices] =
 		await Promise.all([
 			getDiet(user.id),
 			findProfileByUserId(user.id),
@@ -50,6 +51,7 @@ async function DietContent() {
 			getSettingsByUserId(user.id),
 			findGoalCalibration(user.id),
 			beta ? countSavedByMeal(user.id) : {},
+			listUserPrices(user.id),
 		]);
 
 	// Gasto e meta vêm das abas TMB e Meta; sem eles, a grade funciona mas o
@@ -68,21 +70,21 @@ async function DietContent() {
 			: null;
 
 	return (
-		<CelebrationProvider enabled={settings.celebrations}>
-			<DietView
-				// Remonta quando o servidor devolve outras refeições (ex.: depois de
-				// `router.refresh()` por mudança em outra aba).
-				key={meals.map((meal) => meal.id).join(",")}
-				initialMeals={meals}
-				weightKg={profile?.weightKg ?? null}
-				tdee={tdee}
-				targets={targets}
-				water={profile ? suggestedWater(profile) : null}
-				beta={beta}
-				initialSavedRecipes={savedRecipes}
-				proteinCounting={settings.proteinCounting}
-			/>
-		</CelebrationProvider>
+		<DietView
+			// Remonta quando o servidor devolve outras refeições (ex.: depois de
+			// `router.refresh()` por mudança em outra aba).
+			key={meals.map((meal) => meal.id).join(",")}
+			initialMeals={meals}
+			weightKg={profile?.weightKg ?? null}
+			tdee={tdee}
+			targets={targets}
+			water={profile ? suggestedWater(profile) : null}
+			beta={beta}
+			initialSavedRecipes={savedRecipes}
+			proteinCounting={settings.proteinCounting}
+			ironGoal={ironTarget(profile)}
+			userPrices={prices}
+		/>
 	);
 }
 

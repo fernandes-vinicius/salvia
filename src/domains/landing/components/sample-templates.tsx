@@ -20,11 +20,11 @@ export function SampleTemplates() {
 					<p className="text-pretty text-muted-foreground text-sm">
 						{template.description}
 					</p>
-					<div className="flex items-center justify-between gap-3">
+					<div className="flex flex-wrap items-center justify-between gap-3">
 						<p className="text-muted-foreground text-xs">
 							{template.meals.length} refeições · nas suas metas
 						</p>
-						<div className="flex gap-2">
+						<div className="flex flex-wrap gap-2">
 							<Button size="sm" variant="secondary" tabIndex={-1}>
 								<Eye data-icon="inline-start" />
 								Visualizar

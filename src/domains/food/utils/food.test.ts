@@ -108,8 +108,17 @@ describe("tacoMacros", () => {
 				carbohydrates: "66.6",
 				lipids: "8.5",
 				dietaryFiber: "",
+				sodium: "5",
+				iron: "4.4",
 			}),
-		).toEqual({ protein: 13.9, carbs: 66.6, fat: 8.5, fiber: 0 });
+		).toEqual({
+			protein: 13.9,
+			carbs: 66.6,
+			fat: 8.5,
+			fiber: 0,
+			sodium: 5,
+			iron: 4.4,
+		});
 	});
 
 	it("preenche o leite fluido, que a TACO não mediu", () => {
@@ -119,7 +128,16 @@ describe("tacoMacros", () => {
 			carbs: 4.8,
 			fat: 3.25,
 			fiber: 0,
+			sodium: 43,
+			iron: 0.03,
 		});
 		expect(tacoMacros("Leite, de vaca, desnatado, UHT", empty).fat).toBe(0.08);
+	});
+
+	it("preenche o iogurte de abacaxi com o de morango da TACO", () => {
+		const yogurt = tacoMacros("Iogurte, sabor abacaxi", {});
+		expect(yogurt.protein).toBe(2.7);
+		expect(yogurt.carbs).toBe(9.7);
+		expect(yogurt.fat).toBe(2.3);
 	});
 });

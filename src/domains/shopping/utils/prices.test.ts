@@ -1,12 +1,17 @@
 import { describe, expect, it } from "vitest";
 
+import type { Food } from "~/domains/food/types/food-types";
 import type { Price } from "~/domains/shopping/data/reference-prices";
 import {
+	costChangeLabel,
+	costChangeShort,
 	itemCost,
+	portionCost,
 	priceKey,
 	priceUnitsFor,
 	referencePrice,
 	shoppingCost,
+	swapCost,
 } from "~/domains/shopping/utils/prices";
 import type { ShoppingGroup } from "~/domains/shopping/utils/shopping-list";
 
@@ -96,5 +101,73 @@ describe("shoppingCost", () => {
 		expect(cost.total).toBeCloseTo(12);
 		expect(cost.missing).toBe(0);
 		expect(cost.byItem.get("rule:Arroz")?.source).toBe("user");
+	});
+});
+
+describe("portionCost e swapCost", () => {
+	const food = (name: string): Food => ({
+		id: name,
+		source: "taco",
+		name,
+		category: "Frutas e derivados",
+		unit: "g",
+		protein: 1,
+		carbs: 20,
+		fat: 0,
+		fiber: 2,
+		proteinSource: "vegetal",
+	});
+	const noPrices = new Map<string, Price>();
+
+	it("custo de uma porção pelo preço de referência (do que se compra)", () => {
+		// Banana-prata R$ 7/kg: 200 g = R$ 1,40.
+		expect(portionCost(food("Banana, prata, crua"), 200, noPrices)).toBeCloseTo(
+			1.4,
+		);
+		expect(portionCost(food("Fruta rara"), 200, noPrices)).toBeNull();
+	});
+
+	it("o preço da pessoa vence a referência", () => {
+		const prices = new Map<string, Price>([
+			[priceKey("Banana-prata"), { value: 10, per: "kg" }],
+		]);
+		expect(portionCost(food("Banana, prata, crua"), 200, prices)).toBeCloseTo(
+			2,
+		);
+	});
+
+	it("diferença por dia entre o que sai e o que entra", () => {
+		const cost = swapCost(
+			{ food: food("Banana, prata, crua"), quantity: 200 },
+			{ food: food("Mamão, Papaia, cru"), quantity: 300 },
+			noPrices,
+		);
+		// R$ 1,40 → R$ 2,70.
+		expect(cost?.before).toBeCloseTo(1.4);
+		expect(cost?.after).toBeCloseTo(2.7);
+		expect(cost?.delta).toBeCloseTo(1.3);
+	});
+
+	it("sem preço de um dos lados, null", () => {
+		expect(
+			swapCost(
+				{ food: food("Banana, prata, crua"), quantity: 200 },
+				{ food: food("Fruta rara"), quantity: 100 },
+				noPrices,
+			),
+		).toBeNull();
+	});
+
+	it("texto da diferença em linguagem simples", () => {
+		expect(costChangeLabel(1.3)).toBe(
+			"+R$ 1,30 por dia (≈ R$ 39 a mais por mês)",
+		);
+		expect(costChangeLabel(-0.5)).toBe(
+			"−R$ 0,50 por dia (≈ R$ 15 a menos por mês)",
+		);
+		expect(costChangeLabel(0.02)).toBe("Quase o mesmo custo");
+		expect(costChangeShort(0.2)).toBe("+R$ 0,20/dia");
+		expect(costChangeShort(-1)).toBe("−R$ 1,00/dia");
+		expect(costChangeShort(0)).toBe("mesmo custo");
 	});
 });

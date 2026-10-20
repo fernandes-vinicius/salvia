@@ -65,6 +65,7 @@ export function CustomFoodForm({
 					carbs: String(food.carbs),
 					fat: String(food.fat),
 					fiber: food.fiber ? String(food.fiber) : "",
+					sodium: food.sodium ? String(food.sodium) : "",
 					proteinSource: food.proteinSource,
 				}
 			: { name: defaultName, unit: "g", proteinSource: "vegetal" },
@@ -167,19 +168,32 @@ export function CustomFoodForm({
 					Gramas de cada macro em {base}, como no rótulo. Em branco vale 0.
 				</p>
 
-				<Field className="max-w-[calc((100%-1.5rem)/3)]">
-					<FieldLabel htmlFor={fields.fiber.id}>Fibra</FieldLabel>
-					<Input
-						{...getInputProps(fields.fiber, { type: "number" })}
-						step="0.1"
-						min="0"
-						inputMode="decimal"
-						placeholder="0"
-					/>
-					<FieldError errors={errorsOf(fields.fiber.errors)} />
-				</Field>
+				<div className="grid grid-cols-3 gap-3">
+					<Field>
+						<FieldLabel htmlFor={fields.fiber.id}>Fibra (g)</FieldLabel>
+						<Input
+							{...getInputProps(fields.fiber, { type: "number" })}
+							step="0.1"
+							min="0"
+							inputMode="decimal"
+							placeholder="0"
+						/>
+						<FieldError errors={errorsOf(fields.fiber.errors)} />
+					</Field>
+					<Field>
+						<FieldLabel htmlFor={fields.sodium.id}>Sódio (mg)</FieldLabel>
+						<Input
+							{...getInputProps(fields.sodium, { type: "number" })}
+							step="1"
+							min="0"
+							inputMode="numeric"
+							placeholder="0"
+						/>
+						<FieldError errors={errorsOf(fields.sodium.errors)} />
+					</Field>
+				</div>
 				<p className="-mt-3 text-muted-foreground text-xs">
-					Se o rótulo trouxer, em {base}.
+					Se o rótulo trouxer, em {base}. O sódio entra no aviso de sal do dia.
 				</p>
 
 				<Field>

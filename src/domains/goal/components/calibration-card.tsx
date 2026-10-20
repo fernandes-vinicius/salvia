@@ -139,15 +139,36 @@ export function CalibrationCard({
 				</p>
 			)}
 
+			{analysis.kind === "low-adherence" && (
+				<>
+					<p className="text-pretty text-sm">
+						Você está{" "}
+						<strong>{describeWeeklyChange(analysis.observedWeeklyKg)}</strong>{" "}
+						por semana; o esperado era{" "}
+						{describeWeeklyChange(analysis.expectedWeeklyKg)}. Mas pelo check-in
+						você seguiu <strong>{analysis.adherence}%</strong> das refeições,
+						então o peso ainda não mostra se a conta errou.
+					</p>
+					<p className="text-pretty text-muted-foreground text-sm">
+						Antes de mudar a meta, tente seguir pelo menos{" "}
+						{CALIBRATION_RULES.minAdherence}% das refeições por 2 semanas e
+						marque no check-in do Início.
+					</p>
+				</>
+			)}
+
 			{analysis.kind === "suggest" && (
 				<>
 					<p className="text-pretty text-sm">
 						Nas últimas {Math.round(analysis.days / 7)} semanas você está{" "}
 						<strong>{describeWeeklyChange(analysis.observedWeeklyKg)}</strong>{" "}
 						por semana. Pela sua meta, o esperado era estar{" "}
-						{describeWeeklyChange(analysis.expectedWeeklyKg)}. Se você seguiu a
-						dieta, seu corpo gasta {analysis.deltaKcal < 0 ? "menos" : "mais"}{" "}
-						do que a conta estimou.
+						{describeWeeklyChange(analysis.expectedWeeklyKg)}.{" "}
+						{analysis.adherence !== null
+							? `Pelo check-in você seguiu ${analysis.adherence}% das refeições, então seu corpo`
+							: "Se você seguiu a dieta, seu corpo"}{" "}
+						gasta {analysis.deltaKcal < 0 ? "menos" : "mais"} do que a conta
+						estimou.
 					</p>
 					<p className="font-heading font-semibold">
 						Sugestão: comer {formatNumber(Math.abs(analysis.deltaKcal))} kcal a{" "}

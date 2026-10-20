@@ -162,8 +162,10 @@ export default function PrivacyPage() {
 					</li>
 					<li>
 						<strong>Google (Gemini)</strong>: nos recursos com IA, ainda em
-						teste, lê o arquivo da dieta que você envia e sugere receitas a
-						partir das suas refeições. O arquivo não fica guardado no app.
+						teste, lê o arquivo da dieta que você envia, sugere receitas e
+						alimentos a partir das suas refeições e escreve o resumo da semana a
+						partir de números do app (peso, cintura e check-in, sem nome nem
+						e-mail). O arquivo não fica guardado no app.
 					</li>
 					<li>
 						<strong>Unsplash</strong>: fotos ilustrativas das receitas,
@@ -215,8 +217,13 @@ export default function PrivacyPage() {
 						<Link href="/configuracoes">Configurações</Link> → Excluir conta.
 					</li>
 					<li>
-						Pedir uma cópia dos dados (portabilidade), informações sobre o
-						compartilhamento ou revisar o consentimento: escreva pra{" "}
+						Baixar uma cópia dos seus dados (portabilidade), num arquivo JSON:
+						em <Link href="/configuracoes">Configurações</Link> → Baixar meus
+						dados.
+					</li>
+					<li>
+						Pedir informações sobre o compartilhamento ou revisar o
+						consentimento: escreva pra{" "}
 						<a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>. Respondemos
 						em até 15 dias.
 					</li>

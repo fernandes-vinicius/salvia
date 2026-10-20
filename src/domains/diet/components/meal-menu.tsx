@@ -8,6 +8,7 @@ import {
 	Pencil,
 	Shuffle,
 	Sparkles,
+	Target,
 	Trash2,
 } from "~/shared/components/icons";
 import { Button } from "~/shared/components/ui/button";
@@ -27,6 +28,8 @@ export interface MealMenuActions {
 	/** Recursos em beta: só vêm quando liberados (`BETA_EMAILS`). */
 	onSuggestRecipe?: () => void;
 	onVaryMeal?: () => void;
+	/** Só com meta definida (precisa saber o que falta). */
+	onFillMeal?: () => void;
 	onOpenSavedRecipes?: () => void;
 	/** Receitas salvas desta refeição. */
 	savedRecipes?: number;
@@ -41,6 +44,7 @@ export function MealMenu({
 	onDelete,
 	onSuggestRecipe,
 	onVaryMeal,
+	onFillMeal,
 	onOpenSavedRecipes,
 	savedRecipes = 0,
 }: MealMenuActions & { meal: DietMeal }) {
@@ -77,6 +81,12 @@ export function MealMenu({
 					<DropdownMenuItem onClick={onVaryMeal}>
 						<Shuffle />
 						Variar refeição (beta)
+					</DropdownMenuItem>
+				)}
+				{onFillMeal && (
+					<DropdownMenuItem onClick={onFillMeal}>
+						<Target />
+						Completar com IA (beta)
 					</DropdownMenuItem>
 				)}
 				{onOpenSavedRecipes && savedRecipes > 0 && (
