@@ -35,6 +35,7 @@ export {
 	Egg,
 	EllipsisVertical,
 	Equal,
+	ExternalLink,
 	Eye,
 	FileDown,
 	FileSpreadsheet,

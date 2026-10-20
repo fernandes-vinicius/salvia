@@ -35,6 +35,8 @@ import {
 	suspiciousFoods,
 } from "~/domains/home/utils/home";
 import { listMeasurements } from "~/domains/measurements/services/measurement-service";
+import { NewsCard } from "~/domains/news/components/news-card";
+import { getLatestNews } from "~/domains/news/services/news-service";
 import { calculateBmr, calculateTdee } from "~/domains/profile";
 import { findProfileByUserId } from "~/domains/profile/services/profile-service";
 import { getSettingsByUserId } from "~/domains/settings/services/settings-service";
@@ -51,8 +53,16 @@ export default function DashboardPage() {
 			<Suspense fallback={<HomeSkeleton />}>
 				<HomeContent />
 			</Suspense>
+			{/* Separado: não segura o Início se o blog estiver lento. */}
+			<Suspense fallback={null}>
+				<LatestNews />
+			</Suspense>
 		</main>
 	);
+}
+
+async function LatestNews() {
+	return <NewsCard items={await getLatestNews()} />;
 }
 
 async function HomeContent() {

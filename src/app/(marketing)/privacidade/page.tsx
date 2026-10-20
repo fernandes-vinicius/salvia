@@ -183,6 +183,12 @@ export default function PrivacyPage() {
 					nome, e-mail ou medidas. Você pode gerar um link novo ou desativá-lo a
 					qualquer momento.
 				</p>
+				<p>
+					As manchetes de blogs no Início (ex.: Hipertrofia.org) são lidas pelo
+					nosso servidor, sem enviar nenhum dado seu. Ao tocar numa manchete,
+					você sai do app e vai pro site do blog, que segue a política de
+					privacidade dele.
+				</p>
 			</LegalSection>
 
 			<LegalSection title="6. Por quanto tempo guardamos">

@@ -95,7 +95,7 @@ export function InstallPrompt() {
 		<div className="pointer-events-none fixed inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+5.5rem)] z-40 px-4 print:hidden">
 			<section
 				aria-label={`Instalar o ${APP_NAME}`}
-				className="pointer-events-auto mx-auto flex max-w-md items-center gap-3 rounded-3xl bg-card p-3 ring-1 ring-foreground/10"
+				className="pointer-events-auto mx-auto flex max-w-md flex-wrap items-center gap-x-3 gap-y-2 rounded-3xl bg-card p-3 ring-1 ring-foreground/10"
 			>
 				{/* biome-ignore lint/performance/noImgElement: ícone estático do PWA, sem otimização necessária */}
 				<img
@@ -125,7 +125,13 @@ export function InstallPrompt() {
 					)}
 				</div>
 				{!showIosHint && (
-					<Button size="sm" className="shrink-0" onClick={install}>
+					// No celular o botão desce pra uma linha só dele: lado a lado com
+					// o texto, a fonte grande espremia tudo (uma palavra por linha).
+					<Button
+						size="sm"
+						className="order-last w-full sm:order-none sm:w-auto sm:shrink-0"
+						onClick={install}
+					>
 						<Download data-icon="inline-start" />
 						Instalar
 					</Button>
