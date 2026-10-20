@@ -76,8 +76,8 @@ async function SharedRecipe({
 				</h2>
 				<p className="text-pretty text-sm">
 					No {APP_NAME} você monta a dieta batendo proteína, carboidrato e
-					gordura, e pede receitas que usam só os alimentos de cada refeição,
-					sem mudar os macros. Grátis.
+					gordura, e pede receitas com os alimentos de cada refeição (ou trocas
+					equivalentes), mantendo os macros. Grátis.
 				</p>
 				<Button
 					variant="secondary"

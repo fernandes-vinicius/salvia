@@ -31,11 +31,47 @@ describe("mealPrompt", () => {
 	it("lista cada alimento com a quantidade e a unidade", () => {
 		expect(mealPrompt(shake)).toBe(
 			[
-				"- Whey protein — 30 g",
-				"- Banana, prata, crua — 100 g",
-				"- Leite, de vaca, integral — 200 ml",
+				"- Whey protein — 30 g (≈ 1 dose (scoop))",
+				"- Banana, prata, crua — 100 g (≈ 1,5 unidades médias)",
+				"- Leite, de vaca, integral — 200 ml (≈ 1 copo (200 ml))",
 				"- Ovo, de galinha — 1,5 un",
 			].join("\n"),
+		);
+	});
+
+	it("lista as trocas possíveis com o código embaixo do alimento", () => {
+		expect(
+			mealPrompt([
+				{
+					...shake[1],
+					swaps: [
+						{ code: "T1", food: food("Maçã, Fuji, crua"), quantity: 155 },
+						{ code: "T2", food: food("Manga, Palmer, crua"), quantity: 120 },
+					],
+				},
+				shake[0],
+			]),
+		).toBe(
+			[
+				"- Banana, prata, crua — 100 g (≈ 1,5 unidades médias)",
+				"  pode trocar por: T1 = Maçã, Fuji, crua — 155 g; T2 = Manga, Palmer, crua — 120 g",
+				"- Whey protein — 30 g (≈ 1 dose (scoop))",
+			].join("\n"),
+		);
+	});
+});
+
+describe("mealPrompt com medida caseira", () => {
+	it('junta a medida caseira pra IA escrever "2 ovos" em vez de gramas', () => {
+		expect(
+			mealPrompt([
+				{
+					food: food("Ovo, de galinha, inteiro, cozido/10minutos"),
+					quantity: 100,
+				},
+			]),
+		).toBe(
+			"- Ovo, de galinha, inteiro, cozido/10minutos — 100 g (≈ 2 unidades médias)",
 		);
 	});
 });
@@ -95,6 +131,30 @@ describe("recipeText", () => {
 				"1. Bata tudo.",
 				"2. Sirva gelado.",
 			].join("\n"),
+		);
+	});
+
+	it("avisa o que a troca substituiu", () => {
+		const text = recipeText(
+			{
+				title: "Vitamina",
+				summary: "Gelada.",
+				minutes: 5,
+				extras: [],
+				steps: ["Bata tudo."],
+				tip: null,
+				photo: null,
+			},
+			[
+				{
+					food: food("Banana, prata, crua"),
+					quantity: 90,
+					replaces: { food: food("Mamão, Formosa, cru"), quantity: 200 },
+				},
+			],
+		);
+		expect(text).toContain(
+			"- 90 g de Banana, prata, crua (no lugar de 200 g de Mamão, Formosa, cru)",
 		);
 	});
 });

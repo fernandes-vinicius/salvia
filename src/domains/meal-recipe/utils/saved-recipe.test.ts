@@ -42,6 +42,33 @@ describe("recipeSnapshot", () => {
 	});
 });
 
+describe("recipeSnapshot com troca", () => {
+	it("guarda o alimento novo e o que ele substituiu, com os macros novos", () => {
+		const snapshot = recipeSnapshot([
+			{
+				food: food("batata"),
+				quantity: 50,
+				replaces: { food: food("arroz"), quantity: 100 },
+			},
+		]);
+		expect(snapshot.ingredients).toEqual([
+			{
+				foodId: "batata",
+				name: "Nome batata",
+				unit: "g",
+				quantity: 50,
+				replaces: {
+					foodId: "arroz",
+					name: "Nome arroz",
+					unit: "g",
+					quantity: 100,
+				},
+			},
+		]);
+		expect(snapshot.macros.carbs).toBe(10);
+	});
+});
+
 describe("mealChangedSince", () => {
 	const saved = recipeSnapshot(items).ingredients;
 
@@ -53,6 +80,18 @@ describe("mealChangedSince", () => {
 		expect(
 			mealChangedSince(saved, [items[0], { ...items[1], quantity: 120 }]),
 		).toBe(true);
+	});
+
+	it("compara a troca pelo alimento que estava na dieta", () => {
+		const swapped = recipeSnapshot([
+			items[0],
+			{
+				food: food("batata"),
+				quantity: 50,
+				replaces: { food: food("arroz"), quantity: 100 },
+			},
+		]).ingredients;
+		expect(mealChangedSince(swapped, items)).toBe(false);
 	});
 
 	it("alimento a mais ou a menos mudou", () => {

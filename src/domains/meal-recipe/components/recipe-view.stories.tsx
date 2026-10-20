@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 
 import { SAMPLE_MEALS } from "~/domains/landing/utils/sample-data";
 import { RecipeView } from "~/domains/meal-recipe/components/recipe-view";
+import { applySwaps } from "~/domains/meal-recipe/utils/recipe-swap";
 import { recipeSnapshot } from "~/domains/meal-recipe/utils/saved-recipe";
 
 // Receita mockada (a de verdade vem da IA pela Server Action, fora da story).
@@ -15,7 +16,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'Receita sugerida pela IA com só os alimentos da refeição (beta, menu ⋮ da refeição → "Sugerir receita"). Ingredientes e macros vêm da dieta; da IA saem o preparo e os extras sem caloria (filtrados por `safeExtras`).',
+					'Receita sugerida pela IA com os alimentos da refeição (beta, menu ⋮ da refeição → "Sugerir receita"). Ingredientes e macros vêm da dieta; da IA saem o preparo, os extras sem caloria (filtrados por `safeExtras`) e, se quiser, até 2 trocas equivalentes escolhidas entre as que o servidor calculou (`swapCandidates`).',
 			},
 		},
 	},
@@ -48,6 +49,46 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Receita: Story = {
+	render: (args) => (
+		<div className="max-w-md">
+			<RecipeView {...args} />
+		</div>
+	),
+};
+
+// A banana do café vira mamão (a mesma troca que o app já sugere como opção).
+const mamao = cafe.items[2].options[0];
+
+export const ComTroca: Story = {
+	name: "Com troca equivalente",
+	args: {
+		snapshot: recipeSnapshot(
+			applySwaps(cafe.items, [
+				{
+					itemId: cafe.items[2].id,
+					food: mamao.food,
+					quantity: mamao.quantity,
+				},
+			]),
+		),
+		recipe: {
+			title: "Omelete com torrada e mamão gelado",
+			summary: "Omelete fofinha, torrada crocante e mamão com limão.",
+			minutes: 12,
+			extras: [
+				{ name: "Sal e orégano", amount: "a gosto" },
+				{ name: "Limão", amount: "1/2 unidade" },
+			],
+			steps: [
+				"Bata os 3 ovos com sal e orégano e faça a omelete na frigideira antiaderente.",
+				"Toste o pão na mesma frigideira, sem gordura.",
+				"Corte o mamão em cubos e regue com o limão.",
+				"Sirva a omelete com a torrada e o mamão gelado.",
+			],
+			tip: null,
+			photo: null,
+		},
+	},
 	render: (args) => (
 		<div className="max-w-md">
 			<RecipeView {...args} />

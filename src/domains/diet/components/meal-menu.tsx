@@ -6,6 +6,7 @@ import {
 	Clock,
 	EllipsisVertical,
 	Pencil,
+	Shuffle,
 	Sparkles,
 	Trash2,
 } from "~/shared/components/icons";
@@ -25,6 +26,7 @@ export interface MealMenuActions {
 	onDelete: () => void;
 	/** Recursos em beta: só vêm quando liberados (`BETA_EMAILS`). */
 	onSuggestRecipe?: () => void;
+	onVaryMeal?: () => void;
 	onOpenSavedRecipes?: () => void;
 	/** Receitas salvas desta refeição. */
 	savedRecipes?: number;
@@ -38,6 +40,7 @@ export function MealMenu({
 	onEditTime,
 	onDelete,
 	onSuggestRecipe,
+	onVaryMeal,
 	onOpenSavedRecipes,
 	savedRecipes = 0,
 }: MealMenuActions & { meal: DietMeal }) {
@@ -68,6 +71,12 @@ export function MealMenu({
 					<DropdownMenuItem onClick={onSuggestRecipe}>
 						<Sparkles />
 						Sugerir receita (beta)
+					</DropdownMenuItem>
+				)}
+				{onVaryMeal && meal.items.length > 0 && (
+					<DropdownMenuItem onClick={onVaryMeal}>
+						<Shuffle />
+						Variar refeição (beta)
 					</DropdownMenuItem>
 				)}
 				{onOpenSavedRecipes && savedRecipes > 0 && (

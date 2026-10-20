@@ -6,8 +6,12 @@ import {
 } from "~/domains/ai-usage/utils/ai-usage";
 
 describe("AI_DAILY_LIMITS", () => {
-	it("receitas 20 por dia e importação 10 por dia", () => {
-		expect(AI_DAILY_LIMITS).toEqual({ recipe: 20, "diet-import": 10 });
+	it("receitas e variações 20 por dia, importação 10 por dia", () => {
+		expect(AI_DAILY_LIMITS).toEqual({
+			recipe: 20,
+			"diet-import": 10,
+			"meal-variation": 20,
+		});
 	});
 });
 
@@ -18,6 +22,9 @@ describe("limitReachedMessage", () => {
 		);
 		expect(limitReachedMessage("diet-import")).toBe(
 			"Você já leu 10 dietas hoje. Tente de novo amanhã.",
+		);
+		expect(limitReachedMessage("meal-variation")).toBe(
+			"Você já variou refeições 20 vezes hoje. Amanhã tem mais!",
 		);
 	});
 });

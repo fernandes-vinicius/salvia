@@ -6,6 +6,7 @@ import {
 	normalizeSearchText,
 	parseCsv,
 	sumMacros,
+	tacoMacros,
 	tacoProteinSource,
 } from "~/domains/food/utils/food";
 
@@ -96,5 +97,29 @@ describe("parseCsv", () => {
 			{ id: "1", name: "Arroz, integral, cozido" },
 			{ id: "2", name: "Mel" },
 		]);
+	});
+});
+
+describe("tacoMacros", () => {
+	it("lê os macros da linha da TACO (vazio = 0)", () => {
+		expect(
+			tacoMacros("Aveia, flocos, crua", {
+				protein: "13.9",
+				carbohydrates: "66.6",
+				lipids: "8.5",
+				dietaryFiber: "",
+			}),
+		).toEqual({ protein: 13.9, carbs: 66.6, fat: 8.5, fiber: 0 });
+	});
+
+	it("preenche o leite fluido, que a TACO não mediu", () => {
+		const empty = { protein: "", carbohydrates: "", lipids: "" };
+		expect(tacoMacros("Leite, de vaca, integral", empty)).toEqual({
+			protein: 3.15,
+			carbs: 4.8,
+			fat: 3.25,
+			fiber: 0,
+		});
+		expect(tacoMacros("Leite, de vaca, desnatado, UHT", empty).fat).toBe(0.08);
 	});
 });

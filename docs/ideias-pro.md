@@ -41,6 +41,48 @@ Lista viva das ideias de recursos pagos. O grátis continua com tudo o que exist
 
 **Cuidados:** os ingredientes mostrados vêm da própria dieta, não do texto da IA; filtro de extras calóricos no servidor; linguagem simples, sem falar de saúde.
 
+**Trocas equivalentes (20/10/2026, beta):** a receita pode trocar até 2 alimentos por equivalentes com os macros quase iguais (200 g de mamão → 90 g de banana num mingau), quando isso deixa o prato mais gostoso. A IA não inventa: o servidor calcula as opções (até 6 por alimento, só alimentos comuns da TACO do mesmo grupo, ±10% kcal e ±3 g/15% por macro) e ela só escolhe pelo código. A tela mostra "Troca: no lugar de 200 g de mamão" e "Quase os mesmos macros"; a dieta não muda.
+
 **Custo (estimado em 19/10/2026):** ~1,5 mil tokens por receita (≈ 1 mil de entrada, 400–500 de saída) num modelo barato (Gemini Flash-Lite / Haiku) ≈ R$ 0,002 por receita. Mil receitas ≈ R$ 2; quem gera 10 por dia (300/mês) custa ≈ R$ 0,60/mês. O risco não é o uso normal, é abuso (script gerando sem parar): pôr limite diário por pessoa (ex.: 20/dia) e contar o uso no banco (também serve pra medir custo real do Pro).
 
 **Foto da receita (Unsplash, feito em 19/10/2026 no beta; limite de 20 receitas/dia também):** a IA devolve também um termo de busca em inglês ("banana pancake"); o servidor busca 1 foto na API do Unsplash (grátis; 50 req/h em demo, 5 mil/h depois de aprovado) e mostra acima do título, direto do link do Unsplash (sem guardar imagem; na receita salva fica só a URL e o autor). Regras do Unsplash: crédito "Foto de X no Unsplash" com links e avisar o download quando a foto for usada. Marcar como "foto ilustrativa" (a foto pode ter coisas que não estão na refeição). Gerar a imagem com IA sairia ~R$ 0,15–0,25 cada (50–100× o texto): não compensa.
+
+---
+
+## 3. Dieta gerada com IA (montar a dieta inteira a partir do perfil)
+
+**Registrada em:** 20/10/2026 · **Status:** ideia, **não fazer antes dos pré-requisitos abaixo**.
+
+**Problema:** quem não tem nutricionista começa do zero e trava na montagem da dieta. As dietas prontas (modelos fixos recalculados pela Meta) ajudam, mas não se adaptam ao gosto da pessoa.
+
+**Como funcionaria:** a partir da TMB/Meta e de preferências (alimentos que gosta/não come, nº de refeições, orçamento), a IA sugere uma dieta que bate os macros; a pessoa revisa e edita antes de salvar (mesmo fluxo de revisão da importação).
+
+**Risco legal (análise de 20/10/2026, não é parecer jurídico):**
+- Lei 8.234/1991, art. 3º: prescrever/planejar dieta **para enfermos** é privativo de nutricionista. Dieta de pessoa saudável pra treino/peso não está escrita como privativa, mas o CFN interpreta de forma ampla e já se posicionou contra dietas geradas por app/IA sem nutricionista (pode denunciar, acionar o MP, gerar barulho).
+- CDC: se alguém passar mal seguindo a dieta gerada, o app responde como fornecedor do serviço, com ou sem aviso.
+- LGPD: peso, medidas e dieta são dado sensível de saúde (já tratado na Política de privacidade).
+- Hoje o Sálvia é baixo risco (calculadora, dieta montada pela pessoa, importar a do nutri, receita com os mesmos alimentos, modelos de exemplo). Gerar a dieta inteira do zero é o que mais parece prescrição individual.
+
+**Pré-requisitos antes de lançar:**
+1. Posicionar como **sugestão editável**, nunca "sua dieta"; revisão obrigatória antes de salvar.
+2. **Bloquear casos clínicos**: perguntar antes e não gerar pra gestante, lactante, menor de idade, diabetes, doença renal, transtorno alimentar etc. (tira justamente a parte privativa do nutricionista).
+3. **Travas no resultado**: kcal mínima segura e macros dentro dos limites que o app já usa.
+4. Termos e aviso claros ("não substitui nutricionista", recomendando procurar um).
+5. Idealmente, **nutricionista parceiro** como responsável técnico validando regras e modelos (também vira argumento de venda do Pro).
+6. Conversar com advogado antes de abrir pra outras pessoas.
+
+---
+
+## 4. Variar refeição com IA (mesmos macros, outros alimentos)
+
+**Registrada em:** 20/10/2026 · **Status:** em beta fechado desde 20/10/2026 (menu ⋮ da refeição → "Variar refeição (beta)").
+
+**Problema:** "hoje quero mudar um pouco, mas mantendo os macros" (ex.: ceia de whey + leite em pó + aveia). Montar a troca à mão, alimento por alimento, cansa.
+
+**Como funciona:** o servidor calcula, pra cada alimento, as trocas equivalentes (mesma base das trocas da receita: quantidade pelo macro principal, ±10% kcal e ±3 g/15% por macro, porção até 500 g, alimentos comuns da TACO + os cadastrados pela pessoa). A IA só escolhe a combinação que faz sentido como refeição naquele horário (aveia → pão de aveia na ceia; arroz → batata, frango → merluza, feijão → lentilha no almoço; pão → cuscuz e banana → mamão no café). A pessoa vê antes → depois e os macros atual × nova e decide: "Usar esta" troca na dieta (com Desfazer) ou "Outra versão".
+
+**Custo:** igual à receita (~R$ 0,002 por versão, só texto); limite de 20 por dia.
+
+**Risco legal:** baixo, é o "Substituir" que o app já faz, dentro da dieta da própria pessoa e com confirmação.
+
+**Limitações conhecidas:** alimento muito concentrado sem equivalente comum (whey) costuma ficar igual ou virar carne/peixe (em teste de 20/10, às vezes a IA ainda chama a ceia de "jantar leve"). Leite integral/desnatado UHT, que vinham sem valores na TACO, foram preenchidos com dados do USDA (`tacoMacros`) em 20/10/2026.

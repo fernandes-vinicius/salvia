@@ -16,7 +16,10 @@ interface RecipeViewProps {
 	snapshot: RecipeSnapshot;
 	/** Aviso acima dos ingredientes (ex.: "sua refeição mudou"). */
 	notice?: ReactNode;
-	/** Título do quadro de macros (na página pública: "Por porção"). */
+	/**
+	 * Título do quadro de macros (na página pública: "Por porção"). Padrão:
+	 * "Mesmos macros da refeição", ou "Quase os mesmos" com troca.
+	 */
 	macrosLabel?: string;
 	/** Nível do título: h3 dentro de painéis, h1 na página pública. */
 	titleAs?: "h1" | "h3";
@@ -28,10 +31,11 @@ export function RecipeView({
 	recipe,
 	snapshot,
 	notice,
-	macrosLabel = "Mesmos macros da refeição",
+	macrosLabel,
 	titleAs: Title = "h3",
 }: RecipeViewProps) {
 	const { ingredients, macros } = snapshot;
+	const swapped = ingredients.some((ingredient) => ingredient.replaces);
 
 	return (
 		<article className="flex flex-col gap-5">
@@ -85,7 +89,12 @@ export function RecipeView({
 			</header>
 
 			<div className="flex flex-col gap-1 rounded-2xl bg-muted px-4 py-3">
-				<p className="text-muted-foreground text-xs">{macrosLabel}</p>
+				<p className="text-muted-foreground text-xs">
+					{macrosLabel ??
+						(swapped
+							? "Quase os mesmos macros da refeição"
+							: "Mesmos macros da refeição")}
+				</p>
 				<p className="font-heading font-semibold tabular-nums">
 					{formatNumber(kcalFor(macros))} kcal
 				</p>
@@ -98,14 +107,22 @@ export function RecipeView({
 				<h4 className="font-heading font-semibold">Ingredientes</h4>
 				<ul className="flex flex-col gap-1.5 text-sm">
 					{ingredients.map((ingredient) => {
-						const { name, unit, quantity } = ingredient;
+						const { name, unit, quantity, replaces } = ingredient;
 						const hint = householdHint({ name, unit }, quantity);
 						return (
 							<li
 								key={`${ingredient.foodId}-${quantity}`}
 								className="flex justify-between gap-3"
 							>
-								<span className="min-w-0">{name}</span>
+								<span className="min-w-0">
+									{name}
+									{replaces && (
+										<span className="block text-muted-foreground text-xs">
+											Troca: no lugar de {formatNumber(replaces.quantity, 1)}{" "}
+											{UNIT_LABELS[replaces.unit].short} de {replaces.name}
+										</span>
+									)}
+								</span>
 								<span className="shrink-0 text-right tabular-nums">
 									{formatNumber(quantity, 1)} {UNIT_LABELS[unit].short}
 									{hint && (

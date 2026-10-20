@@ -337,6 +337,40 @@ export async function replaceItemFood(
 	return true;
 }
 
+/**
+ * Troca o alimento de vários itens da mesma refeição de uma vez (variar
+ * refeição e o "Desfazer" dela). Falha se algum item não for da refeição.
+ */
+export async function replaceMealFoods(
+	userId: string,
+	mealId: string,
+	changes: { itemId: string; foodId: string; quantity: number }[],
+) {
+	const ids = changes.map((change) => change.itemId);
+	if (ids.length === 0) return false;
+	const owned = await db
+		.select({ id: dietItem.id })
+		.from(dietItem)
+		.innerJoin(dietMeal, eq(dietMeal.id, dietItem.mealId))
+		.where(
+			and(
+				inArray(dietItem.id, ids),
+				eq(dietMeal.id, mealId),
+				eq(dietMeal.userId, userId),
+			),
+		);
+	if (owned.length !== new Set(ids).size) return false;
+	await db.transaction(async (tx) => {
+		for (const { itemId, foodId, quantity } of changes) {
+			await tx
+				.update(dietItem)
+				.set({ foodId, quantity })
+				.where(eq(dietItem.id, itemId));
+		}
+	});
+	return true;
+}
+
 export async function deleteItem(userId: string, itemId: string) {
 	if (!(await ownedItem(userId, itemId))) return false;
 	await db.delete(dietItem).where(eq(dietItem.id, itemId));

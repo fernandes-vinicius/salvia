@@ -9,21 +9,27 @@ import { isBetaUser } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { getDiet } from "~/domains/diet/services/diet-service";
 import {
-	type MealRecipe,
+	type SuggestedRecipe,
 	suggestRecipeInputSchema,
 } from "~/domains/meal-recipe/schemas/meal-recipe-schema";
 import { suggestMealRecipe } from "~/domains/meal-recipe/services/meal-recipe-service";
 import { findRecipePhoto } from "~/domains/meal-recipe/services/recipe-photo-service";
+import { swapOptionsFor } from "~/domains/meal-recipe/services/recipe-swap-service";
 import { safeExtras } from "~/domains/meal-recipe/utils/meal-recipe";
+import {
+	applySwaps,
+	isLightMeal,
+	swapsFromCodes,
+} from "~/domains/meal-recipe/utils/recipe-swap";
 
 export type SuggestRecipeActionResult =
-	| { ok: true; data: MealRecipe }
+	| { ok: true; data: SuggestedRecipe }
 	| { ok: false; error: string };
 
 /**
  * Receita com os alimentos da refeição (só os principais, sem as opções
  * "ou"). Os ingredientes mostrados vêm da dieta; da IA só saem os extras
- * (filtrados) e o preparo.
+ * (filtrados), o preparo e quais das trocas calculadas aqui ela usou.
  */
 export async function suggestRecipeAction(
 	input: unknown,
@@ -48,17 +54,25 @@ export async function suggestRecipeAction(
 	if (!(await consumeAiQuota(user.id, "recipe"))) {
 		return { ok: false, error: limitReachedMessage("recipe") };
 	}
-	const result = await suggestMealRecipe(meal.items, parsed.data.avoid);
+	const items = await swapOptionsFor(user.id, meal.items, {
+		light: isLightMeal(meal),
+	});
+	const result = await suggestMealRecipe(meal, items, parsed.data.avoid);
 	if (!result.ok) {
 		await refundAiQuota(user.id, "recipe");
 		return result;
 	}
-	const { imageQuery, ...recipe } = result.recipe;
+	const { imageQuery, swaps: codes, ...recipe } = result.recipe;
+	const swaps = swapsFromCodes(items, codes);
 	return {
 		ok: true,
 		data: {
 			...recipe,
-			extras: safeExtras(recipe.extras, meal.items),
+			extras: safeExtras(recipe.extras, [
+				...meal.items,
+				...applySwaps(meal.items, swaps),
+			]),
+			swaps,
 			photo: await findRecipePhoto(imageQuery),
 		},
 	};

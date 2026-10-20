@@ -65,6 +65,14 @@ import {
 import { type Food, MacroLine, macrosFor, UNIT_LABELS } from "~/domains/food";
 import type { GoalTargets } from "~/domains/goal/types/goal-types";
 import { MealRecipeSheet } from "~/domains/meal-recipe";
+import {
+	type MealVariation,
+	MealVariationSheet,
+} from "~/domains/meal-variation";
+import {
+	applyVariationAction,
+	restoreVariationAction,
+} from "~/domains/meal-variation/actions/meal-variation-actions";
 import { useCelebrate } from "~/providers/celebration-provider";
 import {
 	EllipsisVertical,
@@ -205,6 +213,7 @@ export function DietView({
 	const [confirmingReset, setConfirmingReset] = useState(false);
 	const [sharing, setSharing] = useState(false);
 	const [recipeMealId, setRecipeMealId] = useState<string | null>(null);
+	const [variationMealId, setVariationMealId] = useState<string | null>(null);
 	const [savedRecipes, setSavedRecipes] = useState(initialSavedRecipes);
 
 	// Menu ⋮ da refeição: o mesmo nos modos Editar e Visualizar.
@@ -214,6 +223,7 @@ export function DietView({
 		onEditTime: () => setEditingMeal({ id: meal.id, focus: "time" }),
 		onDelete: () => setDeletingMealId(meal.id),
 		onSuggestRecipe: beta ? () => setRecipeMealId(meal.id) : undefined,
+		onVaryMeal: beta ? () => setVariationMealId(meal.id) : undefined,
 		onOpenSavedRecipes: beta
 			? () => router.push(`/receitas?refeicao=${meal.id}`)
 			: undefined,
@@ -367,6 +377,60 @@ export function DietView({
 					});
 					if (undo.ok) setItem(undo.data);
 					else handleError(undo);
+				},
+			},
+		});
+		return true;
+	}
+
+	/**
+	 * "Usar esta" do Variar refeição: troca os alimentos (o servidor confere
+	 * a equivalência de novo), com "Desfazer" que volta todos de uma vez.
+	 */
+	async function applyVariation(mealId: string, variation: MealVariation) {
+		const meal = findMeal(mealId);
+		if (!meal) return false;
+		const previous = meal.items.filter((item) =>
+			variation.swaps.some((swap) => swap.itemId === item.id),
+		);
+		const result = await applyVariationAction({
+			mealId,
+			swaps: variation.swaps.map((swap) => ({
+				itemId: swap.itemId,
+				foodId: swap.food.id,
+			})),
+		});
+		if (!result.ok) {
+			toast.error(result.error);
+			return false;
+		}
+		for (const item of result.data.items) setItem(item);
+		setVariationMealId(null);
+		analytics.track("refeicao_variada_usada", {
+			trocas: result.data.items.length,
+		});
+
+		toast(`${meal.name}: refeição trocada.`, {
+			duration: 8000,
+			action: {
+				label: "Desfazer",
+				onClick: async () => {
+					const undo = await restoreVariationAction({
+						mealId,
+						items: previous.map((item) => ({
+							itemId: item.id,
+							foodId: item.food.id,
+							quantity: item.quantity,
+						})),
+					});
+					if (!undo.ok) {
+						toast.error(undo.error);
+						return;
+					}
+					for (const { id, food, quantity } of previous) {
+						setItem({ id, food, quantity });
+					}
+					analytics.track("refeicao_variada_desfeita");
 				},
 			},
 		});
@@ -821,6 +885,12 @@ export function DietView({
 						[mealId]: (counts[mealId] ?? 0) + 1,
 					}))
 				}
+			/>
+
+			<MealVariationSheet
+				meal={meals.find((meal) => meal.id === variationMealId) ?? null}
+				onOpenChange={(open) => !open && setVariationMealId(null)}
+				onUse={applyVariation}
 			/>
 
 			<AddFoodSheet
