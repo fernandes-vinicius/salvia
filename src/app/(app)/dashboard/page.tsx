@@ -1,26 +1,33 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
+import { isBetaUser } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { suggestedWater } from "~/domains/calculators/utils/water";
 import { addDays, CheckinCard, type CheckinMeal } from "~/domains/checkin";
 import { listCheckins } from "~/domains/checkin/services/checkin-service";
+import { periodAdherence } from "~/domains/checkin/utils/checkin";
 import { summarizeDiet } from "~/domains/diet";
 import { getDiet } from "~/domains/diet/services/diet-service";
+import { ironTarget } from "~/domains/diet/utils/micronutrients";
 import { DietTemplates, previewTemplates } from "~/domains/diet-templates";
 import { getTemplateFoods } from "~/domains/diet-templates/services/diet-template-service";
 import { listCustomFoods } from "~/domains/food/services/food-service";
 import { calculateTargets } from "~/domains/goal";
 import { CalibrationCard } from "~/domains/goal/components/calibration-card";
+import { DietReviewCard } from "~/domains/goal/components/diet-review-card";
 import { GOAL_WARNING_MESSAGES } from "~/domains/goal/components/goal-warnings";
 import {
+	findDietCycle,
 	findGoalByUserId,
 	findGoalCalibration,
 } from "~/domains/goal/services/goal-service";
 import {
 	analyzeCalibration,
+	calibrationWindowStart,
 	toWeighIns,
 } from "~/domains/goal/utils/calibration";
+import { reviewStatus, weightSince } from "~/domains/goal/utils/review";
 import { AttentionList } from "~/domains/home/components/attention-list";
 import { GoalCard } from "~/domains/home/components/goal-card";
 import { MeasurementsCard } from "~/domains/home/components/measurements-card";
@@ -34,6 +41,7 @@ import { WaterCard } from "~/domains/home/components/water-card";
 import {
 	type AttentionItem,
 	emptyMealItems,
+	micronutrientItems,
 	suspiciousFoods,
 } from "~/domains/home/utils/home";
 import { listMeasurements } from "~/domains/measurements/services/measurement-service";
@@ -42,6 +50,9 @@ import { getLatestNews } from "~/domains/news/services/news-service";
 import { calculateBmr, calculateTdee } from "~/domains/profile";
 import { findProfileByUserId } from "~/domains/profile/services/profile-service";
 import { getSettingsByUserId } from "~/domains/settings/services/settings-service";
+import { WeeklySummaryCard } from "~/domains/weekly-summary/components/weekly-summary-card";
+import { findWeeklySummary } from "~/domains/weekly-summary/services/weekly-summary-service";
+import { weekStartOf } from "~/domains/weekly-summary/utils/weekly-summary";
 import { CelebrationProvider } from "~/providers/celebration-provider";
 import { Skeleton } from "~/shared/components/ui/skeleton";
 import { localDateString } from "~/shared/lib/dates";
@@ -68,6 +79,7 @@ async function LatestNews() {
 
 async function HomeContent() {
 	const user = await getCurrentUser();
+	const beta = isBetaUser(user);
 	const today = localDateString();
 	const [
 		profile,
@@ -79,6 +91,8 @@ async function HomeContent() {
 		templateFoods,
 		calibration,
 		checkins,
+		dietCycle,
+		weekly,
 	] = await Promise.all([
 		findProfileByUserId(user.id),
 		findGoalByUserId(user.id),
@@ -91,20 +105,37 @@ async function HomeContent() {
 		findGoalCalibration(user.id),
 		// Dois meses bastam pra sequência e semana do check-in.
 		listCheckins(user.id, addDays(today, -60)),
+		findDietCycle(user.id),
+		beta ? findWeeklySummary(user.id, weekStartOf(today)) : null,
 	]);
 
 	// Gasto da fórmula + o ajuste pelo peso real já aplicado.
 	const tdee = profile
 		? calculateTdee(profile, settings.bmrFormula) + calibration.kcal
 		: null;
+	const mealsWithFoods = meals.filter((meal) => meal.items.length > 0).length;
 	const calibrationAnalysis = goal
 		? analyzeCalibration({
 				weighIns: toWeighIns(measurements),
 				today,
 				since: calibration.since,
 				calorieAdjustment: goal.calorieAdjustment,
+				adherence: periodAdherence(
+					checkins,
+					mealsWithFoods,
+					calibrationWindowStart(today, calibration.since),
+					today,
+				),
 			})
 		: null;
+	// Revisões de 15 e 30 dias: no marco, o card da revisão substitui o do
+	// ajuste pelo peso (mesma sugestão, com o balanço do período).
+	const review =
+		goal && dietCycle ? reviewStatus({ ...dietCycle, today }) : null;
+	const reviewStart =
+		dietCycle?.startedOn && dietCycle.startedOn > addDays(today, -60)
+			? dietCycle.startedOn
+			: addDays(today, -60);
 	const targets =
 		profile && goal && tdee !== null
 			? calculateTargets(goal, {
@@ -148,6 +179,7 @@ async function HomeContent() {
 		})),
 		...suspiciousFoods(customFoods),
 		...emptyMealItems(meals),
+		...micronutrientItems(meals, ironTarget(profile)),
 	];
 
 	const hasFoods = meals.some((meal) => meal.items.length > 0);
@@ -196,6 +228,8 @@ async function HomeContent() {
 			{/* Sem dieta ainda: as prontas são o atalho mais útil, vêm antes. */}
 			{!hasFoods && templates}
 
+			{beta && <WeeklySummaryCard initialSummary={weekly} />}
+
 			{targets && (
 				<PlanOverview
 					summary={summary}
@@ -203,11 +237,27 @@ async function HomeContent() {
 					proteinCounting={settings.proteinCounting}
 				/>
 			)}
-			{calibrationAnalysis && (
-				<CalibrationCard
+			{calibrationAnalysis && review?.due ? (
+				<DietReviewCard
+					status={review}
 					analysis={calibrationAnalysis}
-					calibration={calibration}
+					weight={
+						dietCycle?.startedOn
+							? weightSince(toWeighIns(measurements), dietCycle.startedOn)
+							: null
+					}
+					adherence={
+						periodAdherence(checkins, mealsWithFoods, reviewStart, today)
+							?.percent ?? null
+					}
 				/>
+			) : (
+				calibrationAnalysis && (
+					<CalibrationCard
+						analysis={calibrationAnalysis}
+						calibration={calibration}
+					/>
+				)
 			)}
 
 			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-start">
@@ -215,6 +265,14 @@ async function HomeContent() {
 					<GoalCard goal={goal} targets={targets} tdee={tdee} />
 				)}
 				{meals.length > 0 && <NextMealCard meals={meals} />}
+				{calibrationAnalysis && review && !review.due && (
+					<DietReviewCard
+						status={review}
+						analysis={calibrationAnalysis}
+						weight={null}
+						adherence={null}
+					/>
+				)}
 				{profile && <WaterCard water={suggestedWater(profile)} />}
 				<div className="sm:col-span-2">
 					<MeasurementsCard measurements={measurements} />

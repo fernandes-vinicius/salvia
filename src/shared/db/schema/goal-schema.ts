@@ -1,4 +1,5 @@
 import {
+	date,
 	doublePrecision,
 	integer,
 	pgEnum,
@@ -31,6 +32,13 @@ export const goal = pgTable("goal", {
 	calibrationKcal: integer("calibration_kcal").notNull().default(0),
 	/** Quando a correção foi aplicada (a próxima análise começa daqui). */
 	calibratedAt: timestamp("calibrated_at"),
+	/**
+	 * Começo da dieta atual ("YYYY-MM-DD", fuso do app), base das revisões
+	 * de 15 e 30 dias. Recomeça quando muda o objetivo/ritmo.
+	 */
+	startedOn: date("started_on", { mode: "string" }),
+	/** Último marco de revisão concluído (15, 30, 60…); 0 = nenhum. */
+	reviewedDay: integer("reviewed_day").notNull().default(0),
 	updatedAt: timestamp("updated_at")
 		.defaultNow()
 		.$onUpdate(() => new Date())

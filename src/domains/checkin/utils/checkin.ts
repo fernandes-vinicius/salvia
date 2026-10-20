@@ -113,6 +113,31 @@ export function weekSummary(
 	};
 }
 
+/**
+ * Adesão entre `from` e `to` (inclusive): refeições seguidas ÷ refeições do
+ * plano, só nos dias com algum check-in. Null sem nenhum check-in.
+ */
+export function periodAdherence(
+	checkins: Checkin[],
+	mealCount: number,
+	from: string,
+	to: string,
+): { percent: number; days: number } | null {
+	if (mealCount <= 0) return null;
+	const days = new Set(
+		checkins.filter((c) => c.day >= from && c.day <= to).map((c) => c.day),
+	);
+	if (days.size === 0) return null;
+	let followed = 0;
+	for (const day of days) {
+		followed += Math.min(dayCounts(checkins, day).followed, mealCount);
+	}
+	return {
+		percent: Math.round((followed / (days.size * mealCount)) * 100),
+		days: days.size,
+	};
+}
+
 // --- Comemorações -----------------------------------------------------------
 
 /** Sequências que ganham comemoração especial. */

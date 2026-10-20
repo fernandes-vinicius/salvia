@@ -1,5 +1,10 @@
 import type { DietMeal, DietSummary } from "~/domains/diet/types/diet-types";
 import { mealMacros, summaryProtein } from "~/domains/diet/utils/diet";
+import {
+	dayMicronutrients,
+	MICRONUTRIENT_MESSAGES,
+	micronutrientAlerts,
+} from "~/domains/diet/utils/micronutrients";
 import type { CustomFoodSummary } from "~/domains/food/types/food-types";
 import { kcalFor } from "~/domains/food/utils/food";
 import type { GoalTargets } from "~/domains/goal/types/goal-types";
@@ -161,6 +166,23 @@ export function emptyMealItems(meals: DietMeal[]): AttentionItem[] {
 			href: "/dieta" as const,
 			action: "Abrir dieta",
 		}));
+}
+
+/** Sódio acima do limite e ferro abaixo do recomendado, pela dieta montada. */
+export function micronutrientItems(
+	meals: DietMeal[],
+	ironGoal: number | null,
+): AttentionItem[] {
+	const micros = dayMicronutrients(meals);
+	return micronutrientAlerts({ micros, ironGoal }).map((alert) => ({
+		id: `micro-${alert}`,
+		message:
+			alert === "sodium-high"
+				? MICRONUTRIENT_MESSAGES["sodium-high"](micros.sodium)
+				: MICRONUTRIENT_MESSAGES["iron-low"](micros.iron, ironGoal ?? 0),
+		href: "/dieta" as const,
+		action: "Abrir dieta",
+	}));
 }
 
 /** kcal da refeição (atalho pra exibição). */

@@ -55,7 +55,12 @@ export function MacroCalculator() {
 					<ProfileFields profile={profile} onChange={updateProfile} />
 				</Step>
 				<Step number={2} title="Sua meta">
-					<GoalFields goal={goal} targets={targets} onChange={updateGoal} />
+					<GoalFields
+						goal={goal}
+						targets={targets}
+						onChange={updateGoal}
+						profile={profile}
+					/>
 				</Step>
 			</div>
 		</div>

@@ -6,11 +6,13 @@ import {
 } from "~/domains/ai-usage/utils/ai-usage";
 
 describe("AI_DAILY_LIMITS", () => {
-	it("receitas e variações 20 por dia, importação 10 por dia", () => {
+	it("receitas, variações e completar 20 por dia, importação 10, resumo 3", () => {
 		expect(AI_DAILY_LIMITS).toEqual({
 			recipe: 20,
 			"diet-import": 10,
 			"meal-variation": 20,
+			"meal-fill": 20,
+			"weekly-summary": 3,
 		});
 	});
 });

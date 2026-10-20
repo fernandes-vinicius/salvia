@@ -49,6 +49,8 @@ Revisão de out/2026: o cálculo atual (Mifflin-St Jeor + método fatorial + MET
 
 Origem: ao definir a gordura na Meta (70 kg, querendo perder peso sem perder muito músculo), surgiu a dúvida "1 g/kg ou 0,8 g/kg?". Dúvidas assim, no momento da escolha, viram insights.
 
+**Status:** primeira versão feita em 20/10/2026 (`WhyItMatters` na TMB e na Meta, faixas por `goal/utils/insights.ts`). Próximo passo: o "Pergunte" com IA.
+
 - Cartões curtos ("Por que isso importa?") ao lado de cada escolha da Meta e da TMB, escritos pra leigos, com a recomendação aplicada aos dados da pessoa (peso, objetivo, treino).
 - Exemplo (gordura em déficit): faixa usual 0,6–1,0 g/kg, sem descer de ~0,5 g/kg nem de ~20% das kcal (saúde hormonal). Quem preserva o músculo é a proteína (1,6–2,2 g/kg) + musculação, não a gordura; baixar a gordura libera kcal pro carboidrato, o que ajuda o treino. Pra 70 kg em déficit e treinando, 0,8 g/kg (~56 g) costuma ser um bom meio-termo; 1,0 g/kg se a dieta ficar mais saciante assim.
 - Gatilhos: valor escolhido fora da faixa recomendada, combinação estranha (ex.: carbo baixo + muito treino, ver item acima), mudança de objetivo.
@@ -93,14 +95,14 @@ Planejado em out/2026. Ordem pensada pra começar pelo que não usa IA e ir aume
 - [x] "Outra receita" (não repete), salvar em "Minhas receitas" e compartilhar por link (`/r/:token`, WhatsApp/redes).
 - [x] Opções simples na hora de pedir: chips Rápida · Marmita · Air fryer (20/10/2026).
 - [x] **Variar refeição (beta)**: outra versão da refeição inteira com trocas equivalentes que combinam entre si, com "Usar esta" e "Desfazer" (`meal-variation`, `ideias-pro.md` nº 4).
-- [ ] Depois: "Montar refeição com IA" a partir dos macros que faltam (ex.: "faltam 40 g de proteína e 60 g de carbo"), sugerindo alimentos da TACO com quantidades no passo do editor, aplicáveis com "Desfazer".
+- [x] "Completar com IA" (beta, 20/10/2026, `meal-fill`): a IA escolhe os alimentos e o servidor calcula as quantidades pelo que falta da meta. Ideia original: "Montar refeição com IA" a partir dos macros que faltam (ex.: "faltam 40 g de proteína e 60 g de carbo"), sugerindo alimentos da TACO com quantidades no passo do editor, aplicáveis com "Desfazer".
 - [x] Extra: importar a dieta do nutricionista (PDF/foto) com IA, em beta (`diet-import`, `ideias-pro.md` nº 1).
 
 ### 3. Insights de evolução e dicas (IA)
 
-- [ ] Card no Início com um resumo semanal: tendência do peso e da cintura (Medidas), se está no ritmo da meta, calibração sugerida e um próximo passo. As contas continuam nas funções puras (`analyzeCalibration`, `home.ts`); a IA só escreve o texto a partir delas.
+- [x] Resumo da semana (beta, 20/10/2026, `weekly-summary`): um por semana, sob pedido, guardado no banco. Ideia original: card no Início com um resumo semanal: tendência do peso e da cintura (Medidas), se está no ritmo da meta, calibração sugerida e um próximo passo. As contas continuam nas funções puras (`analyzeCalibration`, `home.ts`); a IA só escreve o texto a partir delas.
 - [ ] Dicas contextuais: água (ligada à calculadora), proteína distribuída nas refeições (a coluna P já mostra), sono e constância nas pesagens, fibras/vegetais.
-- [ ] Gerar no máximo 1×/semana por usuário (cache no banco) pra controlar custo; "Ver de novo" não chama a IA de novo.
+- [x] Gerar no máximo 1×/semana por usuário (cache no banco) pra controlar custo; "Ver de novo" não chama a IA de novo.
 - [ ] Evolui pro "Pergunte" com IA dos Insights contextuais (seção acima), usando perfil, meta e dieta como contexto.
 
 ### 4. Mais calculadoras (sem IA)
@@ -114,15 +116,15 @@ Planejado em out/2026. Ordem pensada pra começar pelo que não usa IA e ir aume
 Para quem treina e conta macro sem nutricionista; o que falta é motivo pra voltar todo dia.
 
 - [x] Enviar sugestão (menu do perfil) e compartilhar a dieta por link (`/d/:token`): feitos em out/2026.
-- [x] Check-in do dia ("segui a dieta?": ✓ comi, ↔ comi a opção, ✗ furei), com sequência e adesão da semana: feito em out/2026 (card no Início). Próximos passos: levar a adesão pro ajuste pelo peso ("seu peso não caiu, mas você seguiu só 60% das refeições"), lembrete por notificação, check-in também na aba Dieta.
-- [ ] Início da dieta + revisões de 15 e 30 dias ("Dia 18 · próxima revisão em 12 dias"), com o veredito e o ajuste em gramas de carbo. Usa a adesão do check-in no período ("o peso não caiu, mas você seguiu 60% das refeições").
+- [x] Check-in do dia ("segui a dieta?": ✓ comi, ↔ comi a opção, ✗ furei), com sequência e adesão da semana: feito em out/2026 (card no Início). Adesão no ajuste pelo peso: feito em 20/10/2026 (abaixo de 80% não sugere mudar a meta). Próximos passos: lembrete por notificação, check-in também na aba Dieta.
+- [x] Início da dieta + revisões de 15 e 30 dias (20/10/2026, `DietReviewCard`): ("Dia 18 · próxima revisão em 12 dias"), com o veredito e o ajuste em gramas de carbo. Usa a adesão do check-in no período ("o peso não caiu, mas você seguiu 60% das refeições").
 - [ ] Cadastrar alimento pelo código de barras (Open Food Facts); versão Pro: foto do rótulo lida pela IA.
 - [ ] Dia de treino × dia de descanso (duas versões da dieta): bom recurso Pro sem IA.
 - [ ] Fotos de evolução (frente/lado/costas, comparação lado a lado): Pro, depois do VPS (armazenamento e LGPD).
 - [x] Comemorações animadas ao cumprir metas (check-in, dia completo, marcos de sequência, pesagem, dieta na meta, fibra), com interruptor em Configurações: feito em out/2026.
 - [x] Porções caseiras (colher, concha, fatia): feito em out/2026 (`household-measures.ts`); próximo passo: medidas nos alimentos próprios (campo no cadastro) e ampliar a lista.
-- [x] Custo da dieta (preço de referência + preço do seu mercado): feito em out/2026 (lista de compras e Resumo da Dieta). Próximos passos: revisar os preços de referência todo mês, custo por grama de proteína nas trocas ("trocar por ovo economiza R$ 4/dia"), "dieta mais barata que bate as metas" no Pro.
-- [ ] Menores: lembrete de pesagem e de check-in (push do PWA), alertas de sódio e ferro (a TACO já tem).
+- [x] Custo da dieta (preço de referência + preço do seu mercado): feito em out/2026 (lista de compras e Resumo da Dieta). Custo nas trocas (Substituir, Opções e Variar refeição): feito em 20/10/2026. Próximos passos: revisar os preços de referência todo mês, "dieta mais barata que bate as metas" no Pro.
+- [ ] Menores: lembrete de pesagem e de check-in (push do PWA). Alertas de sódio e ferro: feitos em 20/10/2026.
 - [x] Manchetes do blog Hipertrofia.org no Início (card "Para ler", só título/resumo/link pelos termos de uso deles, cliques no PostHog): feito em 20/10/2026. Próximo passo: proposta de parceria (imagens, artigos ao lado de cada recurso, link pro app nos artigos).
 - [ ] Link da dieta compartilhada: interruptor "Mostrar meu nome" (desligado por padrão; "Montada por Vinicius Fernandes" ou só o primeiro nome), com linha na Política de privacidade.
 - Depois: IA (Sálvia Pro, seção "IA no app") e infra + cobrança ([`plano-infra-e-planos.md`](plano-infra-e-planos.md)), que é o pré-requisito da IA.
@@ -133,9 +135,9 @@ Feito (out/2026): grade de refeições, TACO + alimentos próprios, resumo estil
 
 - ~~Reordenar as próprias refeições arrastando~~: feito (20/10/2026) no painel "Reordenar refeições" do menu ⋮ (alça + setas).
 - ~~Substituições ("ou 100 g de cuscuz" da planilha)~~: feito (out/2026) como opções do item. Próximos passos possíveis: opções nas dietas prontas, lista de compras somando as opções, sugerir opções automaticamente (mesmo grupo de alimento).
-- Celular: resumo e meta ocupam a primeira tela; avaliar versão compacta/recolhível pra grade aparecer antes (desktop já resolvido com coluna lateral).
+- ~~Celular: resumo e meta ocupam a primeira tela~~: feito (20/10/2026), faixa compacta com "Ver resumo completo".
 - ~~Porções caseiras na TACO (1 fatia, 1 colher) além de gramas~~: feito (out/2026), `household-measures.ts`.
-- Dados da TACO: leite integral e desnatado UHT vinham sem valores (0 kcal) e foram preenchidos com USDA em 20/10/2026 (`tacoMacros`); falta "Iogurte, sabor abacaxi".
+- Dados da TACO: leite integral e desnatado UHT vinham sem valores (0 kcal) e foram preenchidos com USDA em 20/10/2026 (`tacoMacros`); "Iogurte, sabor abacaxi" usa o de morango da TACO (20/10/2026).
 
 ## Posicionamento (decidido em 19/10/2026)
 
@@ -196,4 +198,4 @@ O app resolve um evento único (montar a dieta). Assinatura precisa de valor rec
 
 - Termos e privacidade foram escritos como modelo: revisar com advogado antes de cobrar.
 - Confirmar com nutricionista/advogado o enquadramento das dietas prontas (hoje: modelos de exemplo recalculados pelas metas que a pessoa definiu, sem prescrição).
-- Exportação de dados (portabilidade) hoje é por e-mail; dá pra virar botão "Baixar meus dados" (JSON) em Configurações.
+- ~~Exportação de dados (portabilidade) por e-mail~~: botão "Baixar meus dados" (JSON) em Configurações, feito em 20/10/2026.

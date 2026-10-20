@@ -19,6 +19,11 @@ export type AnalyticsEvent =
 	| "refeicao_variada_gerada"
 	| "refeicao_variada_usada"
 	| "refeicao_variada_desfeita"
+	| "refeicao_completada_gerada"
+	| "refeicao_completada_usada"
+	| "resumo_semanal_gerado"
+	| "revisao_concluida"
+	| "dados_baixados"
 	| "manchete_aberta"
 	| "sugestao_enviada";
 

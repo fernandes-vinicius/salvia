@@ -6,6 +6,7 @@ import {
 	celebrationFor,
 	checkinStreak,
 	isFullDay,
+	periodAdherence,
 	weekSummary,
 } from "~/domains/checkin/utils/checkin";
 
@@ -150,5 +151,26 @@ describe("celebrationFor", () => {
 				today: TODAY,
 			}),
 		).toBe("milestone");
+	});
+});
+
+describe("periodAdherence", () => {
+	const checkins: Checkin[] = [
+		{ mealId: "a", day: "2026-10-10", status: "done" },
+		{ mealId: "b", day: "2026-10-10", status: "done" },
+		{ mealId: "a", day: "2026-10-11", status: "done" },
+		{ mealId: "b", day: "2026-10-11", status: "skipped" },
+		{ mealId: "a", day: "2026-09-01", status: "skipped" },
+	];
+
+	it("refeições seguidas ÷ do plano, nos dias com check-in do período", () => {
+		expect(periodAdherence(checkins, 2, "2026-10-01", "2026-10-20")).toEqual({
+			percent: 75,
+			days: 2,
+		});
+	});
+
+	it("sem check-in no período, null", () => {
+		expect(periodAdherence(checkins, 2, "2026-10-12", "2026-10-20")).toBeNull();
 	});
 });

@@ -8,6 +8,7 @@ import {
 	LandingPainPoints,
 	LandingStructuredData,
 } from "~/domains/landing";
+import { LandingAiPreview } from "~/domains/landing/components/landing-ai-preview";
 import { LandingCalculators } from "~/domains/landing/components/landing-calculators";
 import { APP_DESCRIPTION, APP_NAME } from "~/shared/lib/app-config";
 
@@ -25,6 +26,7 @@ export default function LandingPage() {
 			<LandingHero />
 			<LandingPainPoints />
 			<LandingFeatures />
+			<LandingAiPreview />
 			<LandingHowItWorks />
 			<LandingCalculators />
 			<LandingFaq />

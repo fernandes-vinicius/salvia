@@ -209,33 +209,66 @@ export function parseCsv(content: string): Record<string, string>[] {
 }
 
 // A TACO não mediu alguns alimentos comuns (linha de nutrientes vazia), o
-// que virava 0 kcal na dieta. Valores por 100 g do USDA FoodData Central
-// (SR Legacy 01077 "Milk, whole, 3.25% milkfat" e 01151 "Milk, nonfat").
-const TACO_GAPS: Record<
-	string,
-	{ protein: number; carbs: number; fat: number; fiber: number }
-> = {
+// que virava 0 kcal na dieta. Leites: valores por 100 g do USDA FoodData
+// Central (SR Legacy 01077 "Milk, whole, 3.25% milkfat" e 01151 "Milk,
+// nonfat"). Iogurte de abacaxi: o de morango da própria TACO (mesmo produto,
+// só muda o sabor).
+interface TacoValues {
+	protein: number;
+	carbs: number;
+	fat: number;
+	fiber: number;
+	/** mg */
+	sodium: number;
+	/** mg */
+	iron: number;
+}
+
+const TACO_GAPS: Record<string, TacoValues> = {
 	"Leite, de vaca, integral": {
 		protein: 3.15,
 		carbs: 4.8,
 		fat: 3.25,
 		fiber: 0,
+		sodium: 43,
+		iron: 0.03,
 	},
 	"Leite, de vaca, desnatado, UHT": {
 		protein: 3.37,
 		carbs: 4.96,
 		fat: 0.08,
 		fiber: 0,
+		sodium: 42,
+		iron: 0.03,
+	},
+	"Iogurte, sabor abacaxi": {
+		protein: 2.7,
+		carbs: 9.7,
+		fat: 2.3,
+		fiber: 0.2,
+		sodium: 38,
+		iron: 0,
 	},
 };
 
-/** Macros por 100 g de uma linha da TACO (vazio = 0), com as lacunas preenchidas. */
+/**
+ * Valores por 100 g de uma linha da TACO (vazio = 0): macros, fibra, sódio
+ * e ferro, com as lacunas preenchidas.
+ */
 export function tacoMacros(
 	name: string,
 	row: Partial<
-		Record<"protein" | "carbohydrates" | "lipids" | "dietaryFiber", string>
+		Record<
+			| "protein"
+			| "carbohydrates"
+			| "lipids"
+			| "dietaryFiber"
+			| "sodium"
+			| "iron",
+			string
+		>
 	>,
-) {
+): TacoValues {
 	const gap = TACO_GAPS[name];
 	if (gap) return gap;
 	const num = (value: string | undefined) => (value ? Number(value) : 0);
@@ -244,5 +277,7 @@ export function tacoMacros(
 		carbs: num(row.carbohydrates),
 		fat: num(row.lipids),
 		fiber: num(row.dietaryFiber),
+		sodium: num(row.sodium),
+		iron: num(row.iron),
 	};
 }

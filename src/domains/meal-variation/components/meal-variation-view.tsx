@@ -4,7 +4,12 @@ import type { Food } from "~/domains/food/types/food-types";
 import { applySwaps } from "~/domains/meal-recipe/utils/recipe-swap";
 import type { MealVariation } from "~/domains/meal-variation/schemas/meal-variation-schema";
 import { variationTotals } from "~/domains/meal-variation/utils/meal-variation";
-import { ArrowRight } from "~/shared/components/icons";
+import {
+	SwapCostBadge,
+	useSwapsCost,
+} from "~/domains/shopping/components/prices-context";
+import { costChangeLabel } from "~/domains/shopping/utils/prices";
+import { ArrowRight, Wallet } from "~/shared/components/icons";
 import { formatNumber } from "~/shared/lib/format";
 
 interface MealVariationViewProps {
@@ -35,6 +40,11 @@ export function MealVariationView({
 	const swapped = applySwaps(items, variation.swaps);
 	const kept = swapped.filter((item) => !item.replaces);
 	const { before, after } = variationTotals(items, variation.swaps);
+	const costDelta = useSwapsCost(
+		swapped.flatMap((item) =>
+			item.replaces ? [{ from: item.replaces, to: item }] : [],
+		),
+	);
 
 	return (
 		<article className="flex flex-col gap-5">
@@ -63,6 +73,9 @@ export function MealVariationView({
 										aria-label="trocado por"
 									/>
 									<Portion food={item.food} quantity={item.quantity} />
+									<span className="col-span-3 empty:hidden">
+										<SwapCostBadge from={item.replaces} to={item} />
+									</span>
 								</li>
 							),
 					)}
@@ -88,6 +101,12 @@ export function MealVariationView({
 						<MacroLine macros={after} />
 					</dd>
 				</dl>
+				{costDelta !== null && (
+					<p className="flex items-center gap-1.5 text-muted-foreground text-xs">
+						<Wallet className="size-3.5 shrink-0" aria-hidden />
+						Custo: {costChangeLabel(costDelta)}
+					</p>
+				)}
 			</div>
 		</article>
 	);

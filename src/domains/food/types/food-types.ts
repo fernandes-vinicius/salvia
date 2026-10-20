@@ -14,6 +14,9 @@ export interface Food {
 	fat: number;
 	/** Fibra alimentar, na mesma base (não entra nas kcal). */
 	fiber: number;
+	/** Sódio e ferro (mg) na mesma base; ausente ou 0 = não informado. */
+	sodium?: number;
+	iron?: number;
 	proteinSource: ProteinSource;
 }
 

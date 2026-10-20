@@ -40,6 +40,7 @@ import {
 import { AddFoodSheet } from "~/domains/diet/components/add-food-sheet";
 import { DietPreview } from "~/domains/diet/components/diet-preview";
 import { DietSummaryCard } from "~/domains/diet/components/diet-summary";
+import { DietSummaryCompact } from "~/domains/diet/components/diet-summary-compact";
 import { GoalProgress } from "~/domains/diet/components/goal-progress";
 import { ItemSheet } from "~/domains/diet/components/item-sheet";
 import { MealCard } from "~/domains/diet/components/meal-card";
@@ -57,16 +58,20 @@ import { TRASH_ID, TrashZone } from "~/domains/diet/components/trash-zone";
 import type { DietItem, DietMeal } from "~/domains/diet/types/diet-types";
 import {
 	changedLayouts,
-	fiberTarget,
 	findMealOfItem,
-	isOnTarget,
 	moveItemTo,
 	nextMealName,
 	summarizeDiet,
 } from "~/domains/diet/utils/diet";
+import { dayMicronutrients } from "~/domains/diet/utils/micronutrients";
 import { type Food, MacroLine, macrosFor, UNIT_LABELS } from "~/domains/food";
 import type { GoalTargets } from "~/domains/goal/types/goal-types";
 import type { ProteinCounting } from "~/domains/goal/utils/protein-counting";
+import { type MealFill, MealFillSheet } from "~/domains/meal-fill";
+import {
+	hasMeaningfulGap,
+	macroGap,
+} from "~/domains/meal-fill/utils/meal-fill";
 import { MealRecipeSheet } from "~/domains/meal-recipe";
 import {
 	type MealVariation,
@@ -76,7 +81,8 @@ import {
 	applyVariationAction,
 	restoreVariationAction,
 } from "~/domains/meal-variation/actions/meal-variation-actions";
-import { useCelebrate } from "~/providers/celebration-provider";
+import { PricesProvider } from "~/domains/shopping/components/prices-context";
+import type { Price } from "~/domains/shopping/data/reference-prices";
 import {
 	ArrowUpDown,
 	EllipsisVertical,
@@ -111,6 +117,7 @@ import { Switch } from "~/shared/components/ui/switch";
 import { useStickyTop } from "~/shared/hooks/use-sticky-top";
 import { analytics } from "~/shared/lib/analytics/analytics";
 import { formatNumber } from "~/shared/lib/format";
+import { cn } from "~/shared/lib/utils";
 
 interface DietViewProps {
 	initialMeals: DietMeal[];
@@ -125,9 +132,15 @@ interface DietViewProps {
 	initialSavedRecipes?: Record<string, number>;
 	/** Proteína que conta pra meta (Configurações): coluna P ou P(A). */
 	proteinCounting: ProteinCounting;
+	/** Ferro recomendado (mg/dia) pelo perfil; null sem TMB. */
+	ironGoal?: number | null;
+	/** Preços da pessoa (`[chave, preço]`), pro custo das trocas. */
+	userPrices?: [string, Price][];
 }
 
 const MODES = ["editar", "visualizar"] as const;
+
+const SUMMARY_OPEN_KEY = "salvia:resumo-dieta-aberto";
 
 /** Atualiza só a refeição `mealId`. */
 function mapMeal(
@@ -165,6 +178,8 @@ export function DietView({
 	beta = false,
 	initialSavedRecipes = {},
 	proteinCounting,
+	ironGoal = null,
+	userPrices = [],
 }: DietViewProps) {
 	const router = useRouter();
 	// Id estável pro dnd-kit: sem ele, o contador global dos ids de
@@ -221,8 +236,28 @@ export function DietView({
 	const [sharing, setSharing] = useState(false);
 	const [recipeMealId, setRecipeMealId] = useState<string | null>(null);
 	const [variationMealId, setVariationMealId] = useState<string | null>(null);
+	const [fillMealId, setFillMealId] = useState<string | null>(null);
 	const [reorderingMeals, setReorderingMeals] = useState(false);
 	const [savedRecipes, setSavedRecipes] = useState(initialSavedRecipes);
+	// Celular: resumo completo recolhido por padrão (a grade aparece antes);
+	// a escolha fica neste aparelho.
+	const [summaryOpen, setSummaryOpen] = useState(false);
+	useEffect(() => {
+		try {
+			setSummaryOpen(localStorage.getItem(SUMMARY_OPEN_KEY) === "1");
+		} catch {
+			// Sem armazenamento: começa recolhido.
+		}
+	}, []);
+	function toggleSummary() {
+		const next = !summaryOpen;
+		setSummaryOpen(next);
+		try {
+			localStorage.setItem(SUMMARY_OPEN_KEY, next ? "1" : "0");
+		} catch {
+			// Sem armazenamento: vale só até recarregar.
+		}
+	}
 
 	// Menu ⋮ da refeição: o mesmo nos modos Editar e Visualizar.
 	const menuFor = (meal: DietMeal): MealMenuActions => ({
@@ -232,6 +267,7 @@ export function DietView({
 		onDelete: () => setDeletingMealId(meal.id),
 		onSuggestRecipe: beta ? () => setRecipeMealId(meal.id) : undefined,
 		onVaryMeal: beta ? () => setVariationMealId(meal.id) : undefined,
+		onFillMeal: canFill ? () => setFillMealId(meal.id) : undefined,
 		onOpenSavedRecipes: beta
 			? () => router.push(`/receitas?refeicao=${meal.id}`)
 			: undefined,
@@ -248,27 +284,13 @@ export function DietView({
 	}
 
 	const summary = summarizeDiet(meals, { weightKg, tdee });
+	const micros = { values: dayMicronutrients(meals), ironGoal };
+	// "Completar com IA" só quando falta algo pra meta (mesma regra do servidor).
+	const canFill =
+		beta &&
+		targets !== null &&
+		hasMeaningfulGap(macroGap(summary, targets, proteinCounting));
 
-	// Comemora quando uma mudança faz a dieta bater a meta (todas as linhas
-	// "Na meta") ou a fibra chegar no recomendado. O estado de quando a tela
-	// abriu não conta: só a passagem de "fora" pra "dentro".
-	const celebrate = useCelebrate();
-	const onTarget =
-		targets !== null && isOnTarget(summary, targets, proteinCounting);
-	const fiberOk = Math.round(summary.fiber) >= fiberTarget(summary.kcal);
-	const reached = useRef({ onTarget, fiberOk });
-	useEffect(() => {
-		const before = reached.current;
-		reached.current = { onTarget, fiberOk };
-		if ((onTarget && !before.onTarget) || (fiberOk && !before.fiberOk)) {
-			const card = document.querySelector(
-				onTarget && !before.onTarget
-					? 'section[aria-label="Planejado × meta"]'
-					: 'section[aria-label="Resumo do dia"]',
-			);
-			celebrate("goal", card?.getBoundingClientRect());
-		}
-	}, [onTarget, fiberOk, celebrate]);
 	const mealIds = new Set(meals.map((meal) => meal.id));
 	const findMeal = (id: string | null) =>
 		meals.find((meal) => meal.id === id) ?? null;
@@ -443,6 +465,63 @@ export function DietView({
 				},
 			},
 		});
+		return true;
+	}
+
+	/** "Completar com IA": adiciona os alimentos no fim da refeição, com "Desfazer". */
+	async function applyMealFill(mealId: string, fill: MealFill) {
+		const meal = findMeal(mealId);
+		if (!meal) return false;
+		const added: DietItem[] = [];
+		for (const item of fill.items) {
+			const result = await addItemAction({
+				mealId,
+				foodId: item.food.id,
+				quantity: item.quantity,
+			});
+			if (!result.ok) {
+				handleError(result);
+				break;
+			}
+			added.push(result.data);
+			setMeals((current) =>
+				mapMeal(current, mealId, (m) => ({
+					...m,
+					items: [...m.items, result.data],
+				})),
+			);
+		}
+		if (added.length === 0) return false;
+		setFillMealId(null);
+		analytics.track("refeicao_completada_usada", { alimentos: added.length });
+
+		const ids = new Set(added.map((item) => item.id));
+		toast(
+			`${meal.name}: ${added.length === 1 ? "1 alimento adicionado" : `${added.length} alimentos adicionados`}.`,
+			{
+				duration: 8000,
+				action: {
+					label: "Desfazer",
+					onClick: async () => {
+						const before = mealsRef.current;
+						setMeals((current) =>
+							current.map((m) => ({
+								...m,
+								items: m.items.filter((i) => !ids.has(i.id)),
+							})),
+						);
+						for (const id of ids) {
+							const result = await deleteItemAction(id);
+							if (!result.ok) {
+								setMeals(before);
+								handleError(result);
+								return;
+							}
+						}
+					},
+				},
+			},
+		);
 		return true;
 	}
 
@@ -757,299 +836,329 @@ export function DietView({
 	};
 
 	return (
-		<div className="flex flex-col gap-6">
-			<div className="flex flex-wrap items-center justify-end gap-2 print:hidden">
-				{/* Ligado = Visualizar (só leitura); desligado = Editar. */}
-				{/* biome-ignore lint/a11y/noLabelWithoutControl: o controle é o Switch (Base UI) dentro do label */}
-				<label className="flex h-9 cursor-pointer items-center gap-2 rounded-4xl px-3 font-medium text-sm transition-colors hover:bg-muted">
-					<Eye className="size-4 text-muted-foreground" aria-hidden />
-					Visualizar
-					<Switch
-						checked={preview}
-						onCheckedChange={(checked) =>
-							setMode(checked ? "visualizar" : "editar")
-						}
-					/>
-				</label>
-				{/* Ações da dieta inteira (PDF, lista de compras, compartilhar,
+		<PricesProvider prices={userPrices}>
+			<div className="flex flex-col gap-6">
+				<div className="flex flex-wrap items-center justify-end gap-2 print:hidden">
+					{/* Ligado = Visualizar (só leitura); desligado = Editar. */}
+					{/* biome-ignore lint/a11y/noLabelWithoutControl: o controle é o Switch (Base UI) dentro do label */}
+					<label className="flex h-9 cursor-pointer items-center gap-2 rounded-4xl px-3 font-medium text-sm transition-colors hover:bg-muted">
+						<Eye className="size-4 text-muted-foreground" aria-hidden />
+						Visualizar
+						<Switch
+							checked={preview}
+							onCheckedChange={(checked) =>
+								setMode(checked ? "visualizar" : "editar")
+							}
+						/>
+					</label>
+					{/* Ações da dieta inteira (PDF, lista de compras, compartilhar,
 				    resetar). */}
-				<DropdownMenu>
-					<DropdownMenuTrigger
-						render={
-							<Button
-								variant="outline"
-								size="icon"
-								aria-label="Opções da dieta"
-							/>
-						}
-					>
-						<EllipsisVertical />
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end" className="w-auto">
-						{/* O PDF sai da impressão do navegador ("Salvar como PDF"):
+					<DropdownMenu>
+						<DropdownMenuTrigger
+							render={
+								<Button
+									variant="outline"
+									size="icon"
+									aria-label="Opções da dieta"
+								/>
+							}
+						>
+							<EllipsisVertical />
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end" className="w-auto">
+							{/* O PDF sai da impressão do navegador ("Salvar como PDF"):
 						    texto selecionável, sem biblioteca extra. */}
-						<DropdownMenuItem onClick={handleExport}>
-							<FileDown />
-							Exportar PDF
-						</DropdownMenuItem>
-						<DropdownMenuItem
-							onClick={() => router.push("/dieta/lista-de-compras")}
-						>
-							<ShoppingCart />
-							Lista de compras
-						</DropdownMenuItem>
-						<DropdownMenuItem onClick={() => setSharing(true)}>
-							<Share />
-							Compartilhar dieta
-						</DropdownMenuItem>
-						{meals.length > 1 && (
-							<DropdownMenuItem onClick={() => setReorderingMeals(true)}>
-								<ArrowUpDown />
-								Reordenar refeições
+							<DropdownMenuItem onClick={handleExport}>
+								<FileDown />
+								Exportar PDF
 							</DropdownMenuItem>
-						)}
-						{beta && (
-							<DropdownMenuItem onClick={() => router.push("/dieta/importar")}>
-								<Sparkles />
-								Importar dieta (beta)
+							<DropdownMenuItem
+								onClick={() => router.push("/dieta/lista-de-compras")}
+							>
+								<ShoppingCart />
+								Lista de compras
 							</DropdownMenuItem>
-						)}
-						<DropdownMenuSeparator />
-						<DropdownMenuItem
-							variant="destructive"
-							onClick={() => setConfirmingReset(true)}
-						>
-							<RotateCcw />
-							Resetar dieta
-						</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
-			</div>
+							<DropdownMenuItem onClick={() => setSharing(true)}>
+								<Share />
+								Compartilhar dieta
+							</DropdownMenuItem>
+							{meals.length > 1 && (
+								<DropdownMenuItem onClick={() => setReorderingMeals(true)}>
+									<ArrowUpDown />
+									Reordenar refeições
+								</DropdownMenuItem>
+							)}
+							{beta && (
+								<DropdownMenuItem
+									onClick={() => router.push("/dieta/importar")}
+								>
+									<Sparkles />
+									Importar dieta (beta)
+								</DropdownMenuItem>
+							)}
+							<DropdownMenuSeparator />
+							<DropdownMenuItem
+								variant="destructive"
+								onClick={() => setConfirmingReset(true)}
+							>
+								<RotateCcw />
+								Resetar dieta
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				</div>
 
-			{/* Celular: resumo no topo e 1 coluna. Tablet: resumo e meta lado a
+				{/* Celular: resumo no topo e 1 coluna. Tablet: resumo e meta lado a
 			    lado no topo, 2 colunas. ≥ lg: coluna lateral fixa à direita (como
 			    a legenda da planilha) e a grade à esquerda em 2 colunas. */}
-			<div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start print:flex print:flex-col print:items-stretch print:gap-4">
-				<aside
-					ref={asideRef}
-					style={{ top: asideTop }}
-					className="grid gap-4 md:grid-cols-2 md:items-start lg:sticky lg:order-last lg:grid-cols-1 print:static print:order-last print:break-inside-avoid print:grid-cols-2 print:[print-color-adjust:exact]"
-				>
-					<DietSummaryCard summary={summary} tdee={tdee} water={water} />
-					{targets ? (
-						<GoalProgress
+				<div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start print:flex print:flex-col print:items-stretch print:gap-4">
+					<div className="md:hidden print:hidden">
+						<DietSummaryCompact
 							summary={summary}
 							targets={targets}
 							proteinCounting={proteinCounting}
+							expanded={summaryOpen}
+							onToggle={toggleSummary}
+						/>
+					</div>
+					<aside
+						ref={asideRef}
+						style={{ top: asideTop }}
+						className={cn(
+							"grid grid-cols-1 gap-4 md:grid-cols-2 md:items-start lg:sticky lg:order-last lg:grid-cols-1 print:static print:order-last print:break-inside-avoid print:grid-cols-2 print:[print-color-adjust:exact]",
+							!summaryOpen && "max-md:not-print:hidden",
+						)}
+					>
+						<DietSummaryCard
+							summary={summary}
+							tdee={tdee}
+							water={water}
+							micros={micros}
+						/>
+						{targets ? (
+							<GoalProgress
+								summary={summary}
+								targets={targets}
+								proteinCounting={proteinCounting}
+							/>
+						) : (
+							<p className="rounded-3xl bg-card p-4 text-muted-foreground text-sm md:p-5">
+								Defina sua meta na aba Meta para comparar o planejado com ela.
+							</p>
+						)}
+					</aside>
+
+					{preview ? (
+						<DietPreview
+							meals={meals}
+							proteinCounting={proteinCounting}
+							printable
+							mealActions={(meal) => (
+								<MealMenu meal={meal} {...menuFor(meal)} />
+							)}
 						/>
 					) : (
-						<p className="rounded-3xl bg-card p-4 text-muted-foreground text-sm md:p-5">
-							Defina sua meta na aba Meta para comparar o planejado com ela.
-						</p>
-					)}
-				</aside>
-
-				{preview ? (
-					<DietPreview
-						meals={meals}
-						proteinCounting={proteinCounting}
-						printable
-						mealActions={(meal) => <MealMenu meal={meal} {...menuFor(meal)} />}
-					/>
-				) : (
-					<DndContext
-						id={dndId}
-						sensors={sensors}
-						collisionDetection={collisionDetection}
-						accessibility={{
-							announcements,
-							screenReaderInstructions: {
-								draggable:
-									"Pra mover este alimento, aperte espaço, use as setas e aperte espaço de novo pra soltar. Esc cancela.",
-							},
-						}}
-						onDragStart={handleDragStart}
-						onDragOver={handleDragOver}
-						onDragEnd={handleDragEnd}
-						onDragCancel={handleDragCancel}
-					>
-						<div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:items-start">
-							{meals.map((meal) => (
-								<MealCard
-									proteinCounting={proteinCounting}
-									key={meal.id}
-									meal={meal}
-									onAddFood={() => setAddingTo(meal.id)}
-									onEditItem={setEditingItemId}
-									{...menuFor(meal)}
-								/>
-							))}
-							<button
-								type="button"
-								disabled={addingMeal}
-								onClick={handleAddMeal}
-								className="flex min-h-32 items-center justify-center gap-2 rounded-3xl border-2 border-border border-dashed font-medium text-primary text-sm outline-none transition-colors hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:opacity-60"
-							>
-								{addingMeal ? (
-									<Loader2Icon className="size-4 animate-spin" />
-								) : (
-									<Plus className="size-4" />
-								)}
-								Adicionar refeição
-							</button>
-						</div>
-
-						<DragOverlay dropAnimation={null}>
-							{activeItem && <DraggedItem item={activeItem} />}
-						</DragOverlay>
-						<TrashZone visible={activeItem !== null} />
-					</DndContext>
-				)}
-			</div>
-
-			<ShareDietSheet open={sharing} onOpenChange={setSharing} />
-			<MealRecipeSheet
-				meal={meals.find((meal) => meal.id === recipeMealId) ?? null}
-				onOpenChange={(open) => !open && setRecipeMealId(null)}
-				onSaved={(mealId) =>
-					setSavedRecipes((counts) => ({
-						...counts,
-						[mealId]: (counts[mealId] ?? 0) + 1,
-					}))
-				}
-			/>
-
-			<ReorderMealsSheet
-				open={reorderingMeals}
-				onOpenChange={setReorderingMeals}
-				meals={meals}
-				onReorder={reorderMeals}
-			/>
-
-			<MealVariationSheet
-				meal={meals.find((meal) => meal.id === variationMealId) ?? null}
-				onOpenChange={(open) => !open && setVariationMealId(null)}
-				onUse={applyVariation}
-			/>
-
-			<AddFoodSheet
-				meal={findMeal(addingTo)}
-				onOpenChange={(open) => !open && setAddingTo(null)}
-				onAdd={handleAddFood}
-			/>
-
-			<ItemSheet
-				item={editingItem}
-				meals={meals}
-				onOpenChange={(open) => !open && setEditingItemId(null)}
-				onStale={() => {
-					setEditingItemId(null);
-					handleError({ ok: false, error: "", stale: true });
-				}}
-				onQuantityChange={(itemId, quantity) =>
-					setMeals((current) =>
-						current.map((meal) => ({
-							...meal,
-							items: meal.items.map((item) =>
-								item.id === itemId ? { ...item, quantity } : item,
-							),
-						})),
-					)
-				}
-				onReplace={replaceItem}
-				onCopy={copyItem}
-				onAddOption={addOption}
-				onRemoveOption={removeOption}
-				onSwapOption={swapOption}
-				onDelete={(itemId) => {
-					setEditingItemId(null);
-					removeItem(itemId);
-				}}
-			/>
-
-			<MealEditSheet
-				meal={findMeal(editingMeal?.id ?? null)}
-				focus={editingMeal?.focus ?? "name"}
-				onOpenChange={(open) => !open && setEditingMeal(null)}
-				onSave={(data) => {
-					const mealId = editingMeal?.id;
-					if (!mealId) return;
-					setEditingMeal(null);
-					optimistic(
-						(current) =>
-							mapMeal(current, mealId, (meal) => ({ ...meal, ...data })),
-						() => updateMealAction(mealId, data),
-					);
-				}}
-			/>
-
-			<AlertDialog
-				open={deletingMealId !== null}
-				onOpenChange={(open) => !open && setDeletingMealId(null)}
-			>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>
-							Remover {findMeal(deletingMealId)?.name}?
-						</AlertDialogTitle>
-						<AlertDialogDescription>
-							A refeição e os alimentos dela saem do seu plano.
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>Cancelar</AlertDialogCancel>
-						<Button
-							variant="destructive"
-							onClick={() => {
-								const mealId = deletingMealId;
-								setDeletingMealId(null);
-								if (!mealId) return;
-								optimistic(
-									(current) => current.filter((meal) => meal.id !== mealId),
-									() => deleteMealAction(mealId),
-								);
+						<DndContext
+							id={dndId}
+							sensors={sensors}
+							collisionDetection={collisionDetection}
+							accessibility={{
+								announcements,
+								screenReaderInstructions: {
+									draggable:
+										"Pra mover este alimento, aperte espaço, use as setas e aperte espaço de novo pra soltar. Esc cancela.",
+								},
 							}}
+							onDragStart={handleDragStart}
+							onDragOver={handleDragOver}
+							onDragEnd={handleDragEnd}
+							onDragCancel={handleDragCancel}
 						>
-							Remover
-						</Button>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+							<div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:items-start">
+								{meals.map((meal) => (
+									<MealCard
+										proteinCounting={proteinCounting}
+										key={meal.id}
+										meal={meal}
+										onAddFood={() => setAddingTo(meal.id)}
+										onEditItem={setEditingItemId}
+										{...menuFor(meal)}
+									/>
+								))}
+								<button
+									type="button"
+									disabled={addingMeal}
+									onClick={handleAddMeal}
+									className="flex min-h-32 items-center justify-center gap-2 rounded-3xl border-2 border-border border-dashed font-medium text-primary text-sm outline-none transition-colors hover:bg-accent focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:opacity-60"
+								>
+									{addingMeal ? (
+										<Loader2Icon className="size-4 animate-spin" />
+									) : (
+										<Plus className="size-4" />
+									)}
+									Adicionar refeição
+								</button>
+							</div>
 
-			<AlertDialog
-				open={confirmingReset}
-				onOpenChange={(open) =>
-					!open && !resetting && setConfirmingReset(false)
-				}
-			>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Resetar a dieta?</AlertDialogTitle>
-						<AlertDialogDescription>
-							Todas as refeições e alimentos do plano serão apagados e a dieta
-							volta a ter 3 refeições em branco. Isso não pode ser desfeito.
-							Seus alimentos cadastrados, TMB e meta continuam como estão.
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel disabled={resetting}>Cancelar</AlertDialogCancel>
-						<Button
-							variant="destructive"
-							disabled={resetting}
-							onClick={handleReset}
-						>
-							{resetting && (
-								<Loader2Icon
-									data-icon="inline-start"
-									className="animate-spin"
-								/>
-							)}
-							Resetar dieta
-						</Button>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
-		</div>
+							<DragOverlay dropAnimation={null}>
+								{activeItem && <DraggedItem item={activeItem} />}
+							</DragOverlay>
+							<TrashZone visible={activeItem !== null} />
+						</DndContext>
+					)}
+				</div>
+
+				<ShareDietSheet open={sharing} onOpenChange={setSharing} />
+				<MealRecipeSheet
+					meal={meals.find((meal) => meal.id === recipeMealId) ?? null}
+					onOpenChange={(open) => !open && setRecipeMealId(null)}
+					onSaved={(mealId) =>
+						setSavedRecipes((counts) => ({
+							...counts,
+							[mealId]: (counts[mealId] ?? 0) + 1,
+						}))
+					}
+				/>
+
+				<ReorderMealsSheet
+					open={reorderingMeals}
+					onOpenChange={setReorderingMeals}
+					meals={meals}
+					onReorder={reorderMeals}
+				/>
+
+				<MealFillSheet
+					meal={meals.find((meal) => meal.id === fillMealId) ?? null}
+					onOpenChange={(open) => !open && setFillMealId(null)}
+					onAdd={applyMealFill}
+				/>
+				<MealVariationSheet
+					meal={meals.find((meal) => meal.id === variationMealId) ?? null}
+					onOpenChange={(open) => !open && setVariationMealId(null)}
+					onUse={applyVariation}
+				/>
+
+				<AddFoodSheet
+					meal={findMeal(addingTo)}
+					onOpenChange={(open) => !open && setAddingTo(null)}
+					onAdd={handleAddFood}
+				/>
+
+				<ItemSheet
+					item={editingItem}
+					meals={meals}
+					onOpenChange={(open) => !open && setEditingItemId(null)}
+					onStale={() => {
+						setEditingItemId(null);
+						handleError({ ok: false, error: "", stale: true });
+					}}
+					onQuantityChange={(itemId, quantity) =>
+						setMeals((current) =>
+							current.map((meal) => ({
+								...meal,
+								items: meal.items.map((item) =>
+									item.id === itemId ? { ...item, quantity } : item,
+								),
+							})),
+						)
+					}
+					onReplace={replaceItem}
+					onCopy={copyItem}
+					onAddOption={addOption}
+					onRemoveOption={removeOption}
+					onSwapOption={swapOption}
+					onDelete={(itemId) => {
+						setEditingItemId(null);
+						removeItem(itemId);
+					}}
+				/>
+
+				<MealEditSheet
+					meal={findMeal(editingMeal?.id ?? null)}
+					focus={editingMeal?.focus ?? "name"}
+					onOpenChange={(open) => !open && setEditingMeal(null)}
+					onSave={(data) => {
+						const mealId = editingMeal?.id;
+						if (!mealId) return;
+						setEditingMeal(null);
+						optimistic(
+							(current) =>
+								mapMeal(current, mealId, (meal) => ({ ...meal, ...data })),
+							() => updateMealAction(mealId, data),
+						);
+					}}
+				/>
+
+				<AlertDialog
+					open={deletingMealId !== null}
+					onOpenChange={(open) => !open && setDeletingMealId(null)}
+				>
+					<AlertDialogContent>
+						<AlertDialogHeader>
+							<AlertDialogTitle>
+								Remover {findMeal(deletingMealId)?.name}?
+							</AlertDialogTitle>
+							<AlertDialogDescription>
+								A refeição e os alimentos dela saem do seu plano.
+							</AlertDialogDescription>
+						</AlertDialogHeader>
+						<AlertDialogFooter>
+							<AlertDialogCancel>Cancelar</AlertDialogCancel>
+							<Button
+								variant="destructive"
+								onClick={() => {
+									const mealId = deletingMealId;
+									setDeletingMealId(null);
+									if (!mealId) return;
+									optimistic(
+										(current) => current.filter((meal) => meal.id !== mealId),
+										() => deleteMealAction(mealId),
+									);
+								}}
+							>
+								Remover
+							</Button>
+						</AlertDialogFooter>
+					</AlertDialogContent>
+				</AlertDialog>
+
+				<AlertDialog
+					open={confirmingReset}
+					onOpenChange={(open) =>
+						!open && !resetting && setConfirmingReset(false)
+					}
+				>
+					<AlertDialogContent>
+						<AlertDialogHeader>
+							<AlertDialogTitle>Resetar a dieta?</AlertDialogTitle>
+							<AlertDialogDescription>
+								Todas as refeições e alimentos do plano serão apagados e a dieta
+								volta a ter 3 refeições em branco. Isso não pode ser desfeito.
+								Seus alimentos cadastrados, TMB e meta continuam como estão.
+							</AlertDialogDescription>
+						</AlertDialogHeader>
+						<AlertDialogFooter>
+							<AlertDialogCancel disabled={resetting}>
+								Cancelar
+							</AlertDialogCancel>
+							<Button
+								variant="destructive"
+								disabled={resetting}
+								onClick={handleReset}
+							>
+								{resetting && (
+									<Loader2Icon
+										data-icon="inline-start"
+										className="animate-spin"
+									/>
+								)}
+								Resetar dieta
+							</Button>
+						</AlertDialogFooter>
+					</AlertDialogContent>
+				</AlertDialog>
+			</div>
+		</PricesProvider>
 	);
 }
 

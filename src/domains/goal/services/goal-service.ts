@@ -24,18 +24,44 @@ export async function findGoalByUserId(userId: string): Promise<Goal | null> {
 }
 
 export async function upsertGoal(userId: string, data: Goal) {
+	const today = localDateString();
+	// Mudou o objetivo/ritmo: as pesagens anteriores eram de outro plano,
+	// então a conferência do ajuste pelo peso e as revisões recomeçam.
+	const changedPlan = sql`(${goal.calorieAdjustment} <> excluded.calorie_adjustment or ${goal.objective} <> excluded.objective)`;
 	await db
 		.insert(goal)
-		.values({ userId, ...data })
+		.values({ userId, ...data, startedOn: today })
 		.onConflictDoUpdate({
 			target: goal.userId,
 			set: {
 				...data,
-				// Mudou o objetivo/ritmo: as pesagens anteriores eram de outro
-				// plano, então a conferência do ajuste pelo peso recomeça.
-				calibratedAt: sql`case when ${goal.calorieAdjustment} <> excluded.calorie_adjustment then now() else ${goal.calibratedAt} end`,
+				calibratedAt: sql`case when ${changedPlan} then now() else ${goal.calibratedAt} end`,
+				startedOn: sql`case when ${changedPlan} or ${goal.startedOn} is null then ${today}::date else ${goal.startedOn} end`,
+				reviewedDay: sql`case when ${changedPlan} then 0 else ${goal.reviewedDay} end`,
 			},
 		});
+}
+
+/** Começo da dieta e último marco revisado (revisões de 15 e 30 dias). */
+export async function findDietCycle(userId: string) {
+	const [row] = await db
+		.select({ startedOn: goal.startedOn, reviewedDay: goal.reviewedDay })
+		.from(goal)
+		.where(eq(goal.userId, userId))
+		.limit(1);
+	return row ?? null;
+}
+
+export async function saveReviewedDay(userId: string, reviewedDay: number) {
+	await db.update(goal).set({ reviewedDay }).where(eq(goal.userId, userId));
+}
+
+/** "Recomeçar a contagem": a dieta passa a contar de hoje. */
+export async function restartDietCycle(userId: string) {
+	await db
+		.update(goal)
+		.set({ startedOn: localDateString(), reviewedDay: 0 })
+		.where(eq(goal.userId, userId));
 }
 
 /** Correção do gasto pelo peso; sem meta salva = sem correção. */

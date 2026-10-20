@@ -25,6 +25,7 @@ import {
 	Weight,
 } from "~/shared/components/icons";
 import { MeasureSlider } from "~/shared/components/measure-slider";
+import { WhyItMatters } from "~/shared/components/why-it-matters";
 import { formatFixed } from "~/shared/lib/format";
 import { cn } from "~/shared/lib/utils";
 
@@ -64,6 +65,14 @@ export function ProfileFields({
 					{...BODY_RANGES.ageYears}
 					onValueChange={(value) => update("ageYears", value)}
 				/>
+				<WhyItMatters>
+					<p>
+						A fórmula usa o sexo biológico porque, em média, homens têm mais
+						massa muscular, e músculo gasta mais em repouso. Com a idade, o
+						gasto em repouso cai um pouco (cerca de 5 kcal por dia a menos a
+						cada ano).
+					</p>
+				</WhyItMatters>
 			</FormSection>
 
 			<FormSection
@@ -88,6 +97,14 @@ export function ProfileFields({
 					{...BODY_RANGES.heightCm}
 					onValueChange={(value) => update("heightCm", value)}
 				/>
+				<WhyItMatters>
+					<p>
+						O gasto acompanha o peso: cada quilo muda cerca de 10 kcal da taxa
+						em repouso, fora o que você gasta pra se mexer. Use o peso de manhã,
+						em jejum, e atualize aqui quando ele mudar uns 2 kg (com{" "}
+						{formatFixed(profile.weightKg)} kg hoje).
+					</p>
+				</WhyItMatters>
 			</FormSection>
 
 			<FormSection
@@ -102,6 +119,14 @@ export function ProfileFields({
 					formatHint={(option) => `Fator × ${formatFixed(option.value, 2)}`}
 					onValueChange={(value) => update("neatFactor", value)}
 				/>
+				<WhyItMatters>
+					<p>
+						É a parte do gasto que mais varia entre as pessoas e a que mais
+						erramos pra cima: quem treina pesado mas trabalha sentado ainda é
+						sedentário aqui. Na dúvida, escolha a opção de baixo. Se a meta não
+						funcionar, o ajuste pelo seu peso (aba Meta) corrige depois.
+					</p>
+				</WhyItMatters>
 			</FormSection>
 
 			<FormSection
@@ -117,6 +142,14 @@ export function ProfileFields({
 					intensities={STRENGTH_INTENSITIES}
 					onChange={(routine) => update("strength", routine)}
 				/>
+				<WhyItMatters>
+					<p>
+						Contamos só o que o treino gasta além do repouso, no tempo de treino
+						de verdade (sem o intervalo do celular). Musculação gasta menos do
+						que parece: o ganho dela é no músculo, não nas calorias. Relógios e
+						aparelhos costumam mostrar bem mais.
+					</p>
+				</WhyItMatters>
 			</FormSection>
 
 			<FormSection
@@ -132,6 +165,13 @@ export function ProfileFields({
 					intensities={CARDIO_INTENSITIES}
 					onChange={(routine) => update("cardio", routine)}
 				/>
+				<WhyItMatters>
+					<p>
+						Pense na média das últimas semanas, não na semana mais animada.
+						Escolha a intensidade pelo fôlego: leve dá pra conversar, moderado
+						dá pra falar frases curtas, intenso quase não dá pra falar.
+					</p>
+				</WhyItMatters>
 			</FormSection>
 		</div>
 	);

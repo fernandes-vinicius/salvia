@@ -29,6 +29,8 @@ export const foodColumns = {
 	carbs: food.carbs,
 	fat: food.fat,
 	fiber: food.fiber,
+	sodium: food.sodium,
+	iron: food.iron,
 	proteinSource: food.proteinSource,
 };
 

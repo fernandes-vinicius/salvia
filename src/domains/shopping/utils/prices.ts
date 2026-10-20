@@ -1,3 +1,4 @@
+import type { Food } from "~/domains/food/types/food-types";
 import { normalizeSearchText } from "~/domains/food/utils/food";
 import {
 	PRICE_KEYWORDS,
@@ -5,9 +6,10 @@ import {
 	type PriceUnit,
 	REFERENCE_PRICES,
 } from "~/domains/shopping/data/reference-prices";
-import type {
-	ShoppingGroup,
-	ShoppingItem,
+import {
+	buildShoppingList,
+	type ShoppingGroup,
+	type ShoppingItem,
 } from "~/domains/shopping/utils/shopping-list";
 import { formatNumber } from "~/shared/lib/format";
 
@@ -104,6 +106,69 @@ export function shoppingCost(
 		else total += resolved.cost;
 	}
 	return { total, byItem, missing };
+}
+
+// --- Custo nas trocas -------------------------------------------------------
+
+interface Portion {
+	food: Food;
+	quantity: number;
+}
+
+/**
+ * Custo de uma porção por dia (R$), pelo mesmo caminho da lista de compras:
+ * converte pro que se compra (arroz cozido → cru) e usa o preço da pessoa
+ * ou o de referência. Null sem preço.
+ */
+export function portionCost(
+	food: Food,
+	quantity: number,
+	userPrices: ReadonlyMap<string, Price>,
+): number | null {
+	const groups = buildShoppingList(
+		[
+			{
+				id: "porcao",
+				name: "",
+				time: null,
+				items: [{ id: "porcao", food, quantity, options: [] }],
+			},
+		],
+		1,
+	);
+	const { total, missing } = shoppingCost(groups, userPrices);
+	return missing > 0 || groups.length === 0 ? null : total;
+}
+
+/** Custo antes × depois de trocar um alimento (por dia). Null sem preço. */
+export function swapCost(
+	from: Portion,
+	to: Portion,
+	userPrices: ReadonlyMap<string, Price>,
+) {
+	const before = portionCost(from.food, from.quantity, userPrices);
+	const after = portionCost(to.food, to.quantity, userPrices);
+	if (before === null || after === null) return null;
+	return { before, after, delta: after - before };
+}
+
+/** Diferenças menores que isso (R$/dia) são "quase o mesmo custo". */
+const SAME_COST = 0.05;
+
+/** "+R$ 1,30 por dia (≈ R$ 39 a mais por mês)". */
+export function costChangeLabel(delta: number) {
+	if (Math.abs(delta) < SAME_COST) return "Quase o mesmo custo";
+	const month = formatNumber(Math.abs(delta) * 30);
+	const day = `R$ ${formatNumber(Math.abs(delta), 2, 2)}`;
+	return delta > 0
+		? `+${day} por dia (≈ R$ ${month} a mais por mês)`
+		: `−${day} por dia (≈ R$ ${month} a menos por mês)`;
+}
+
+/** Versão curta, pra listas: "+R$ 0,20/dia". */
+export function costChangeShort(delta: number) {
+	if (Math.abs(delta) < SAME_COST) return "mesmo custo";
+	return `${delta > 0 ? "+" : "−"}R$ ${formatNumber(Math.abs(delta), 2, 2)}/dia`;
 }
 
 export const PRICE_UNIT_LABELS: Record<PriceUnit, string> = {

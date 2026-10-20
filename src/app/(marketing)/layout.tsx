@@ -8,13 +8,15 @@ import { Button } from "~/shared/components/ui/button";
 import { APP_NAME, APP_TAGLINE } from "~/shared/lib/app-config";
 
 // Âncoras com `/` na frente: o layout também serve calculadoras e páginas
-// legais, de onde o link precisa voltar pra landing.
+// legais, de onde o link precisa voltar pra landing. `wide`: só a partir de
+// `lg` (entre 768 e 1024 px os cinco não cabem ao lado do "Entrar").
 const NAV = [
 	{ href: "/#recursos", label: "Recursos" },
-	{ href: "/#como-funciona", label: "Como funciona" },
+	{ href: "/#como-funciona", label: "Como funciona", wide: true },
+	{ href: "/#em-breve", label: "Em breve" },
 	{ href: "/calculadoras", label: "Calculadoras" },
 	{ href: "/#duvidas", label: "Dúvidas" },
-] as const;
+] as const satisfies { href: string; label: string; wide?: boolean }[];
 
 const FOOTER_LINKS = [
 	{ href: "/calculadoras", label: "Calculadoras" },
@@ -40,7 +42,10 @@ export default function MarketingLayout({ children }: LayoutProps<"/">) {
 					<nav aria-label="Principal" className="hidden md:block">
 						<ul className="flex items-center gap-1">
 							{NAV.map((item) => (
-								<li key={item.href}>
+								<li
+									key={item.href}
+									className={"wide" in item ? "hidden lg:block" : undefined}
+								>
 									<Button
 										variant="ghost"
 										size="sm"

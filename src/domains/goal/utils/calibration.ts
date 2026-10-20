@@ -5,8 +5,10 @@ import { weeklyChangeKg } from "~/domains/goal/utils/goal";
 // (tendência por regressão linear, que ignora o sobe-e-desce de água) com o
 // ritmo esperado da meta e converte a diferença em kcal/dia.
 //
-// Premissa: a pessoa seguiu a dieta. O ajuste é sugerido, nunca automático,
-// e em passos pequenos.
+// Premissa: a pessoa seguiu a dieta. Com check-ins suficientes, a adesão
+// confirma isso: abaixo de 80% das refeições, o peso não diz se a conta
+// errou, então o app pede pra seguir a dieta antes de mexer na meta. O ajuste
+// é sugerido, nunca automático, e em passos pequenos.
 
 export const CALIBRATION_RULES = {
 	/** Pesagens mínimas dentro da janela. */
@@ -20,6 +22,10 @@ export const CALIBRATION_RULES = {
 	/** Maior ajuste de uma vez; se precisar de mais, o próximo ciclo pega. */
 	maxStepKcal: 300,
 	roundTo: 50,
+	/** Adesão mínima (% das refeições) pra confiar no peso. */
+	minAdherence: 80,
+	/** Dias com check-in pra adesão contar (menos que isso é pouco dado). */
+	minAdherenceDays: 5,
 } as const;
 
 /** kcal/dia por kg/semana de diferença (7700 kcal ≈ 1 kg ÷ 7 dias). */
@@ -43,6 +49,8 @@ export type CalibrationAnalysis =
 			observedWeeklyKg: number;
 			expectedWeeklyKg: number;
 			days: number;
+			/** % das refeições seguidas no período (null sem check-ins). */
+			adherence: number | null;
 	  }
 	| {
 			kind: "suggest";
@@ -51,6 +59,15 @@ export type CalibrationAnalysis =
 			days: number;
 			/** kcal/dia a somar ao gasto (negativo = comer menos). */
 			deltaKcal: number;
+			adherence: number | null;
+	  }
+	| {
+			/** Fora do ritmo, mas a dieta foi pouco seguida: não ajusta. */
+			kind: "low-adherence";
+			observedWeeklyKg: number;
+			expectedWeeklyKg: number;
+			days: number;
+			adherence: number;
 	  };
 
 interface AnalyzeInput {
@@ -61,10 +78,26 @@ interface AnalyzeInput {
 	since: string | null;
 	/** Ajuste de kcal da meta (o que define o ritmo esperado). */
 	calorieAdjustment: number;
+	/** Adesão do check-in na janela (`calibrationWindowStart` até hoje). */
+	adherence?: { percent: number; days: number } | null;
 }
 
 function dayNumber(date: string) {
 	return Date.parse(`${date}T00:00:00Z`) / 86_400_000;
+}
+
+function dateOf(day: number) {
+	return new Date(day * 86_400_000).toISOString().slice(0, 10);
+}
+
+/** Primeiro dia que a análise olha: 6 semanas atrás ou o último ajuste. */
+export function calibrationWindowStart(today: string, since: string | null) {
+	return dateOf(
+		Math.max(
+			dayNumber(today) - CALIBRATION_RULES.windowDays,
+			since ? dayNumber(since) : Number.NEGATIVE_INFINITY,
+		),
+	);
 }
 
 /** Inclinação (kg/dia) da reta que melhor passa pelos pontos. */
@@ -86,12 +119,14 @@ export function analyzeCalibration({
 	today,
 	since,
 	calorieAdjustment,
+	adherence: rawAdherence = null,
 }: AnalyzeInput): CalibrationAnalysis {
 	const todayNumber = dayNumber(today);
-	const start = Math.max(
-		todayNumber - CALIBRATION_RULES.windowDays,
-		since ? dayNumber(since) : Number.NEGATIVE_INFINITY,
-	);
+	const start = dayNumber(calibrationWindowStart(today, since));
+	const adherence =
+		rawAdherence && rawAdherence.days >= CALIBRATION_RULES.minAdherenceDays
+			? rawAdherence.percent
+			: null;
 	const points = weighIns
 		.map((w) => ({ day: dayNumber(w.date), weightKg: w.weightKg }))
 		.filter((p) => p.day >= start && p.day <= todayNumber)
@@ -113,7 +148,23 @@ export function analyzeCalibration({
 		(expectedWeeklyKg - observedWeeklyKg) * KCAL_PER_DAY_PER_WEEKLY_KG;
 
 	if (Math.abs(rawDelta) < CALIBRATION_RULES.minSuggestKcal) {
-		return { kind: "on-track", observedWeeklyKg, expectedWeeklyKg, days };
+		return {
+			kind: "on-track",
+			observedWeeklyKg,
+			expectedWeeklyKg,
+			days,
+			adherence,
+		};
+	}
+
+	if (adherence !== null && adherence < CALIBRATION_RULES.minAdherence) {
+		return {
+			kind: "low-adherence",
+			observedWeeklyKg,
+			expectedWeeklyKg,
+			days,
+			adherence,
+		};
 	}
 
 	const { roundTo, maxStepKcal } = CALIBRATION_RULES;
@@ -126,6 +177,7 @@ export function analyzeCalibration({
 		expectedWeeklyKg,
 		days,
 		deltaKcal,
+		adherence,
 	};
 }
 

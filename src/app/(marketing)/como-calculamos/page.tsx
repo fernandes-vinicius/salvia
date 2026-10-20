@@ -95,6 +95,15 @@ export default function HowWeCalculatePage() {
 						<strong>Avisos:</strong> quando a meta fica abaixo da TMB ou o
 						carboidrato fica muito baixo (menos de 1 g/kg).
 					</li>
+					<li>
+						<strong>Dicas "Por que isso importa?":</strong> ritmo de 0,5% a 1%
+						do peso por semana pra perder e de 0,1% a 0,5% pra ganhar; proteína
+						de 1,6 a 2,2 g/kg (ISSN); gordura de 0,6 a 1,0 g/kg, sem descer de
+						0,5 g/kg nem de 20% das calorias; carboidrato de 3 a 5 g/kg pra quem
+						treina até cerca de 1 hora por dia e de 5 a 7 g/kg acima disso
+						(ACSM). Fora da faixa, a dica vira "Vale conferir", sem bloquear
+						nada.
+					</li>
 				</ul>
 			</LegalSection>
 
@@ -107,6 +116,19 @@ export default function HowWeCalculatePage() {
 					100 kcal contam como "no ritmo". O ajuste nunca é automático: você
 					decide se aplica.
 				</p>
+				<p>
+					Com check-in em pelo menos 5 dias do período, o app também confere
+					quanto da dieta você seguiu. Abaixo de 80% das refeições, ele não
+					sugere mudar a meta: o peso fora do ritmo pode ser da dieta não
+					seguida, não da conta.
+				</p>
+				<p>
+					<strong>Revisões:</strong> no dia 15 e no dia 30 da dieta (depois, a
+					cada 30 dias), o Início mostra o peso desde o começo, a adesão e a
+					sugestão do ajuste, também em gramas de carboidrato (kcal ÷ 4; arroz
+					cozido com 28 g de carboidrato em 100 g). A contagem recomeça quando
+					você muda o objetivo ou o ritmo.
+				</p>
 			</LegalSection>
 
 			<LegalSection title="5. Alimentos, fibras e água">
@@ -114,13 +136,23 @@ export default function HowWeCalculatePage() {
 					<li>
 						<strong>Alimentos:</strong> Tabela Brasileira de Composição de
 						Alimentos (TACO/Unicamp), por 100 g, mais os que você cadastra pelo
-						rótulo. Alguns itens que a TACO não mediu (como o leite integral
-						líquido) usam valores do USDA. Medidas caseiras (colher, concha,
-						fatia) são médias do IBGE e aparecem sempre com "≈".
+						rótulo. Alguns itens que a TACO não mediu usam valores do USDA
+						(leite integral e desnatado líquidos) ou de um produto igual da
+						própria TACO (iogurte de abacaxi, com os valores do de morango).
+						Medidas caseiras (colher, concha, fatia) são médias do IBGE e
+						aparecem sempre com "≈".
 					</li>
 					<li>
 						<strong>Fibras:</strong> pelo menos 25 g por dia (OMS) ou 14 g a
 						cada 1.000 kcal, o que for maior.
+					</li>
+					<li>
+						<strong>Sódio e ferro:</strong> somados pela TACO (e pelo sódio dos
+						seus alimentos, se o rótulo foi copiado), sem contar o sal de
+						cozinha. Aviso acima de 2.000 mg de sódio por dia (OMS) e abaixo do
+						ferro recomendado (IOM): 8 mg pra homens e pra mulheres depois dos
+						50 anos, 18 mg pra mulheres de 19 a 50, 11 e 15 mg pra meninos e
+						meninas adolescentes.
 					</li>
 					<li>
 						<strong>Água:</strong> mínimo de 35 ml por kg; recomendado de 40 ml

@@ -5,7 +5,13 @@ import {
 	fiberTarget,
 	MACRO_KEYS,
 } from "~/domains/diet/utils/diet";
-import { Droplet, Wheat } from "~/shared/components/icons";
+import {
+	type DayMicronutrients,
+	MICRONUTRIENT_MESSAGES,
+	micronutrientAlerts,
+	SODIUM_LIMIT_MG,
+} from "~/domains/diet/utils/micronutrients";
+import { Droplet, FlaskConical, Wheat } from "~/shared/components/icons";
 import { formatFixed, formatNumber } from "~/shared/lib/format";
 import { cn } from "~/shared/lib/utils";
 
@@ -21,6 +27,8 @@ interface DietSummaryCardProps {
 	tdee: number | null;
 	/** Água sugerida pelo perfil (peso e treinos); null sem perfil. */
 	water?: WaterResult | null;
+	/** Sódio e ferro do dia (área logada); sem isso, as linhas não aparecem. */
+	micros?: { values: DayMicronutrients; ironGoal: number | null } | null;
 }
 
 // A legenda "OFF" da planilha: g · % · kcal · g/kg por macro, total e
@@ -30,10 +38,14 @@ export function DietSummaryCard({
 	summary,
 	tdee,
 	water = null,
+	micros = null,
 }: DietSummaryCardProps) {
 	const { surplus } = summary;
 	const fiberGoal = fiberTarget(summary.kcal);
 	const fiberLow = Math.round(summary.fiber) < fiberGoal;
+	const alerts = micros
+		? micronutrientAlerts({ micros: micros.values, ironGoal: micros.ironGoal })
+		: [];
 
 	return (
 		<section
@@ -102,6 +114,52 @@ export function DietSummaryCard({
 							recomendado {formatNumber(fiberGoal)} g
 						</td>
 					</tr>
+					{micros && (
+						<>
+							<tr>
+								<th scope="row" className="py-2 text-left font-normal">
+									<span className="flex items-center gap-2 whitespace-nowrap">
+										<FlaskConical className="size-3.5 shrink-0 text-muted-foreground" />
+										Sódio
+									</span>
+								</th>
+								<td className="py-2 pl-2 text-right font-medium">
+									{formatNumber(micros.values.sodium)}
+									<span className="ml-0.5 font-normal text-muted-foreground text-xs">
+										mg
+									</span>
+								</td>
+								<td
+									colSpan={3}
+									className="py-2 pl-2 text-right text-muted-foreground text-xs"
+								>
+									máximo {formatNumber(SODIUM_LIMIT_MG)} mg
+								</td>
+							</tr>
+							<tr>
+								<th scope="row" className="py-2 text-left font-normal">
+									<span className="flex items-center gap-2 whitespace-nowrap">
+										<FlaskConical className="size-3.5 shrink-0 text-muted-foreground" />
+										Ferro
+									</span>
+								</th>
+								<td className="py-2 pl-2 text-right font-medium">
+									{formatFixed(micros.values.iron)}
+									<span className="ml-0.5 font-normal text-muted-foreground text-xs">
+										mg
+									</span>
+								</td>
+								<td
+									colSpan={3}
+									className="py-2 pl-2 text-right text-muted-foreground text-xs"
+								>
+									{micros.ironGoal === null
+										? "—"
+										: `recomendado ${formatNumber(micros.ironGoal)} mg`}
+								</td>
+							</tr>
+						</>
+					)}
 					{water && (
 						<tr>
 							<th scope="row" className="py-2 text-left font-normal">
@@ -145,6 +203,33 @@ export function DietSummaryCard({
 					</>
 				)}
 			</p>
+
+			{micros &&
+				(alerts.length > 0 || micros.values.customWithoutSodium > 0) && (
+					<div className="flex flex-col gap-2 rounded-2xl bg-muted px-4 py-3 text-xs leading-relaxed">
+						{alerts.includes("sodium-high") && (
+							<p className="text-pretty">
+								{MICRONUTRIENT_MESSAGES["sodium-high"](micros.values.sodium)}
+							</p>
+						)}
+						{alerts.includes("iron-low") && micros.ironGoal !== null && (
+							<p className="text-pretty">
+								{MICRONUTRIENT_MESSAGES["iron-low"](
+									micros.values.iron,
+									micros.ironGoal,
+								)}
+							</p>
+						)}
+						{micros.values.customWithoutSodium > 0 && (
+							<p className="text-pretty text-muted-foreground">
+								{micros.values.customWithoutSodium === 1
+									? "1 alimento seu está sem sódio no cadastro"
+									: `${micros.values.customWithoutSodium} alimentos seus estão sem sódio no cadastro`}
+								: o total pode ser maior. O sal de cozinha não entra na conta.
+							</p>
+						)}
+					</div>
+				)}
 
 			<dl className="flex flex-col divide-y divide-border rounded-2xl bg-muted px-4 text-sm">
 				<div className="flex items-center justify-between py-2.5">
