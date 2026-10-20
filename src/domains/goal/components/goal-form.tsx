@@ -17,6 +17,7 @@ import {
 	calculateTdee,
 } from "~/domains/profile/utils/energy";
 import { useAutosave } from "~/shared/hooks/use-autosave";
+import { analytics } from "~/shared/lib/analytics/analytics";
 
 interface GoalFormProps {
 	profile: BodyProfile;
@@ -45,7 +46,12 @@ export function GoalForm({
 	const { status, schedule } = useAutosave<Goal>({
 		save: async (value) => {
 			const result = await saveGoal(value);
-			if (result.ok) setHasSaved(true);
+			if (result.ok) {
+				// Funil: só a primeira vez que a pessoa salva a Meta.
+				if (!hasSaved)
+					analytics.track("meta_salva", { objetivo: value.objective });
+				setHasSaved(true);
+			}
 			return result.ok;
 		},
 	});

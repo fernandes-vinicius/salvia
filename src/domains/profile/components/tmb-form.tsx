@@ -14,6 +14,7 @@ import {
 	calculateEnergy,
 } from "~/domains/profile/utils/energy";
 import { useAutosave } from "~/shared/hooks/use-autosave";
+import { analytics } from "~/shared/lib/analytics/analytics";
 
 interface TmbFormProps {
 	initialProfile: BodyProfile;
@@ -34,7 +35,11 @@ export function TmbForm({
 	const { status, schedule } = useAutosave<BodyProfile>({
 		save: async (value) => {
 			const result = await saveProfile(value);
-			if (result.ok) setHasSaved(true);
+			if (result.ok) {
+				// Funil: só a primeira vez que a pessoa salva a TMB.
+				if (!hasSaved) analytics.track("tmb_salva");
+				setHasSaved(true);
+			}
 			return result.ok;
 		},
 	});

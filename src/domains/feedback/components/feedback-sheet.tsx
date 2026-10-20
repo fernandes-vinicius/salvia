@@ -28,6 +28,7 @@ import {
 	SheetTitle,
 } from "~/shared/components/ui/sheet";
 import { Textarea } from "~/shared/components/ui/textarea";
+import { analytics } from "~/shared/lib/analytics/analytics";
 import { formatNumber } from "~/shared/lib/format";
 
 const MAX_LENGTH = 1000;
@@ -89,6 +90,7 @@ export function FeedbackSheet({ open, onOpenChange }: FeedbackSheetProps) {
 			toast.error(result.error);
 			return;
 		}
+		analytics.track("sugestao_enviada", { tipo: parsed.data.kind });
 		toast.success("Recebemos sua mensagem. Obrigado por ajudar o app!");
 		setMessage("");
 		setError(null);

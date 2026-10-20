@@ -97,6 +97,7 @@ import {
 } from "~/shared/components/ui/dropdown-menu";
 import { Switch } from "~/shared/components/ui/switch";
 import { useStickyTop } from "~/shared/hooks/use-sticky-top";
+import { analytics } from "~/shared/lib/analytics/analytics";
 import { formatNumber } from "~/shared/lib/format";
 
 interface DietViewProps {
@@ -532,6 +533,7 @@ export function DietView({
 			if (result.stale) setAddingTo(null);
 			return false;
 		}
+		analytics.track("alimento_adicionado", { fonte: food.source });
 		setMeals((current) =>
 			mapMeal(current, mealId, (meal) => ({
 				...meal,

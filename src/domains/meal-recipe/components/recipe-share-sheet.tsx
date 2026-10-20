@@ -28,6 +28,7 @@ import {
 	SheetHeader,
 	SheetTitle,
 } from "~/shared/components/ui/sheet";
+import { analytics } from "~/shared/lib/analytics/analytics";
 import { cn } from "~/shared/lib/utils";
 
 interface RecipeShareSheetProps {
@@ -104,9 +105,13 @@ function ShareFlow({
 		});
 	});
 
-	async function copy(value: string, done: string) {
+	const tracked = (canal: string) =>
+		analytics.track("receita_compartilhada", { canal });
+
+	async function copy(value: string, done: string, canal: string) {
 		try {
 			await navigator.clipboard.writeText(value);
+			tracked(canal);
 			toast.success(done);
 		} catch {
 			toast.error("Não foi possível copiar.");
@@ -120,6 +125,7 @@ function ShareFlow({
 				text: recipeShareMessage(recipe, link).replace(`\n${link}`, ""),
 				url: link,
 			});
+			tracked("menu_do_celular");
 		} catch {
 			// Cancelado pela pessoa: nada a fazer.
 		}
@@ -163,6 +169,7 @@ function ShareFlow({
 				href={whatsappShareUrl(recipeShareMessage(recipe, url))}
 				target="_blank"
 				rel="noopener noreferrer"
+				onClick={() => tracked("whatsapp")}
 				className={cn(buttonVariants(), "w-full")}
 			>
 				<MessageCircle data-icon="inline-start" />
@@ -185,12 +192,15 @@ function ShareFlow({
 				<Button
 					variant="outline"
 					aria-label="Copiar link"
-					onClick={() => copy(url, "Link copiado.")}
+					onClick={() => copy(url, "Link copiado.", "link")}
 				>
 					<Link />
 				</Button>
 			</div>
-			<Button variant="ghost" onClick={() => copy(text, "Receita copiada.")}>
+			<Button
+				variant="ghost"
+				onClick={() => copy(text, "Receita copiada.", "texto")}
+			>
 				<Copy data-icon="inline-start" />
 				Copiar a receita em texto
 			</Button>

@@ -68,6 +68,15 @@ export default function PrivacyPage() {
 						e agregada, sem cookies e sem identificar você.
 					</li>
 					<li>
+						<strong>Como você usa o site e o app:</strong> cliques, rolagem,
+						páginas e ações (por exemplo, “salvou a meta” ou “gerou uma
+						receita”), além de gravações da navegação pra entendermos onde a
+						tela confunde. Nas páginas públicas isso é anônimo; dentro do app,
+						fica ligado à sua conta (id, nome e e-mail). Nas gravações, os
+						campos de formulário e todos os textos do app (dieta, peso, medidas)
+						aparecem mascarados. Não usamos isso pra publicidade.
+					</li>
+					<li>
 						<strong>Preferências no aparelho:</strong> tema (claro ou escuro) e
 						os valores digitados nas calculadoras ficam só no armazenamento
 						local do seu navegador.
@@ -142,6 +151,25 @@ export default function PrivacyPage() {
 						<strong>Neon</strong>: banco de dados, hospedado em São Paulo (AWS
 						sa-east-1).
 					</li>
+					<li>
+						<strong>Microsoft (Clarity)</strong>: mapa de cliques e gravações
+						anônimas das páginas públicas (página inicial, calculadoras e links
+						compartilhados).
+					</li>
+					<li>
+						<strong>PostHog</strong>: estatísticas de uso do app (funil,
+						retenção) e gravações com textos mascarados.
+					</li>
+					<li>
+						<strong>Google (Gemini)</strong>: nos recursos com IA, ainda em
+						teste, lê o arquivo da dieta que você envia e sugere receitas a
+						partir das suas refeições. O arquivo não fica guardado no app.
+					</li>
+					<li>
+						<strong>Unsplash</strong>: fotos ilustrativas das receitas,
+						carregadas direto do Unsplash (que recebe o endereço IP do seu
+						aparelho ao exibir a foto).
+					</li>
 				</ul>
 				<p>
 					Essas empresas têm sede fora do Brasil, o que pode envolver
@@ -205,9 +233,11 @@ export default function PrivacyPage() {
 
 			<LegalSection title="9. Cookies">
 				<p>
-					Usamos só o cookie de sessão, necessário pra manter você conectado. As
-					estatísticas de visita funcionam sem cookies. Não usamos cookies de
-					publicidade nem de rastreamento de terceiros.
+					Dentro do app, usamos só o cookie de sessão, necessário pra manter
+					você conectado; as estatísticas de uso (PostHog) ficam no
+					armazenamento local do navegador, sem cookies. O Microsoft Clarity,
+					nas páginas públicas, roda no modo sem cookies. Não usamos cookies de
+					publicidade.
 				</p>
 			</LegalSection>
 
