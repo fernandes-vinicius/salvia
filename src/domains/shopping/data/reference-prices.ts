@@ -25,6 +25,9 @@ export const REFERENCE_PRICES: Record<string, Price> = {
 	"Arroz integral": kg(8),
 	"Feijão carioca": kg(8),
 	"Feijão preto": kg(9),
+	Lentilha: kg(14),
+	"Milho verde em lata": kg(30),
+	Tofu: kg(40),
 	"Flocão de milho": kg(6),
 	"Aveia em flocos": kg(20),
 	Macarrão: kg(10),
@@ -67,6 +70,7 @@ export const REFERENCE_PRICES: Record<string, Price> = {
 	"Manteiga, sem sal": kg(60),
 	// Padaria
 	"Pão francês": kg(18),
+	"Pão de forma de aveia": kg(22),
 	"Pão de forma integral": kg(20),
 	// Hortifrúti
 	"Banana-prata": kg(7),

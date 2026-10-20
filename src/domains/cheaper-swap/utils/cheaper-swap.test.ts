@@ -167,3 +167,43 @@ describe("pickCheaperSwap", () => {
 		expect(pickCheaperSwap([], "S1")).toBeNull();
 	});
 });
+
+describe("cheaperSwaps: pão integral (carboidrato do café)", () => {
+	const CEREALS = "Cereais e derivados";
+	const cereal = (
+		name: string,
+		macros: [number, number, number],
+		category = CEREALS,
+	): Food => ({ ...taco(name, macros), category });
+	const paoIntegral = cereal("Pão, trigo, forma, integral", [9.4, 49.9, 3.7]);
+	const paoFrances = cereal("Pão, trigo, francês", [8, 58.6, 3.1]);
+	const paoAveia = cereal("Pão, aveia, forma", [12.4, 59.6, 5.7]);
+	const aveia = cereal("Aveia, flocos, crua", [13.9, 66.6, 8.5]);
+	const arroz = cereal("Arroz, tipo 1, cozido", [2.5, 28.1, 0.2]);
+	// Na TACO o cuscuz fica em "Alimentos preparados".
+	const cuscuz = cereal(
+		"Cuscuz, de milho, cozido com sal",
+		[2.2, 25.3, 0.7],
+		"Alimentos preparados",
+	);
+	const pao = { id: "pao", food: paoIntegral, quantity: 50 };
+	const names = (foods: Food[], light = false) =>
+		cheaperSwaps(pao, foods, noPrices, { light }).map((s) => s.food.name);
+
+	it("oferece cuscuz, pão francês e aveia (mais baratos, macros parecidos)", () => {
+		const options = names([paoFrances, paoAveia, aveia, cuscuz]);
+		expect(options).toContain("Cuscuz, de milho, cozido com sal");
+		expect(options).toContain("Pão, trigo, francês");
+		expect(options).toContain("Aveia, flocos, crua");
+	});
+
+	it("outro pão mais parecido nos macros não esconde o pão francês", () => {
+		expect(names([paoAveia, paoFrances])).toContain("Pão, trigo, francês");
+	});
+
+	it("em refeição leve, sem comida de prato (arroz)", () => {
+		expect(names([arroz, cuscuz], true)).toEqual([
+			"Cuscuz, de milho, cozido com sal",
+		]);
+	});
+});

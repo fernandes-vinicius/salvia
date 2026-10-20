@@ -72,7 +72,7 @@ export function CheaperSwapCard({
 							{formatNumber(swap.quantity, 1)} {UNIT_LABELS[food.unit].short} de{" "}
 							{food.name}
 						</strong>
-						, com os mesmos macros.
+						, com macros parecidos.
 					</p>
 					{insight && <p className="text-pretty text-sm">{insight}</p>}
 					<p className="text-muted-foreground text-xs tabular-nums">
