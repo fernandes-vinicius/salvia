@@ -15,7 +15,7 @@ export function LandingHero() {
 	return (
 		<section className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 pt-10 pb-16 sm:px-6 md:pt-16 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pb-24">
 			<div className="flex flex-col items-start gap-6">
-				<Badge variant="secondary">Pra quem treina</Badge>
+				<Badge variant="secondary">Pra quem se cuida</Badge>
 				<h1 className="text-balance font-heading font-semibold text-4xl leading-[1.1] tracking-tight sm:text-5xl">
 					Sua dieta tá uma bagunça? Bora colocar em ordem.
 				</h1>
