@@ -8,6 +8,7 @@ import { DietPreview } from "~/domains/diet/components/diet-preview";
 import { applyDietTemplateAction } from "~/domains/diet-templates/actions/diet-template-actions";
 import type { DietTemplatePreview } from "~/domains/diet-templates/types/diet-template-preview";
 import { MacroLine } from "~/domains/food/components/macro-line";
+import type { ProteinCounting } from "~/domains/goal/utils/protein-counting";
 import { BottomSheetContent } from "~/shared/components/bottom-sheet";
 import { Eye, Loader2Icon, Sparkles } from "~/shared/components/icons";
 import {
@@ -36,6 +37,8 @@ interface DietTemplatesProps {
 	/** Refeições na dieta atual (avisa que vão ser substituídas). */
 	currentMealCount: number;
 	hasCurrentFoods: boolean;
+	/** Coluna de proteína do "Visualizar" (P ou P(A)). */
+	proteinCounting: ProteinCounting;
 }
 
 // Dietas prontas: um toque cria a dieta inteira, já com as quantidades
@@ -45,6 +48,7 @@ export function DietTemplates({
 	templates,
 	currentMealCount,
 	hasCurrentFoods,
+	proteinCounting,
 }: DietTemplatesProps) {
 	const router = useRouter();
 	const [confirming, setConfirming] = useState<DietTemplatePreview | null>(
@@ -151,7 +155,12 @@ export function DietTemplates({
 						)}
 					</SheetHeader>
 					<div className="flex-1 overflow-y-auto bg-background px-4 py-4 md:px-6">
-						{viewing && <DietPreview meals={viewing.meals} />}
+						{viewing && (
+							<DietPreview
+								meals={viewing.meals}
+								proteinCounting={proteinCounting}
+							/>
+						)}
 					</div>
 					<SheetFooter>
 						<Button

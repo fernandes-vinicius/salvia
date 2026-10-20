@@ -68,24 +68,38 @@ function dayTotals(list: ResolvedTemplateMeal[]) {
 
 describe("personalizeTemplate", () => {
 	it("sem metas devolve o modelo como está", () => {
-		expect(personalizeTemplate(meals, null)).toBe(meals);
+		expect(personalizeTemplate(meals, null, "animal")).toBe(meals);
 	});
 
 	it("escala cada grupo pra bater as três metas juntas", () => {
 		const goal = { protein: 96, carbs: 84, fat: 25 };
-		const totals = dayTotals(personalizeTemplate(meals, goal));
+		const totals = dayTotals(personalizeTemplate(meals, goal, "animal"));
 		// Arredondamento de 5 g: fica a poucos gramas da meta.
 		expect(totals.proteinAnimal).toBeCloseTo(goal.protein, -1);
 		expect(totals.carbs).toBeCloseTo(goal.carbs, -1);
 		expect(totals.fat).toBeCloseTo(goal.fat, -1);
 	});
 
+	it("no total, a proteína do arroz conta: sobra menos frango", () => {
+		const goal = { protein: 96, carbs: 84, fat: 25 };
+		const frangoEm = (counting: "total" | "animal") =>
+			personalizeTemplate(meals, goal, counting)[0].items.find(
+				(i) => i.food === frango,
+			)?.quantity ?? 0;
+		expect(frangoEm("total")).toBeLessThan(frangoEm("animal"));
+		const totals = dayTotals(personalizeTemplate(meals, goal, "total"));
+		expect(totals.proteinAnimal + totals.proteinVegetal).toBeCloseTo(
+			goal.protein,
+			-1,
+		);
+	});
+
 	it("mantém alimentos sem macros e arredonda no passo do editor", () => {
-		const [meal] = personalizeTemplate(meals, {
-			protein: 96,
-			carbs: 84,
-			fat: 25,
-		});
+		const [meal] = personalizeTemplate(
+			meals,
+			{ protein: 96, carbs: 84, fat: 25 },
+			"animal",
+		);
 		expect(meal.items.find((i) => i.food === alface)?.quantity).toBe(60);
 		for (const item of meal.items) expect(item.quantity % 5).toBe(0);
 	});

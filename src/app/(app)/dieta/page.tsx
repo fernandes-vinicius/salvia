@@ -80,6 +80,7 @@ async function DietContent() {
 				water={profile ? suggestedWater(profile) : null}
 				beta={beta}
 				initialSavedRecipes={savedRecipes}
+				proteinCounting={settings.proteinCounting}
 			/>
 		</CelebrationProvider>
 	);

@@ -1,12 +1,19 @@
 import type { DietSummary } from "~/domains/diet/types/diet-types";
-import { withinTarget } from "~/domains/diet/utils/diet";
+import { summaryProtein, withinTarget } from "~/domains/diet/utils/diet";
 import type { GoalTargets } from "~/domains/goal/types/goal-types";
+import {
+	DEFAULT_PROTEIN_COUNTING,
+	PROTEIN_LABELS,
+	type ProteinCounting,
+} from "~/domains/goal/utils/protein-counting";
 import { formatNumber } from "~/shared/lib/format";
 import { cn } from "~/shared/lib/utils";
 
 interface GoalProgressProps {
 	summary: DietSummary;
 	targets: GoalTargets;
+	/** Sem sessão (landing), o padrão: proteína total. */
+	proteinCounting?: ProteinCounting;
 }
 
 function diffLabel(planned: number, target: number, unit: string) {
@@ -17,9 +24,13 @@ function diffLabel(planned: number, target: number, unit: string) {
 		: `+${formatNumber(diff)} ${unit} acima`;
 }
 
-// Planejado × meta (a parte "Protein e Carb / Kg" da planilha), com proteína
-// animal como na meta.
-export function GoalProgress({ summary, targets }: GoalProgressProps) {
+// Planejado × meta (a parte "Protein e Carb / Kg" da planilha), com a
+// proteína contada como na meta (total ou só animal).
+export function GoalProgress({
+	summary,
+	targets,
+	proteinCounting = DEFAULT_PROTEIN_COUNTING,
+}: GoalProgressProps) {
 	const rows = [
 		{
 			label: "Calorias",
@@ -29,8 +40,8 @@ export function GoalProgress({ summary, targets }: GoalProgressProps) {
 			bar: "bg-primary",
 		},
 		{
-			label: "Proteína animal",
-			planned: summary.lines.proteinAnimal.grams,
+			label: PROTEIN_LABELS[proteinCounting].title,
+			planned: summaryProtein(summary, proteinCounting),
 			target: targets.protein.grams,
 			unit: "g",
 			bar: "bg-macro-protein",

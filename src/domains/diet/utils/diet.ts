@@ -13,6 +13,10 @@ import {
 	quantityRangeFor,
 	sumMacros,
 } from "~/domains/food/utils/food";
+import {
+	countedProtein,
+	type ProteinCounting,
+} from "~/domains/goal/utils/protein-counting";
 
 export const MACRO_KEYS: MacroKey[] = [
 	"proteinAnimal",
@@ -93,9 +97,24 @@ export function withinTarget(planned: number, target: number) {
 }
 
 /**
- * A dieta bate a meta: calorias, proteína animal, carboidrato e gordura,
- * todos dentro da tolerância (o "Na meta" em todas as linhas do card).
+ * A dieta bate a meta: calorias, proteína (total ou só animal, conforme a
+ * preferência), carboidrato e gordura, todos dentro da tolerância (o "Na
+ * meta" em todas as linhas do card).
  */
+/** Gramas de proteína do dia que contam pra meta. */
+export function summaryProtein(
+	summary: Pick<DietSummary, "lines">,
+	counting: ProteinCounting,
+) {
+	return countedProtein(
+		{
+			proteinAnimal: summary.lines.proteinAnimal.grams,
+			proteinVegetal: summary.lines.proteinVegetal.grams,
+		},
+		counting,
+	);
+}
+
 export function isOnTarget(
 	summary: DietSummary,
 	targets: {
@@ -104,10 +123,11 @@ export function isOnTarget(
 		carbs: { grams: number };
 		fat: { grams: number };
 	},
+	counting: ProteinCounting,
 ) {
 	return (
 		withinTarget(summary.kcal, targets.calories) &&
-		withinTarget(summary.lines.proteinAnimal.grams, targets.protein.grams) &&
+		withinTarget(summaryProtein(summary, counting), targets.protein.grams) &&
 		withinTarget(summary.lines.carbs.grams, targets.carbs.grams) &&
 		withinTarget(summary.lines.fat.grams, targets.fat.grams)
 	);

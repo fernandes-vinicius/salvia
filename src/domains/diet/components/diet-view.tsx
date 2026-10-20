@@ -64,6 +64,7 @@ import {
 } from "~/domains/diet/utils/diet";
 import { type Food, MacroLine, macrosFor, UNIT_LABELS } from "~/domains/food";
 import type { GoalTargets } from "~/domains/goal/types/goal-types";
+import type { ProteinCounting } from "~/domains/goal/utils/protein-counting";
 import { MealRecipeSheet } from "~/domains/meal-recipe";
 import {
 	type MealVariation,
@@ -119,6 +120,8 @@ interface DietViewProps {
 	beta?: boolean;
 	/** Receitas salvas por refeição (id → quantidade), só no beta. */
 	initialSavedRecipes?: Record<string, number>;
+	/** Proteína que conta pra meta (Configurações): coluna P ou P(A). */
+	proteinCounting: ProteinCounting;
 }
 
 const MODES = ["editar", "visualizar"] as const;
@@ -158,6 +161,7 @@ export function DietView({
 	water,
 	beta = false,
 	initialSavedRecipes = {},
+	proteinCounting,
 }: DietViewProps) {
 	const router = useRouter();
 	// Id estável pro dnd-kit: sem ele, o contador global dos ids de
@@ -245,7 +249,8 @@ export function DietView({
 	// "Na meta") ou a fibra chegar no recomendado. O estado de quando a tela
 	// abriu não conta: só a passagem de "fora" pra "dentro".
 	const celebrate = useCelebrate();
-	const onTarget = targets !== null && isOnTarget(summary, targets);
+	const onTarget =
+		targets !== null && isOnTarget(summary, targets, proteinCounting);
 	const fiberOk = Math.round(summary.fiber) >= fiberTarget(summary.kcal);
 	const reached = useRef({ onTarget, fiberOk });
 	useEffect(() => {
@@ -811,7 +816,11 @@ export function DietView({
 				>
 					<DietSummaryCard summary={summary} tdee={tdee} water={water} />
 					{targets ? (
-						<GoalProgress summary={summary} targets={targets} />
+						<GoalProgress
+							summary={summary}
+							targets={targets}
+							proteinCounting={proteinCounting}
+						/>
 					) : (
 						<p className="rounded-3xl bg-card p-4 text-muted-foreground text-sm md:p-5">
 							Defina sua meta na aba Meta para comparar o planejado com ela.
@@ -822,6 +831,7 @@ export function DietView({
 				{preview ? (
 					<DietPreview
 						meals={meals}
+						proteinCounting={proteinCounting}
 						printable
 						mealActions={(meal) => <MealMenu meal={meal} {...menuFor(meal)} />}
 					/>
@@ -845,6 +855,7 @@ export function DietView({
 						<div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:items-start">
 							{meals.map((meal) => (
 								<MealCard
+									proteinCounting={proteinCounting}
 									key={meal.id}
 									meal={meal}
 									onAddFood={() => setAddingTo(meal.id)}

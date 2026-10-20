@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
-
 import type { Goal, GoalTargets } from "~/domains/goal/types/goal-types";
 import { MACRO_RANGES } from "~/domains/goal/utils/goal";
+import {
+	DEFAULT_PROTEIN_COUNTING,
+	PROTEIN_LABELS,
+	type ProteinCounting,
+} from "~/domains/goal/utils/protein-counting";
 import {
 	ChevronDown,
 	Droplet,
@@ -22,6 +26,8 @@ interface MacroTargetsProps {
 	goal: Goal;
 	targets: GoalTargets;
 	onChange: (macros: Partial<MacroFields>) => void;
+	/** Proteína total (padrão, também sem sessão) ou só animal. */
+	proteinCounting?: ProteinCounting;
 }
 
 /** Arredonda pro passo do slider (0,1 g/kg) e mantém dentro da faixa. */
@@ -30,13 +36,19 @@ function roundToStep(perKg: number) {
 	return Math.min(max, Math.max(min, Math.round(perKg * 10) / 10));
 }
 
-export function MacroTargets({ goal, targets, onChange }: MacroTargetsProps) {
+export function MacroTargets({
+	goal,
+	targets,
+	onChange,
+	proteinCounting = DEFAULT_PROTEIN_COUNTING,
+}: MacroTargetsProps) {
+	const protein = PROTEIN_LABELS[proteinCounting];
 	const [isAdjusting, setIsAdjusting] = useState(false);
 	const isCarbsAuto = goal.carbsPerKg === null;
 
 	const rows = [
 		{
-			label: "Proteína animal",
+			label: protein.title,
 			hint: `${formatFixed(goal.proteinPerKg)} g por kg de peso`,
 			grams: targets.protein.grams,
 			dot: "bg-macro-protein",
@@ -95,7 +107,7 @@ export function MacroTargets({ goal, targets, onChange }: MacroTargetsProps) {
 			{isAdjusting && (
 				<div className="flex flex-col gap-3">
 					<MeasureSlider
-						label="Proteína animal"
+						label={protein.title}
 						icon={Drumstick}
 						unit="g/kg"
 						value={goal.proteinPerKg}
@@ -149,10 +161,7 @@ export function MacroTargets({ goal, targets, onChange }: MacroTargetsProps) {
 						/>
 					)}
 
-					<p className="px-1 text-muted-foreground text-xs">
-						Proteína animal: carnes, ovos, laticínios e whey. A vegetal (feijão,
-						grãos, pão) entra nas calorias, mas não conta para essa meta.
-					</p>
+					<p className="px-1 text-muted-foreground text-xs">{protein.hint}</p>
 				</div>
 			)}
 		</div>

@@ -245,24 +245,43 @@ describe("isOnTarget", () => {
 		carbs: { grams: 200 },
 		fat: { grams: 67 },
 	};
-	const summaryWith = (kcal: number, p: number, c: number, f: number) => ({
+	const summaryWith = (
+		kcal: number,
+		p: number,
+		c: number,
+		f: number,
+		vegetal = 0,
+	) => ({
 		kcal,
 		fiber: 0,
 		surplus: null,
 		lines: {
 			proteinAnimal: { grams: p, kcal: 0, percent: 0, perKg: null },
-			proteinVegetal: { grams: 0, kcal: 0, percent: 0, perKg: null },
+			proteinVegetal: { grams: vegetal, kcal: 0, percent: 0, perKg: null },
 			carbs: { grams: c, kcal: 0, percent: 0, perKg: null },
 			fat: { grams: f, kcal: 0, percent: 0, perKg: null },
 		},
 	});
 
 	it("na meta quando tudo está dentro de ±3%", () => {
-		expect(isOnTarget(summaryWith(2040, 148, 204, 66), targets)).toBe(true);
+		expect(isOnTarget(summaryWith(2040, 148, 204, 66), targets, "animal")).toBe(
+			true,
+		);
 	});
 
 	it("fora quando qualquer linha passa da tolerância", () => {
-		expect(isOnTarget(summaryWith(2000, 140, 200, 67), targets)).toBe(false);
-		expect(isOnTarget(summaryWith(2100, 150, 200, 67), targets)).toBe(false);
+		expect(isOnTarget(summaryWith(2000, 140, 200, 67), targets, "animal")).toBe(
+			false,
+		);
+		expect(isOnTarget(summaryWith(2100, 150, 200, 67), targets, "animal")).toBe(
+			false,
+		);
+	});
+
+	it("no total, a proteína vegetal entra na conta", () => {
+		// 120 g animal + 30 g vegetal = 150 g: bate no total, não no animal.
+		const summary = summaryWith(2000, 120, 200, 67, 30);
+		expect(isOnTarget(summary, targets, "total")).toBe(true);
+		expect(isOnTarget(summary, targets, "animal")).toBe(false);
 	});
 });

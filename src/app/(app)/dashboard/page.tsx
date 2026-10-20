@@ -167,7 +167,9 @@ async function HomeContent() {
 					carbs: targets.carbs.grams,
 					fat: targets.fat.grams,
 				},
+				settings.proteinCounting,
 			)}
+			proteinCounting={settings.proteinCounting}
 			currentMealCount={meals.length}
 			hasCurrentFoods={hasFoods}
 		/>
@@ -196,7 +198,13 @@ async function HomeContent() {
 			{/* Sem dieta ainda: as prontas são o atalho mais útil, vêm antes. */}
 			{!hasFoods && templates}
 
-			{targets && <PlanOverview summary={summary} targets={targets} />}
+			{targets && (
+				<PlanOverview
+					summary={summary}
+					targets={targets}
+					proteinCounting={settings.proteinCounting}
+				/>
+			)}
 			{calibrationAnalysis && (
 				<CalibrationCard
 					analysis={calibrationAnalysis}

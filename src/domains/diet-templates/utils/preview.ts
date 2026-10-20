@@ -9,14 +9,20 @@ import {
 	type TemplateFoods,
 } from "~/domains/diet-templates/utils/resolve";
 import { kcalFor, macrosFor, sumMacros } from "~/domains/food/utils/food";
+import type { ProteinCounting } from "~/domains/goal/utils/protein-counting";
 
 /** Prévia de cada modelo com as quantidades que a pessoa receberia. */
 export function previewTemplates(
 	foods: TemplateFoods,
 	goal: MacroGoal | null,
+	counting: ProteinCounting,
 ): DietTemplatePreview[] {
 	return DIET_TEMPLATES.map((template) => {
-		const meals = personalizeTemplate(resolveTemplate(template, foods), goal);
+		const meals = personalizeTemplate(
+			resolveTemplate(template, foods),
+			goal,
+			counting,
+		);
 		const macros = sumMacros(
 			meals.flatMap((meal) =>
 				meal.items.map((item) => macrosFor(item.food, item.quantity)),

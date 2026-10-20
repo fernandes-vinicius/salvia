@@ -1,8 +1,12 @@
 import type { DietMeal, DietSummary } from "~/domains/diet/types/diet-types";
-import { mealMacros } from "~/domains/diet/utils/diet";
+import { mealMacros, summaryProtein } from "~/domains/diet/utils/diet";
 import type { CustomFoodSummary } from "~/domains/food/types/food-types";
 import { kcalFor } from "~/domains/food/utils/food";
 import type { GoalTargets } from "~/domains/goal/types/goal-types";
+import {
+	PROTEIN_LABELS,
+	type ProteinCounting,
+} from "~/domains/goal/utils/protein-counting";
 import { formatNumber } from "~/shared/lib/format";
 
 // --- Próxima refeição -------------------------------------------------------
@@ -46,6 +50,7 @@ export interface PlanVerdict {
 export function planVerdict(
 	summary: DietSummary,
 	targets: GoalTargets,
+	counting: ProteinCounting,
 ): PlanVerdict {
 	if (summary.kcal === 0) {
 		return {
@@ -56,19 +61,22 @@ export function planVerdict(
 
 	const macros = [
 		{
-			label: "proteína animal",
-			diff: summary.lines.proteinAnimal.grams - targets.protein.grams,
+			label: PROTEIN_LABELS[counting].lower,
+			diff: summaryProtein(summary, counting) - targets.protein.grams,
 			target: targets.protein.grams,
+			kcalPerGram: 4,
 		},
 		{
 			label: "carboidrato",
 			diff: summary.lines.carbs.grams - targets.carbs.grams,
 			target: targets.carbs.grams,
+			kcalPerGram: 4,
 		},
 		{
 			label: "gordura",
 			diff: summary.lines.fat.grams - targets.fat.grams,
 			target: targets.fat.grams,
+			kcalPerGram: 9,
 		},
 	];
 	const kcalDiff = summary.kcal - targets.calories;
@@ -81,11 +89,9 @@ export function planVerdict(
 	}
 
 	// O macro mais distante (em kcal) explica a diferença.
-	const kcalPerGram = { "proteína animal": 4, carboidrato: 4, gordura: 9 };
 	const biggest = [...macros].sort(
 		(a, b) =>
-			Math.abs(b.diff) * kcalPerGram[b.label as keyof typeof kcalPerGram] -
-			Math.abs(a.diff) * kcalPerGram[a.label as keyof typeof kcalPerGram],
+			Math.abs(b.diff) * b.kcalPerGram - Math.abs(a.diff) * a.kcalPerGram,
 	)[0];
 	const gram = `${biggest.diff > 0 ? "+" : "−"}${formatNumber(Math.abs(biggest.diff))} g`;
 	const reason = `principalmente ${biggest.label} (${gram})`;

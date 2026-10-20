@@ -2,24 +2,32 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-
 import type { DietItem } from "~/domains/diet/types/diet-types";
 import { itemMacros } from "~/domains/diet/utils/diet";
 import { kcalFor, UNIT_LABELS } from "~/domains/food/utils/food";
 import { householdHint } from "~/domains/food/utils/household";
+import {
+	countedProtein,
+	type ProteinCounting,
+} from "~/domains/goal/utils/protein-counting";
 import { GripVertical } from "~/shared/components/icons";
 import { formatNonZero, formatNumber } from "~/shared/lib/format";
 import { cn } from "~/shared/lib/utils";
 
 interface SortableItemRowProps {
 	item: DietItem;
+	proteinCounting: ProteinCounting;
 	onEdit: () => void;
 }
 
 // Linha da grade arrastável pela alça (⋮⋮): a alça tem `touch-none` pra o
 // arrasto no celular não brigar com a rolagem, e tocar no resto da linha
 // continua abrindo o painel de edição.
-export function SortableItemRow({ item, onEdit }: SortableItemRowProps) {
+export function SortableItemRow({
+	item,
+	proteinCounting,
+	onEdit,
+}: SortableItemRowProps) {
 	const {
 		attributes,
 		listeners,
@@ -85,7 +93,7 @@ export function SortableItemRow({ item, onEdit }: SortableItemRowProps) {
 				))}
 			</td>
 			<td className="py-2 text-right text-macro-protein-ink">
-				{formatNonZero(macros.proteinAnimal)}
+				{formatNonZero(countedProtein(macros, proteinCounting))}
 			</td>
 			<td className="py-2 text-right text-macro-carb-ink">
 				{formatNonZero(macros.carbs)}

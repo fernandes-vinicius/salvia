@@ -86,6 +86,7 @@ async function MetaContent() {
 				initialGoal={goal ?? EXAMPLE_GOAL}
 				isExample={!goal}
 				bmrFormula={settings.bmrFormula}
+				proteinCounting={settings.proteinCounting}
 				calibrationKcal={calibrationState?.calibration.kcal ?? 0}
 			/>
 		</div>
