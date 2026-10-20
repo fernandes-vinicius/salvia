@@ -4,7 +4,7 @@ export interface Goal {
 	objective: Objective;
 	/** kcal/dia somadas ao gasto calórico (negativo = déficit). */
 	calorieAdjustment: number;
-	/** Proteína animal, g por kg de peso. */
+	/** Proteína (total ou só animal, conforme as Configurações), g/kg. */
 	proteinPerKg: number;
 	/** Gordura, g por kg de peso. */
 	fatPerKg: number;

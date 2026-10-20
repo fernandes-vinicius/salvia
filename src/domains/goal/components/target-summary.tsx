@@ -1,4 +1,9 @@
 import type { GoalTargets } from "~/domains/goal/types/goal-types";
+import {
+	DEFAULT_PROTEIN_COUNTING,
+	PROTEIN_LABELS,
+	type ProteinCounting,
+} from "~/domains/goal/utils/protein-counting";
 import { SaveStatus } from "~/shared/components/save-status";
 import type { AutosaveStatus } from "~/shared/hooks/use-autosave";
 import { formatFixed, formatNumber } from "~/shared/lib/format";
@@ -15,6 +20,8 @@ interface TargetSummaryProps {
 	status?: AutosaveStatus;
 	isExample?: boolean;
 	className?: string;
+	/** Proteína total (padrão, também sem sessão) ou só animal. */
+	proteinCounting?: ProteinCounting;
 }
 
 function formatAdjustment(adjustment: number) {
@@ -31,10 +38,11 @@ export function TargetSummary({
 	status,
 	isExample = false,
 	className,
+	proteinCounting = DEFAULT_PROTEIN_COUNTING,
 }: TargetSummaryProps) {
 	const macros = [
 		{
-			label: "Proteína animal",
+			label: PROTEIN_LABELS[proteinCounting].title,
 			target: targets.protein,
 			// Sobre o fundo `primary`, a cor de proteína (sálvia) sumiria.
 			swatch: "bg-primary-foreground",

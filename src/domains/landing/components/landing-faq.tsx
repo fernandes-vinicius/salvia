@@ -41,9 +41,9 @@ export const FAQ_QUESTIONS: FaqItem[] = [
 			"Da TACO (Tabela Brasileira de Composição de Alimentos, da Unicamp), com 597 alimentos. O que não estiver lá, como o seu whey ou uma marca específica, você cadastra com os valores do rótulo.",
 	},
 	{
-		question: "Por que a proteína é separada em animal e vegetal?",
+		question: "A proteína vegetal conta?",
 		answer:
-			"Porque é assim que muita gente que treina conta: a meta de proteína é pela animal (mais completa), e a vegetal entra no total sem inflar a conta.",
+			"Conta. Por padrão a meta é da proteína total (animal + vegetal), como a maioria dos nutricionistas faz. Se você prefere contar só a animal, é só trocar nas Configurações. O resumo do dia mostra as duas separadas.",
 	},
 	{
 		question: "Funciona no celular?",

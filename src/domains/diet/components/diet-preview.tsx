@@ -6,6 +6,12 @@ import type { DietMeal } from "~/domains/diet/types/diet-types";
 import { itemMacros, mealMacros } from "~/domains/diet/utils/diet";
 import { kcalFor, UNIT_LABELS } from "~/domains/food/utils/food";
 import { householdHint } from "~/domains/food/utils/household";
+import {
+	countedProtein,
+	DEFAULT_PROTEIN_COUNTING,
+	PROTEIN_LABELS,
+	type ProteinCounting,
+} from "~/domains/goal/utils/protein-counting";
 import { Clock } from "~/shared/components/icons";
 import { formatNonZero, formatNumber } from "~/shared/lib/format";
 
@@ -18,9 +24,12 @@ export function DietPreview({
 	meals,
 	printable = false,
 	mealActions,
+	proteinCounting = DEFAULT_PROTEIN_COUNTING,
 }: {
 	meals: DietMeal[];
 	printable?: boolean;
+	/** Coluna P (total) ou P(A) (só animal); sem sessão (landing), o padrão. */
+	proteinCounting?: ProteinCounting;
 	/** Menu da refeição (só na Dieta, modo Visualizar; some na impressão). */
 	mealActions?: (meal: DietMeal) => ReactNode;
 }) {
@@ -28,7 +37,12 @@ export function DietPreview({
 		<div className="flex flex-col gap-4">
 			{printable && <PrintHeader />}
 			{meals.map((meal) => (
-				<PreviewMeal key={meal.id} meal={meal} actions={mealActions?.(meal)} />
+				<PreviewMeal
+					key={meal.id}
+					meal={meal}
+					actions={mealActions?.(meal)}
+					counting={proteinCounting}
+				/>
 			))}
 			{printable && <PrintFooter />}
 		</div>
@@ -38,9 +52,11 @@ export function DietPreview({
 function PreviewMeal({
 	meal,
 	actions,
+	counting,
 }: {
 	meal: DietMeal;
 	actions?: ReactNode;
+	counting: ProteinCounting;
 }) {
 	const total = mealMacros(meal);
 	const info = (
@@ -89,8 +105,11 @@ function PreviewMeal({
 								Qtd.
 							</th>
 							<th className="w-12 pb-1.5 text-right font-medium text-macro-protein-ink">
-								<abbr title="Proteína animal" className="no-underline">
-									P(A)
+								<abbr
+									title={PROTEIN_LABELS[counting].title}
+									className="no-underline"
+								>
+									{PROTEIN_LABELS[counting].column}
 								</abbr>
 							</th>
 							<th className="w-11 pb-1.5 text-right font-medium text-macro-carb-ink">
@@ -143,7 +162,7 @@ function PreviewMeal({
 										)}
 									</td>
 									<td className="py-2 text-right text-macro-protein-ink">
-										{formatNonZero(macros.proteinAnimal)}
+										{formatNonZero(countedProtein(macros, counting))}
 									</td>
 									<td className="py-2 text-right text-macro-carb-ink">
 										{formatNonZero(macros.carbs)}
@@ -163,7 +182,7 @@ function PreviewMeal({
 							<td className="py-2">Total</td>
 							<td className="hidden sm:table-cell print:table-cell" />
 							<td className="py-2 text-right text-macro-protein-ink">
-								{formatNonZero(total.proteinAnimal)}
+								{formatNonZero(countedProtein(total, counting))}
 							</td>
 							<td className="py-2 text-right text-macro-carb-ink">
 								{formatNonZero(total.carbs)}

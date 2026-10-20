@@ -1,7 +1,12 @@
 import Link from "next/link";
 
 import type { DietSummary } from "~/domains/diet/types/diet-types";
+import { summaryProtein } from "~/domains/diet/utils/diet";
 import type { GoalTargets } from "~/domains/goal/types/goal-types";
+import {
+	PROTEIN_LABELS,
+	type ProteinCounting,
+} from "~/domains/goal/utils/protein-counting";
 import { planVerdict } from "~/domains/home/utils/home";
 import { ArrowRight } from "~/shared/components/icons";
 import { formatNumber } from "~/shared/lib/format";
@@ -10,16 +15,21 @@ import { cn } from "~/shared/lib/utils";
 interface PlanOverviewProps {
 	summary: DietSummary;
 	targets: GoalTargets;
+	proteinCounting: ProteinCounting;
 }
 
 // Card principal: o plano da aba Dieta comparado com a meta, em um olhar.
-export function PlanOverview({ summary, targets }: PlanOverviewProps) {
-	const verdict = planVerdict(summary, targets);
+export function PlanOverview({
+	summary,
+	targets,
+	proteinCounting,
+}: PlanOverviewProps) {
+	const verdict = planVerdict(summary, targets, proteinCounting);
 	const ratio = targets.calories > 0 ? summary.kcal / targets.calories : 0;
 	const macros = [
 		{
-			label: "Proteína animal",
-			planned: summary.lines.proteinAnimal.grams,
+			label: PROTEIN_LABELS[proteinCounting].title,
+			planned: summaryProtein(summary, proteinCounting),
 			target: targets.protein.grams,
 			// Sobre o fundo `primary`, a cor de proteína (sálvia) sumiria.
 			bar: "bg-primary-foreground",

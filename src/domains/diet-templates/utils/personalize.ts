@@ -1,8 +1,12 @@
 import type { ResolvedTemplateMeal } from "~/domains/diet-templates/types/diet-template-types";
 import type { Food } from "~/domains/food/types/food-types";
 import { macrosFor, quantityRangeFor } from "~/domains/food/utils/food";
+import {
+	countedProtein,
+	type ProteinCounting,
+} from "~/domains/goal/utils/protein-counting";
 
-/** Metas do dia em gramas (proteína = animal, como na Meta). */
+/** Metas do dia em gramas (proteína contada como na Meta). */
 export interface MacroGoal {
 	protein: number;
 	carbs: number;
@@ -13,10 +17,14 @@ type Group = "protein" | "carbs" | "fat";
 const GROUPS: Group[] = ["protein", "carbs", "fat"];
 type Vector = [protein: number, carbs: number, fat: number];
 
-/** Macros que contam pra meta: proteína animal, carboidrato e gordura. */
-function goalMacros(food: Food, quantity: number): Vector {
+/** Macros que contam pra meta: proteína (total ou animal), carbo e gordura. */
+function goalMacros(
+	food: Food,
+	quantity: number,
+	counting: ProteinCounting,
+): Vector {
 	const m = macrosFor(food, quantity);
-	return [m.proteinAnimal, m.carbs, m.fat];
+	return [countedProtein(m, counting), m.carbs, m.fat];
 }
 
 /**
@@ -24,7 +32,9 @@ function goalMacros(food: Food, quantity: number): Vector {
  * Sem macros (ex.: folhas), o alimento não é escalado.
  */
 function groupOf(food: Food, quantity: number): Group | null {
-	const [protein, carbs, fat] = goalMacros(food, quantity);
+	// O papel do alimento não depende da preferência: o feijão é carbo nos
+	// dois jeitos de contar.
+	const [protein, carbs, fat] = goalMacros(food, quantity, "total");
 	const kcal: Record<Group, number> = {
 		protein: protein * 4,
 		carbs: carbs * 4,
@@ -75,6 +85,7 @@ function roundQuantity(food: Food, quantity: number) {
 export function personalizeTemplate(
 	meals: ResolvedTemplateMeal[],
 	goal: MacroGoal | null,
+	counting: ProteinCounting,
 ): ResolvedTemplateMeal[] {
 	if (!goal) return meals;
 
@@ -86,7 +97,7 @@ export function personalizeTemplate(
 	const fixed: Vector = [0, 0, 0];
 	for (const meal of meals) {
 		for (const { food, quantity } of meal.items) {
-			const macros = goalMacros(food, quantity);
+			const macros = goalMacros(food, quantity, counting);
 			const group = groupOf(food, quantity);
 			const bucket = group ? totals[group] : fixed;
 			for (const i of [0, 1, 2]) bucket[i] += macros[i];

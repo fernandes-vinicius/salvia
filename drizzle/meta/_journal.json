@@ -141,6 +141,13 @@
       "when": 1792449347659,
       "tag": "0019_nosy_patch",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1792508975188,
+      "tag": "0020_square_mephistopheles",
+      "breakpoints": true
     }
   ]
 }

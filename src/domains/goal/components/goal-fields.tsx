@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-
 import { GoalWarnings } from "~/domains/goal/components/goal-warnings";
 import { MacroTargets } from "~/domains/goal/components/macro-targets";
 import { ObjectivePicker } from "~/domains/goal/components/objective-picker";
@@ -12,6 +11,7 @@ import type {
 	Objective,
 } from "~/domains/goal/types/goal-types";
 import { defaultGoalFor, findPace } from "~/domains/goal/utils/goal";
+import type { ProteinCounting } from "~/domains/goal/utils/protein-counting";
 import { FormSection } from "~/shared/components/form-section";
 import { cn } from "~/shared/lib/utils";
 
@@ -20,6 +20,8 @@ interface GoalFieldsProps {
 	targets: GoalTargets;
 	onChange: (goal: Goal) => void;
 	className?: string;
+	/** Proteína total (padrão, também sem sessão) ou só animal. */
+	proteinCounting?: ProteinCounting;
 }
 
 // Campos da Meta (objetivo, ritmo e macros). Usados na aba Meta (com
@@ -29,6 +31,7 @@ export function GoalFields({
 	targets,
 	onChange,
 	className,
+	proteinCounting,
 }: GoalFieldsProps) {
 	const [isCustomPace, setIsCustomPace] = useState(
 		goal.objective !== "maintain" &&
@@ -84,6 +87,7 @@ export function GoalFields({
 					goal={goal}
 					targets={targets}
 					onChange={(macros) => onChange({ ...goal, ...macros })}
+					proteinCounting={proteinCounting}
 				/>
 			</FormSection>
 		</div>

@@ -90,24 +90,31 @@ describe("planVerdict", () => {
 	});
 
 	it("fecha com a meta dentro da tolerância", () => {
-		expect(planVerdict(summary, targets(500, 96, 0, 12)).status).toBe(
+		expect(planVerdict(summary, targets(500, 96, 0, 12), "animal").status).toBe(
 			"on-target",
 		);
 	});
 
 	it("explica o que falta pelo macro mais distante", () => {
-		const verdict = planVerdict(summary, targets(900, 96, 100, 12));
+		const verdict = planVerdict(summary, targets(900, 96, 100, 12), "animal");
 		expect(verdict.status).toBe("below");
 		expect(verdict.message).toBe(
 			"Faltam 408 kcal para a meta, principalmente carboidrato (−100 g).",
 		);
 	});
 
+	it("fala de proteína ou de proteína animal conforme a preferência", () => {
+		const total = planVerdict(summary, targets(492, 140, 0, 12), "total");
+		expect(total.message).toContain("principalmente proteína (−44 g)");
+		const animal = planVerdict(summary, targets(492, 140, 0, 12), "animal");
+		expect(animal.message).toContain("principalmente proteína animal (−44 g)");
+	});
+
 	it("plano vazio pede pra montar a dieta", () => {
 		const empty = summarizeDiet([], { weightKg: 70, tdee: 2000 });
-		expect(planVerdict(empty, targets(1800, 150, 150, 60)).status).toBe(
-			"empty",
-		);
+		expect(
+			planVerdict(empty, targets(1800, 150, 150, 60), "animal").status,
+		).toBe("empty");
 	});
 });
 

@@ -19,7 +19,7 @@ export const goal = pgTable("goal", {
 	objective: objectiveEnum("objective").notNull(),
 	/** kcal/dia somadas ao gasto (negativo = déficit). */
 	calorieAdjustment: integer("calorie_adjustment").notNull(),
-	/** Meta de proteína ANIMAL em g/kg (igual à planilha). */
+	/** Meta de proteína em g/kg: total ou só animal (`settings.protein_counting`). */
 	proteinPerKg: doublePrecision("protein_per_kg").notNull(),
 	fatPerKg: doublePrecision("fat_per_kg").notNull(),
 	/** g/kg fixado pelo usuário; `null` = automático (o que sobra da meta). */

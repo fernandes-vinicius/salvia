@@ -58,6 +58,7 @@ export async function applyDietTemplateAction(
 			carbs: targets.carbs.grams,
 			fat: targets.fat.grams,
 		},
+		settings.proteinCounting,
 	);
 
 	await applyTemplateMeals(user.id, meals);

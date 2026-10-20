@@ -91,8 +91,9 @@ export function LandingFeatures() {
 				eyebrow="Igual à planilha"
 				title="O resumo do dia que você já conhece"
 				points={[
-					"P(A) · C · G · kcal por alimento e por refeição",
+					"P · C · G · kcal por alimento e por refeição",
 					"Total do dia em gramas, %, kcal e g/kg, com as fibras",
+					"Proteína total ou só a animal, do jeito que você conta",
 					"Quanto a dieta fica acima ou abaixo do seu gasto, na hora",
 				]}
 				visual={

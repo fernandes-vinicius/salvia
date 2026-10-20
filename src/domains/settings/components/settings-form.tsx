@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import type { ProteinCounting } from "~/domains/goal/utils/protein-counting";
 import type { BodyProfile } from "~/domains/profile/types/profile-types";
 import {
 	BMR_FORMULAS,
@@ -14,6 +15,7 @@ import type { UserSettings } from "~/domains/settings/types/settings-types";
 import { ChoiceCard } from "~/shared/components/choice-card";
 import { FormSection } from "~/shared/components/form-section";
 import {
+	Beef,
 	BookOpen,
 	CircleAlert,
 	CloudCheck,
@@ -21,6 +23,7 @@ import {
 	Loader2Icon,
 	type LucideIcon,
 	PartyPopper,
+	Salad,
 } from "~/shared/components/icons";
 import { SwitchCard } from "~/shared/components/switch-card";
 import { RadioGroup } from "~/shared/components/ui/radio-group";
@@ -31,6 +34,28 @@ const FORMULA_ICONS: Record<BmrFormula, LucideIcon> = {
 	mifflin: FlaskConical,
 	harris: BookOpen,
 };
+
+const PROTEIN_OPTIONS: {
+	value: ProteinCounting;
+	icon: LucideIcon;
+	title: string;
+	description: string;
+}[] = [
+	{
+		value: "total",
+		icon: Salad,
+		title: "Proteína total (animal + vegetal)",
+		description:
+			"O jeito mais usado, inclusive por nutricionistas: a do feijão, do arroz e do pão também conta.",
+	},
+	{
+		value: "animal",
+		icon: Beef,
+		title: "Só proteína animal",
+		description:
+			"Carnes, ovos, laticínios e whey. A vegetal aparece no resumo do dia, mas não conta pra meta de proteína diária.",
+	},
+];
 
 interface SettingsFormProps {
 	initialSettings: UserSettings;
@@ -88,6 +113,30 @@ export function SettingsForm({ initialSettings, profile }: SettingsFormProps) {
 					))}
 				</RadioGroup>
 				<InlineSaveStatus status={status} />
+			</FormSection>
+			<FormSection
+				title="Como contar a proteína"
+				description="Vale pra meta, pra coluna de proteína das refeições (P ou P(A)) e pra comparação plano × meta. O resumo do dia sempre mostra animal e vegetal separadas."
+			>
+				<RadioGroup
+					aria-label="Como contar a proteína"
+					value={settings.proteinCounting}
+					onValueChange={(value) =>
+						update({ ...settings, proteinCounting: value as ProteinCounting })
+					}
+					className="gap-2"
+				>
+					{PROTEIN_OPTIONS.map((option) => (
+						<ChoiceCard
+							key={option.value}
+							value={option.value}
+							icon={option.icon}
+							title={option.title}
+							description={option.description}
+							tags={option.value === "total" ? ["Padrão"] : undefined}
+						/>
+					))}
+				</RadioGroup>
 			</FormSection>
 			<FormSection
 				title="Comemorações"

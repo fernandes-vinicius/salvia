@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-
 import { useCalculatorDraftImport } from "~/domains/calculators";
 import { saveGoal } from "~/domains/goal/actions/save-goal";
 import { GoalFields } from "~/domains/goal/components/goal-fields";
@@ -10,6 +9,7 @@ import { TargetSummary } from "~/domains/goal/components/target-summary";
 import { goalSchema } from "~/domains/goal/schemas/goal-schema";
 import type { Goal } from "~/domains/goal/types/goal-types";
 import { calculateTargets } from "~/domains/goal/utils/goal";
+import type { ProteinCounting } from "~/domains/goal/utils/protein-counting";
 import type { BodyProfile } from "~/domains/profile/types/profile-types";
 import {
 	type BmrFormula,
@@ -28,6 +28,7 @@ interface GoalFormProps {
 	bmrFormula: BmrFormula;
 	/** Ajuste do gasto pelo peso real (kcal/dia). */
 	calibrationKcal: number;
+	proteinCounting: ProteinCounting;
 }
 
 export function GoalForm({
@@ -36,6 +37,7 @@ export function GoalForm({
 	isExample,
 	bmrFormula,
 	calibrationKcal,
+	proteinCounting,
 }: GoalFormProps) {
 	const [goal, setGoal] = useState(initialGoal);
 	const [hasSaved, setHasSaved] = useState(!isExample);
@@ -89,6 +91,7 @@ export function GoalForm({
 	return (
 		<div className="grid gap-6 md:grid-cols-[minmax(0,1fr)_20rem] md:items-start">
 			<TargetSummary
+				proteinCounting={proteinCounting}
 				targets={targets}
 				tdee={tdee}
 				calorieAdjustment={goal.calorieAdjustment}
@@ -99,6 +102,7 @@ export function GoalForm({
 			/>
 
 			<GoalFields
+				proteinCounting={proteinCounting}
 				key={fieldsKey}
 				goal={goal}
 				targets={targets}

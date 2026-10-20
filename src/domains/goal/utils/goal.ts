@@ -62,7 +62,7 @@ export const MACRO_RANGES = {
 	carbsPerKg: { min: 0.5, max: 6, step: 0.1 },
 } as const;
 
-/** Macros sugeridos pra cada objetivo (proteína animal + gordura, g/kg). */
+/** Macros sugeridos pra cada objetivo (proteína + gordura, g/kg). */
 export const MACRO_DEFAULTS: Record<
 	Objective,
 	Pick<Goal, "proteinPerKg" | "fatPerKg" | "carbsPerKg">

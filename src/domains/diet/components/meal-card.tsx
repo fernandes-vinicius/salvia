@@ -14,6 +14,11 @@ import { SortableItemRow } from "~/domains/diet/components/sortable-item-row";
 import type { DietMeal } from "~/domains/diet/types/diet-types";
 import { mealMacros } from "~/domains/diet/utils/diet";
 import { kcalFor } from "~/domains/food/utils/food";
+import {
+	countedProtein,
+	PROTEIN_LABELS,
+	type ProteinCounting,
+} from "~/domains/goal/utils/protein-counting";
 import { Clock, Plus } from "~/shared/components/icons";
 import { Button } from "~/shared/components/ui/button";
 import { formatNonZero, formatNumber } from "~/shared/lib/format";
@@ -21,17 +26,20 @@ import { cn } from "~/shared/lib/utils";
 
 interface MealCardProps extends MealMenuActions {
 	meal: DietMeal;
+	/** Coluna P (total) ou P(A) (só animal), conforme as Configurações. */
+	proteinCounting: ProteinCounting;
 	onAddFood: () => void;
 	onEditItem: (itemId: string) => void;
 }
 
 // Um bloco da grade (como "Refeição 1 - 9h" na planilha): alimentos em linhas
-// com P(A) · C · G · kcal e o total. O card inteiro é área de soltar (pra
+// com P · C · G · kcal (ou P(A)) e o total. O card inteiro é área de soltar (pra
 // receber alimentos arrastados, inclusive quando está vazio).
 export function MealCard({
 	meal,
 	onAddFood,
 	onEditItem,
+	proteinCounting,
 	...menu
 }: MealCardProps) {
 	const { setNodeRef, isOver } = useDroppable({ id: meal.id });
@@ -70,8 +78,8 @@ export function MealCard({
 			>
 				{meal.items.length > 0 ? (
 					// Cada macro na sua cor (letra e valor), como no resumo. A coluna
-					// de proteína é só a animal (a da meta, pra distribuir entre as
-					// refeições); a vegetal aparece no resumo do dia.
+					// de proteína é a que conta pra meta (total ou só animal); o
+					// resumo do dia mostra animal e vegetal separadas.
 					<table className="w-full text-sm tabular-nums">
 						<thead>
 							<tr className="text-xs">
@@ -82,8 +90,11 @@ export function MealCard({
 									Alimento
 								</th>
 								<th className="w-11 pb-1 text-right font-medium text-macro-protein-ink">
-									<abbr title="Proteína animal" className="no-underline">
-										P(A)
+									<abbr
+										title={PROTEIN_LABELS[proteinCounting].title}
+										className="no-underline"
+									>
+										{PROTEIN_LABELS[proteinCounting].column}
 									</abbr>
 								</th>
 								<th className="w-10 pb-1 text-right font-medium text-macro-carb-ink">
@@ -106,6 +117,7 @@ export function MealCard({
 								<SortableItemRow
 									key={item.id}
 									item={item}
+									proteinCounting={proteinCounting}
 									onEdit={() => onEditItem(item.id)}
 								/>
 							))}
@@ -115,7 +127,7 @@ export function MealCard({
 								<td />
 								<td className="py-2">Total</td>
 								<td className="py-2 text-right text-macro-protein-ink">
-									{formatNonZero(total.proteinAnimal)}
+									{formatNonZero(countedProtein(total, proteinCounting))}
 								</td>
 								<td className="py-2 text-right text-macro-carb-ink">
 									{formatNonZero(total.carbs)}

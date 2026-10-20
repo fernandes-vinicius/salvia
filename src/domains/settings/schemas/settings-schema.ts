@@ -3,4 +3,5 @@ import { z } from "zod";
 export const userSettingsSchema = z.object({
 	bmrFormula: z.enum(["mifflin", "harris"]),
 	celebrations: z.boolean(),
+	proteinCounting: z.enum(["total", "animal"]),
 });

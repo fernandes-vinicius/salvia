@@ -25,9 +25,9 @@ const FAQ = [
 			"Entre 250 e 500 kcal acima do gasto. Comendo só um pouco a mais, você ganha músculo com menos gordura; acima disso, o ganho extra tende a ser gordura.",
 	},
 	{
-		question: 'Por que a proteína aqui é "animal"?',
+		question: "A proteína do feijão e do arroz conta?",
 		answer:
-			"É como muita gente que treina conta: a meta em g/kg é da proteína animal (mais completa em aminoácidos), e a proteína vegetal de arroz, feijão e pão entra no total sem inflar a conta. No app, a dieta mostra as duas separadas.",
+			"Conta. A meta em g/kg é da proteína total (animal + vegetal), como a maioria dos nutricionistas faz. Se você prefere contar só a animal (mais completa em aminoácidos), dá pra trocar nas Configurações do app; a dieta mostra as duas separadas.",
 	},
 	{
 		question: "O carboidrato não aparece pra escolher. Por quê?",
