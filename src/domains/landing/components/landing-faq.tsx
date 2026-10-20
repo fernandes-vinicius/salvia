@@ -48,7 +48,7 @@ export const FAQ_QUESTIONS: FaqItem[] = [
 	},
 	{
 		question: "Vai ter IA no app?",
-		answer: `Vai. Estamos testando com um grupo pequeno: importar a dieta do nutricionista por PDF ou foto, receita da refeição (com receitas salvas e compartilhadas por link), variar a refeição com os mesmos macros, completar o que falta no dia e um resumo da semana. Ainda não estão liberados e vão fazer parte do ${APP_NAME} Pro, que chega em breve.`,
+		answer: `Vai. Estamos testando com um grupo pequeno: importar a dieta do nutricionista por PDF ou foto, receita da refeição (com receitas salvas e compartilhadas por link), variar a refeição com os mesmos macros, trocar um alimento por outro equivalente mais barato, completar o que falta no dia e um resumo da semana. Ainda não estão liberados e vão fazer parte do ${APP_NAME} Pro, que chega em breve.`,
 	},
 	{
 		question: "Meus dados ficam comigo?",

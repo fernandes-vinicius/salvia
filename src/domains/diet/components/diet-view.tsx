@@ -1063,6 +1063,7 @@ export function DietView({
 						)
 					}
 					onReplace={replaceItem}
+					cheaperSwap={beta}
 					onCopy={copyItem}
 					onAddOption={addOption}
 					onRemoveOption={removeOption}
