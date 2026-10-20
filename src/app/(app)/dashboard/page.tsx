@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { getCurrentUser } from "~/domains/auth/services/session-service";
+import { suggestedWater } from "~/domains/calculators/utils/water";
 import { addDays, CheckinCard, type CheckinMeal } from "~/domains/checkin";
 import { listCheckins } from "~/domains/checkin/services/checkin-service";
 import { summarizeDiet } from "~/domains/diet";
@@ -29,6 +30,7 @@ import {
 	SetupChecklist,
 	type SetupStep,
 } from "~/domains/home/components/setup-checklist";
+import { WaterCard } from "~/domains/home/components/water-card";
 import {
 	type AttentionItem,
 	emptyMealItems,
@@ -213,6 +215,7 @@ async function HomeContent() {
 					<GoalCard goal={goal} targets={targets} tdee={tdee} />
 				)}
 				{meals.length > 0 && <NextMealCard meals={meals} />}
+				{profile && <WaterCard water={suggestedWater(profile)} />}
 				<div className="sm:col-span-2">
 					<MeasurementsCard measurements={measurements} />
 				</div>

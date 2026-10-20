@@ -15,6 +15,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 		page("/calculadoras", "monthly", 0.8),
 		...CALCULATORS.map((calculator) => page(calculator.href, "monthly", 0.8)),
 		page("/login", "yearly", 0.3),
+		page("/como-calculamos", "yearly", 0.3),
 		page("/termos", "yearly", 0.2),
 		page("/privacidade", "yearly", 0.2),
 	];

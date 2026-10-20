@@ -8,6 +8,7 @@ import {
 	isOnTarget,
 	mealMacros,
 	moveItemTo,
+	moveMeal,
 	nextMealName,
 	summarizeDiet,
 } from "~/domains/diet/utils/diet";
@@ -283,5 +284,27 @@ describe("isOnTarget", () => {
 		const summary = summaryWith(2000, 120, 200, 67, 30);
 		expect(isOnTarget(summary, targets, "total")).toBe(true);
 		expect(isOnTarget(summary, targets, "animal")).toBe(false);
+	});
+});
+
+describe("moveMeal", () => {
+	const list = [{ id: "a" }, { id: "b" }, { id: "c" }];
+
+	it("leva a refeição pro lugar da outra", () => {
+		expect(moveMeal(list, "c", "a").map((meal) => meal.id)).toEqual([
+			"c",
+			"a",
+			"b",
+		]);
+		expect(moveMeal(list, "a", "b").map((meal) => meal.id)).toEqual([
+			"b",
+			"a",
+			"c",
+		]);
+	});
+
+	it("id desconhecido ou o mesmo lugar devolve igual", () => {
+		expect(moveMeal(list, "x", "a")).toBe(list);
+		expect(moveMeal(list, "a", "a")).toBe(list);
 	});
 });

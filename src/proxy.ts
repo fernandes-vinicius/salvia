@@ -6,9 +6,15 @@ import { type NextRequest, NextResponse } from "next/server";
 // no DAL (`getCurrentUser`). Usuário logado em `/login` é tratado no client
 // (`RedirectIfAuthenticated`) pra não gerar loop com cookie expirado.
 // `/` é a landing pública; com sessão, vai direto pro app. Termos,
-// privacidade, calculadoras, dietas e receitas compartilhadas (`/d/:token`,
+// privacidade, "Como calculamos", calculadoras, dietas e receitas compartilhadas (`/d/:token`,
 // `/r/:token`) são públicos com ou sem sessão.
-const PUBLIC_PATHS = new Set(["/", "/login", "/termos", "/privacidade"]);
+const PUBLIC_PATHS = new Set([
+	"/",
+	"/login",
+	"/termos",
+	"/privacidade",
+	"/como-calculamos",
+]);
 
 function isPublicPath(pathname: string) {
 	if (PUBLIC_PATHS.has(pathname)) return true;

@@ -11,6 +11,7 @@ import {
 	deleteItemOption,
 	deleteMeal,
 	placeItems,
+	reorderMeals,
 	replaceItemFood,
 	resetDiet,
 	swapItemOption,
@@ -184,6 +185,18 @@ export async function placeItemsAction(layout: unknown): Promise<ActionResult> {
 	return (await placeItems(user.id, parsed.data))
 		? done(null)
 		: stale("Não foi possível mover o alimento.");
+}
+
+/** Nova ordem das refeições (painel "Reordenar refeições"). */
+export async function reorderMealsAction(
+	mealIds: unknown,
+): Promise<ActionResult> {
+	const user = await getCurrentUser();
+	const parsed = z.array(id).min(1).max(30).safeParse(mealIds);
+	if (!parsed.success) return fail("Ordem inválida.");
+	return (await reorderMeals(user.id, parsed.data))
+		? done(null)
+		: stale("Não foi possível reordenar as refeições.");
 }
 
 /** Apaga refeições e alimentos e recria as 3 refeições em branco. */

@@ -10,7 +10,11 @@ import { saveRecipeAction } from "~/domains/meal-recipe/actions/saved-recipe-act
 import { RecipeShareSheet } from "~/domains/meal-recipe/components/recipe-share-sheet";
 import { RecipeView } from "~/domains/meal-recipe/components/recipe-view";
 import type { SuggestedRecipe } from "~/domains/meal-recipe/schemas/meal-recipe-schema";
-import { recipeText } from "~/domains/meal-recipe/utils/meal-recipe";
+import {
+	RECIPE_STYLES,
+	type RecipeStyle,
+	recipeText,
+} from "~/domains/meal-recipe/utils/meal-recipe";
 import { applySwaps } from "~/domains/meal-recipe/utils/recipe-swap";
 import { recipeSnapshot } from "~/domains/meal-recipe/utils/saved-recipe";
 import { BottomSheetContent } from "~/shared/components/bottom-sheet";
@@ -82,12 +86,18 @@ function RecipeFlow({
 	const [sharing, setSharing] = useState<string | null>(null);
 	const avoid = useRef<string[]>([]);
 	const started = useRef(false);
+	/** Estilo pedido nos chips; vale pra "Outra receita" também. */
+	const [style, setStyle] = useState<RecipeStyle | null>(null);
 
-	async function suggest(previous: SuggestedRecipe | null) {
+	async function suggest(
+		previous: SuggestedRecipe | null,
+		nextStyle: RecipeStyle | null = style,
+	) {
 		setState({ kind: "loading", previous });
 		const result = await suggestRecipeAction({
 			mealId: meal.id,
 			avoid: avoid.current.slice(-10),
+			style: nextStyle,
 		});
 		if (!result.ok) {
 			setState({ kind: "error", error: result.error });
@@ -98,6 +108,7 @@ function RecipeFlow({
 			// A primeira já entrou na lista: "outra" é a partir da segunda.
 			outra: avoid.current.length > 1,
 			com_foto: result.data.photo !== null,
+			estilo: nextStyle ?? "qualquer",
 		});
 		setState({ kind: "ready", recipe: result.data, savedId: null });
 	}
@@ -153,6 +164,30 @@ function RecipeFlow({
 	return (
 		<>
 			<div className="flex-1 overflow-y-auto px-4 pb-4">
+				<fieldset className="mb-4 flex flex-wrap gap-2">
+					<legend className="sr-only">Estilo da receita</legend>
+					{[{ value: null, label: "Qualquer" }, ...RECIPE_STYLES].map(
+						(option) => {
+							const active = style === option.value;
+							return (
+								<Button
+									key={option.label}
+									size="sm"
+									variant={active ? "default" : "outline"}
+									aria-pressed={active}
+									disabled={loading || saving}
+									onClick={() => {
+										if (active) return;
+										setStyle(option.value);
+										void suggest(recipe, option.value);
+									}}
+								>
+									{option.label}
+								</Button>
+							);
+						},
+					)}
+				</fieldset>
 				{state.kind === "error" ? (
 					<p role="alert" className="rounded-2xl bg-card p-4 text-sm">
 						{state.error}

@@ -7,7 +7,7 @@ import {
 	LoginErrorAlert,
 	RedirectIfAuthenticated,
 } from "~/domains/auth";
-import { Leaf } from "~/shared/components/icons";
+import { ArrowRight, Calculator, Leaf } from "~/shared/components/icons";
 import { Card, CardContent } from "~/shared/components/ui/card";
 import { APP_NAME, APP_TAGLINE } from "~/shared/lib/app-config";
 
@@ -52,6 +52,28 @@ export default function LoginPage() {
 					uso dos seus dados de corpo e dieta pra calcular o seu plano. O{" "}
 					{APP_NAME} não substitui nutricionista.
 				</p>
+
+				{/* Pra quem ainda não quer criar conta: as calculadoras são públicas. */}
+				<Link
+					href="/calculadoras"
+					className="group flex w-full items-center gap-3 rounded-2xl bg-secondary p-3 text-left outline-none transition-colors hover:bg-secondary/70 focus-visible:ring-[3px] focus-visible:ring-ring/50"
+				>
+					<span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-card text-primary">
+						<Calculator className="size-4" aria-hidden />
+					</span>
+					<span className="flex min-w-0 flex-1 flex-col">
+						<span className="font-medium text-sm">
+							Só quer fazer as contas?
+						</span>
+						<span className="text-pretty text-muted-foreground text-xs">
+							Gasto, macros, proteína, IMC e gordura corporal, sem cadastro.
+						</span>
+					</span>
+					<ArrowRight
+						className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+						aria-hidden
+					/>
+				</Link>
 			</CardContent>
 			<RedirectIfAuthenticated />
 		</Card>

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -86,7 +87,18 @@ export function SettingsForm({ initialSettings, profile }: SettingsFormProps) {
 		<div className="flex flex-col gap-10">
 			<FormSection
 				title="Fórmula da taxa metabólica (TMB)"
-				description="Muda o cálculo de quanto você gasta em repouso e, com isso, o gasto diário e a meta nas abas TMB e Meta."
+				description={
+					<>
+						Muda o cálculo de quanto você gasta em repouso e, com isso, o gasto
+						diário e a meta nas abas TMB e Meta.{" "}
+						<Link
+							href="/como-calculamos"
+							className="font-medium text-primary underline-offset-4 hover:underline"
+						>
+							Como calculamos
+						</Link>
+					</>
+				}
 			>
 				<RadioGroup
 					aria-label="Fórmula da TMB"

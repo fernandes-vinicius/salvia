@@ -9,6 +9,8 @@ import {
 	mealPrompt,
 	type PromptSwap,
 	type RecipeItem,
+	type RecipeStyle,
+	recipeStylePrompt,
 } from "~/domains/meal-recipe/utils/meal-recipe";
 import { MAX_RECIPE_SWAPS } from "~/domains/meal-recipe/utils/recipe-swap";
 import {
@@ -43,6 +45,7 @@ export async function suggestMealRecipe(
 	meal: { name: string; time: string | null },
 	items: (RecipeItem & { swaps?: PromptSwap[] })[],
 	avoid: string[],
+	style: RecipeStyle | null = null,
 ): Promise<SuggestRecipeResult> {
 	const model = getAiModel();
 	if (!model) return { ok: false, error: AI_NOT_CONFIGURED };
@@ -51,6 +54,7 @@ export async function suggestMealRecipe(
 		`Refeição: ${meal.name}${meal.time ? ` (${meal.time})` : ""}`,
 		"Alimentos da refeição:",
 		mealPrompt(items),
+		...(style ? ["", recipeStylePrompt(style)] : []),
 		...(avoid.length > 0
 			? [
 					"",

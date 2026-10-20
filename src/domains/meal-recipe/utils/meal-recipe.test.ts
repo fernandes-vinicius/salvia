@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import type { Food } from "~/domains/food/types/food-types";
 import {
 	mealPrompt,
+	recipeStylePrompt,
 	recipeText,
 	safeExtras,
 } from "~/domains/meal-recipe/utils/meal-recipe";
@@ -156,5 +157,17 @@ describe("recipeText", () => {
 		expect(text).toContain(
 			"- 90 g de Banana, prata, crua (no lugar de 200 g de Mamão, Formosa, cru)",
 		);
+	});
+});
+
+describe("recipeStylePrompt", () => {
+	it("cada estilo vira uma instrução pro prompt", () => {
+		expect(recipeStylePrompt("rapida")).toContain("10 minutos");
+		expect(recipeStylePrompt("marmita")).toContain("marmita");
+		expect(recipeStylePrompt("airfryer")).toContain("air fryer");
+	});
+
+	it("sem estilo, nada", () => {
+		expect(recipeStylePrompt(null)).toBeNull();
 	});
 });
