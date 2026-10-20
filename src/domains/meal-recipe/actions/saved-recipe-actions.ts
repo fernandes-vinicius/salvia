@@ -6,6 +6,7 @@ import { z } from "zod";
 import { isBetaUser } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { getDiet } from "~/domains/diet/services/diet-service";
+import { findVisibleFood } from "~/domains/food/services/food-service";
 import {
 	restoreRecipeInputSchema,
 	saveRecipeInputSchema,
@@ -22,6 +23,11 @@ import {
 import type { SavedRecipe } from "~/domains/meal-recipe/types/saved-recipe-types";
 import { safeExtras } from "~/domains/meal-recipe/utils/meal-recipe";
 import { recipeShareUrl } from "~/domains/meal-recipe/utils/recipe-share";
+import {
+	applySwaps,
+	type RecipeSwap,
+	swapQuantity,
+} from "~/domains/meal-recipe/utils/recipe-swap";
 import { recipeSnapshot } from "~/domains/meal-recipe/utils/saved-recipe";
 import { SITE_URL } from "~/shared/lib/app-config";
 
@@ -55,15 +61,30 @@ export async function saveRecipeAction(
 		return fail("Essa refeição mudou. Gere a receita de novo.");
 	}
 
+	// Trocas: confere de novo (alimento visível e macros quase iguais) e
+	// recalcula a quantidade, sem confiar no client.
+	const swaps: RecipeSwap[] = [];
+	for (const { itemId, foodId } of parsed.data.recipe.swaps) {
+		const item = meal.items.find((entry) => entry.id === itemId);
+		const food = item ? await findVisibleFood(user.id, foodId) : null;
+		const quantity = item && food ? swapQuantity(item, food) : null;
+		if (!food || quantity === null) {
+			return fail("Essa refeição mudou. Gere a receita de novo.");
+		}
+		swaps.push({ itemId, food, quantity });
+	}
+	const items = applySwaps(meal.items, swaps);
+
+	const { swaps: _, ...content } = parsed.data.recipe;
 	const recipe = {
-		...parsed.data.recipe,
-		extras: safeExtras(parsed.data.recipe.extras, meal.items),
+		...content,
+		extras: safeExtras(content.extras, [...meal.items, ...items]),
 	};
 	const saved = await saveRecipe(user.id, {
 		mealId: meal.id,
 		mealName: meal.name,
 		recipe,
-		snapshot: recipeSnapshot(meal.items),
+		snapshot: recipeSnapshot(items),
 	});
 	// Regra da API do Unsplash: avisar quando a foto é usada (depois da
 	// resposta, sem atrasar).

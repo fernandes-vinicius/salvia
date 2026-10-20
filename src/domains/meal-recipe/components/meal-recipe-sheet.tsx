@@ -9,8 +9,9 @@ import { suggestRecipeAction } from "~/domains/meal-recipe/actions/meal-recipe-a
 import { saveRecipeAction } from "~/domains/meal-recipe/actions/saved-recipe-actions";
 import { RecipeShareSheet } from "~/domains/meal-recipe/components/recipe-share-sheet";
 import { RecipeView } from "~/domains/meal-recipe/components/recipe-view";
-import type { MealRecipe } from "~/domains/meal-recipe/schemas/meal-recipe-schema";
+import type { SuggestedRecipe } from "~/domains/meal-recipe/schemas/meal-recipe-schema";
 import { recipeText } from "~/domains/meal-recipe/utils/meal-recipe";
+import { applySwaps } from "~/domains/meal-recipe/utils/recipe-swap";
 import { recipeSnapshot } from "~/domains/meal-recipe/utils/saved-recipe";
 import { BottomSheetContent } from "~/shared/components/bottom-sheet";
 import {
@@ -38,7 +39,7 @@ interface MealRecipeSheetProps {
 }
 
 // "Sugerir receita (beta)" do menu da refeição: a IA monta uma receita com
-// só os alimentos dela; "Outra receita" pede outra sem repetir e "Salvar"
+// os alimentos dela (ou trocas equivalentes calculadas no servidor); "Outra receita" pede outra sem repetir e "Salvar"
 // guarda em Minhas receitas.
 export function MealRecipeSheet({
 	meal,
@@ -60,9 +61,9 @@ export function MealRecipeSheet({
 }
 
 type State =
-	| { kind: "loading"; previous: MealRecipe | null }
+	| { kind: "loading"; previous: SuggestedRecipe | null }
 	/** `savedId`: a receita já está em Minhas receitas. */
-	| { kind: "ready"; recipe: MealRecipe; savedId: string | null }
+	| { kind: "ready"; recipe: SuggestedRecipe; savedId: string | null }
 	| { kind: "error"; error: string };
 
 function RecipeFlow({
@@ -82,7 +83,7 @@ function RecipeFlow({
 	const avoid = useRef<string[]>([]);
 	const started = useRef(false);
 
-	async function suggest(previous: MealRecipe | null) {
+	async function suggest(previous: SuggestedRecipe | null) {
 		setState({ kind: "loading", previous });
 		const result = await suggestRecipeAction({
 			mealId: meal.id,
@@ -109,9 +110,18 @@ function RecipeFlow({
 	});
 
 	/** Salva e devolve o id (ou null se falhou). */
-	async function save(recipe: MealRecipe, quiet = false) {
+	async function save(recipe: SuggestedRecipe, quiet = false) {
 		setSaving(true);
-		const result = await saveRecipeAction({ mealId: meal.id, recipe });
+		const result = await saveRecipeAction({
+			mealId: meal.id,
+			recipe: {
+				...recipe,
+				swaps: recipe.swaps.map((swap) => ({
+					itemId: swap.itemId,
+					foodId: swap.food.id,
+				})),
+			},
+		});
 		setSaving(false);
 		if (!result.ok) {
 			toast.error(result.error);
@@ -125,7 +135,7 @@ function RecipeFlow({
 	}
 
 	// O link público é de uma receita salva: compartilhar salva antes.
-	async function handleShare(recipe: MealRecipe, savedId: string | null) {
+	async function handleShare(recipe: SuggestedRecipe, savedId: string | null) {
 		const id = savedId ?? (await save(recipe, true));
 		if (id) setSharing(id);
 	}
@@ -137,6 +147,8 @@ function RecipeFlow({
 				? state.previous
 				: null;
 	const loading = state.kind === "loading";
+	// Ingredientes da dieta, com as trocas que a receita escolheu.
+	const items = recipe ? applySwaps(meal.items, recipe.swaps) : [];
 
 	return (
 		<>
@@ -149,7 +161,7 @@ function RecipeFlow({
 					<div
 						className={loading ? "opacity-50 transition-opacity" : undefined}
 					>
-						<RecipeView recipe={recipe} snapshot={recipeSnapshot(meal.items)} />
+						<RecipeView recipe={recipe} snapshot={recipeSnapshot(items)} />
 					</div>
 				) : (
 					<output className="flex flex-col items-center gap-3 py-12 text-center">
@@ -160,7 +172,7 @@ function RecipeFlow({
 							Pensando numa receita…
 						</span>
 						<span className="text-muted-foreground text-sm">
-							Só com o que já está na refeição.
+							Com os alimentos da refeição ou trocas equivalentes.
 						</span>
 					</output>
 				)}
@@ -224,7 +236,7 @@ function RecipeFlow({
 						? { id: sharing, ...state.recipe }
 						: null
 				}
-				text={recipe ? recipeText(recipe, meal.items) : ""}
+				text={recipe ? recipeText(recipe, items) : ""}
 				onOpenChange={(open) => !open && setSharing(null)}
 			/>
 		</>

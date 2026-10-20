@@ -16,6 +16,9 @@ export type AnalyticsEvent =
 	| "receita_gerada"
 	| "receita_salva"
 	| "receita_compartilhada"
+	| "refeicao_variada_gerada"
+	| "refeicao_variada_usada"
+	| "refeicao_variada_desfeita"
 	| "sugestao_enviada";
 
 type Properties = Record<string, string | number | boolean | null>;

@@ -4,10 +4,21 @@ import {
 	isUnsplashImage,
 	type RecipePhoto,
 } from "~/domains/meal-recipe/utils/recipe-photo";
+import {
+	MAX_RECIPE_SWAPS,
+	type RecipeSwap,
+} from "~/domains/meal-recipe/utils/recipe-swap";
 
 // O que a IA devolve (saída estruturada). Os ingredientes da refeição não
-// vêm daqui: a tela mostra os da própria dieta, então os macros não mudam.
+// vêm daqui: a tela mostra os da própria dieta (com as trocas validadas no
+// servidor), então os macros não mudam ou quase não mudam.
 export const aiRecipeSchema = z.object({
+	// Primeiro as trocas: título e passos vêm depois e já usam o alimento novo.
+	swaps: z
+		.array(z.string())
+		.describe(
+			`Códigos das trocas usadas (ex.: ["T1"]), no máximo ${MAX_RECIPE_SWAPS}, só da lista "pode trocar por". Vazio se não trocar nada.`,
+		),
 	title: z
 		.string()
 		.describe('Nome curto e apetitoso, ex.: "Shake de banana com canela".'),
@@ -48,9 +59,15 @@ export const aiRecipeSchema = z.object({
 });
 
 /** A receita como a tela mostra: o texto da IA + a foto ilustrativa. */
-export type MealRecipe = Omit<z.infer<typeof aiRecipeSchema>, "imageQuery"> & {
+export type MealRecipe = Omit<
+	z.infer<typeof aiRecipeSchema>,
+	"imageQuery" | "swaps"
+> & {
 	photo: RecipePhoto | null;
 };
+
+/** Receita recém-sugerida: com as trocas já validadas no servidor. */
+export type SuggestedRecipe = MealRecipe & { swaps: RecipeSwap[] };
 
 export const suggestRecipeInputSchema = z.object({
 	mealId: z.uuid(),
@@ -84,6 +101,11 @@ export const recipeInputSchema = z.object({
 		})
 		.nullable()
 		.default(null),
+	// Só o par item → alimento: a quantidade é recalculada no servidor.
+	swaps: z
+		.array(z.object({ itemId: z.uuid(), foodId: z.string().max(64) }))
+		.max(MAX_RECIPE_SWAPS)
+		.default([]),
 });
 
 export const saveRecipeInputSchema = z.object({
@@ -91,25 +113,27 @@ export const saveRecipeInputSchema = z.object({
 	recipe: recipeInputSchema,
 });
 
-export const restoreRecipeInputSchema = recipeInputSchema.extend({
-	id: z.uuid(),
-	mealId: z.uuid().nullable(),
-	mealName: text(40),
-	ingredients: z
-		.array(
-			z.object({
-				foodId: z.string().max(64),
-				name: text(200),
-				unit: z.enum(["g", "ml", "unit"]),
-				quantity: z.number().positive().max(5000),
-			}),
-		)
-		.max(40),
-	macros: z.object({
-		proteinAnimal: z.number().min(0),
-		proteinVegetal: z.number().min(0),
-		carbs: z.number().min(0),
-		fat: z.number().min(0),
-	}),
-	createdAt: z.iso.datetime(),
+const ingredientSchema = z.object({
+	foodId: z.string().max(64),
+	name: text(200),
+	unit: z.enum(["g", "ml", "unit"]),
+	quantity: z.number().positive().max(5000),
 });
+
+export const restoreRecipeInputSchema = recipeInputSchema
+	.omit({ swaps: true })
+	.extend({
+		id: z.uuid(),
+		mealId: z.uuid().nullable(),
+		mealName: text(40),
+		ingredients: z
+			.array(ingredientSchema.extend({ replaces: ingredientSchema.optional() }))
+			.max(40),
+		macros: z.object({
+			proteinAnimal: z.number().min(0),
+			proteinVegetal: z.number().min(0),
+			carbs: z.number().min(0),
+			fat: z.number().min(0),
+		}),
+		createdAt: z.iso.datetime(),
+	});

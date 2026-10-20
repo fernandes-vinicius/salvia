@@ -77,6 +77,22 @@ export async function findVisibleFood(userId: string, foodId: string) {
 	return row ?? null;
 }
 
+/**
+ * Base das trocas equivalentes: os alimentos da TACO com esses nomes e,
+ * com `withCustom`, os cadastrados pelo próprio usuário.
+ */
+export async function foodsForSwaps(
+	userId: string,
+	names: string[],
+	withCustom = false,
+): Promise<Food[]> {
+	const common = and(isNull(food.userId), inArray(food.name, names));
+	return db
+		.select(foodColumns)
+		.from(food)
+		.where(withCustom ? or(common, eq(food.userId, userId)) : common);
+}
+
 /** Todos os ids são de alimentos que o usuário pode usar? */
 export async function allFoodsVisible(userId: string, foodIds: string[]) {
 	const unique = [...new Set(foodIds)];

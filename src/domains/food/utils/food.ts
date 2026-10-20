@@ -207,3 +207,42 @@ export function parseCsv(content: string): Record<string, string>[] {
 		Object.fromEntries(header.map((key, index) => [key, cells[index] ?? ""])),
 	);
 }
+
+// A TACO não mediu alguns alimentos comuns (linha de nutrientes vazia), o
+// que virava 0 kcal na dieta. Valores por 100 g do USDA FoodData Central
+// (SR Legacy 01077 "Milk, whole, 3.25% milkfat" e 01151 "Milk, nonfat").
+const TACO_GAPS: Record<
+	string,
+	{ protein: number; carbs: number; fat: number; fiber: number }
+> = {
+	"Leite, de vaca, integral": {
+		protein: 3.15,
+		carbs: 4.8,
+		fat: 3.25,
+		fiber: 0,
+	},
+	"Leite, de vaca, desnatado, UHT": {
+		protein: 3.37,
+		carbs: 4.96,
+		fat: 0.08,
+		fiber: 0,
+	},
+};
+
+/** Macros por 100 g de uma linha da TACO (vazio = 0), com as lacunas preenchidas. */
+export function tacoMacros(
+	name: string,
+	row: Partial<
+		Record<"protein" | "carbohydrates" | "lipids" | "dietaryFiber", string>
+	>,
+) {
+	const gap = TACO_GAPS[name];
+	if (gap) return gap;
+	const num = (value: string | undefined) => (value ? Number(value) : 0);
+	return {
+		protein: num(row.protein),
+		carbs: num(row.carbohydrates),
+		fat: num(row.lipids),
+		fiber: num(row.dietaryFiber),
+	};
+}

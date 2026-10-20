@@ -10,6 +10,8 @@ export interface RecipeIngredient {
 	name: string;
 	unit: FoodUnit;
 	quantity: number;
+	/** Troca da receita: o alimento que estava na dieta (`recipe-swap`). */
+	replaces?: Omit<RecipeIngredient, "replaces">;
 }
 
 export interface RecipeSnapshot {
@@ -19,14 +21,22 @@ export interface RecipeSnapshot {
 
 type MealItem = { food: Food; quantity: number };
 
-export function recipeSnapshot(items: MealItem[]): RecipeSnapshot {
+const ingredientOf = ({ food, quantity }: MealItem) => ({
+	foodId: food.id,
+	name: food.name,
+	unit: food.unit,
+	quantity,
+});
+
+export function recipeSnapshot(
+	items: (MealItem & { replaces?: MealItem })[],
+): RecipeSnapshot {
 	return {
-		ingredients: items.map(({ food, quantity }) => ({
-			foodId: food.id,
-			name: food.name,
-			unit: food.unit,
-			quantity,
-		})),
+		ingredients: items.map((item) =>
+			item.replaces
+				? { ...ingredientOf(item), replaces: ingredientOf(item.replaces) }
+				: ingredientOf(item),
+		),
 		macros: sumMacros(items.map((item) => macrosFor(item.food, item.quantity))),
 	};
 }
@@ -40,7 +50,7 @@ const signature = (entries: { foodId: string; quantity: number }[]) =>
 /** A refeição de origem tem outros alimentos ou quantidades desde que salvou? */
 export function mealChangedSince(saved: RecipeIngredient[], items: MealItem[]) {
 	return (
-		signature(saved) !==
+		signature(saved.map((entry) => entry.replaces ?? entry)) !==
 		signature(
 			items.map((item) => ({ foodId: item.food.id, quantity: item.quantity })),
 		)

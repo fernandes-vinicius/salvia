@@ -10,6 +10,7 @@ import { Pool } from "pg";
 import {
 	normalizeSearchText,
 	parseCsv,
+	tacoMacros,
 	tacoProteinSource,
 } from "~/domains/food/utils/food";
 import { food } from "~/shared/db/schema";
@@ -25,9 +26,6 @@ const nutrients = new Map(
 	read("nutrients.csv").map((row) => [Number(row.foodId), row]),
 );
 
-// Campos vazios na TACO = não medido; tratamos como 0 pros macros.
-const num = (value: string | undefined) => (value ? Number(value) : 0);
-
 const rows = read("food.csv").map((row) => {
 	const tacoId = Number(row.id);
 	const categoryId = Number(row.categoryId);
@@ -41,10 +39,8 @@ const rows = read("food.csv").map((row) => {
 		searchName: normalizeSearchText(row.name),
 		category: categories.get(categoryId) ?? null,
 		unit: "g" as const,
-		protein: num(n.protein),
-		carbs: num(n.carbohydrates),
-		fat: num(n.lipids),
-		fiber: num(n.dietaryFiber),
+		// Vazio = não medido (0), menos as lacunas preenchidas em `tacoMacros`.
+		...tacoMacros(row.name, n),
 		proteinSource: tacoProteinSource(categoryId, row.name),
 	};
 });

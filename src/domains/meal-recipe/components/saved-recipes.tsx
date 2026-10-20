@@ -216,9 +216,13 @@ function SavedRecipeSheet({
 	const text = recipe
 		? recipeText(
 				recipe,
-				recipe.ingredients.map(({ name, unit, quantity }) => ({
+				recipe.ingredients.map(({ name, unit, quantity, replaces }) => ({
 					food: { name, unit },
 					quantity,
+					replaces: replaces && {
+						food: { name: replaces.name, unit: replaces.unit },
+						quantity: replaces.quantity,
+					},
 				})),
 			)
 		: "";

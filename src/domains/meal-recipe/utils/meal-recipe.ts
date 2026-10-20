@@ -1,23 +1,49 @@
 import type { Food } from "~/domains/food/types/food-types";
 import { normalizeSearchText, UNIT_LABELS } from "~/domains/food/utils/food";
+import { householdHint } from "~/domains/food/utils/household";
 import type { MealRecipe } from "~/domains/meal-recipe/schemas/meal-recipe-schema";
 import { formatNumber } from "~/shared/lib/format";
 
 // Regras puras da receita da refeição (sugerida pela IA com só o que a
 // refeição já tem).
 
-export interface RecipeItem {
-	food: Pick<Food, "name" | "unit">;
-	quantity: number;
+type Portion = { food: Pick<Food, "name" | "unit">; quantity: number };
+
+export interface RecipeItem extends Portion {
+	/** Troca da receita: o que estava na dieta. */
+	replaces?: Portion;
 }
 
-const amountOf = ({ food, quantity }: RecipeItem) =>
+/** Troca possível oferecida à IA, com o código que ela devolve. */
+export interface PromptSwap extends Portion {
+	code: string;
+}
+
+const amountOf = ({ food, quantity }: Portion) =>
 	`${formatNumber(quantity, 1)} ${UNIT_LABELS[food.unit].short}`;
 
-/** A refeição como vai pro prompt: "- Banana, prata, crua — 100 g". */
-export function mealPrompt(items: RecipeItem[]) {
+// Com a medida caseira, a IA escreve "2 ovos" nos passos em vez de "100 g".
+const portionLine = (portion: Portion) => {
+	const hint = householdHint(portion.food, portion.quantity);
+	return `${portion.food.name} — ${amountOf(portion)}${hint ? ` (${hint.long})` : ""}`;
+};
+
+/**
+ * A refeição como vai pro prompt: "- Banana, prata, crua — 100 g", com as
+ * trocas possíveis embaixo ("pode trocar por: T1 = …").
+ */
+export function mealPrompt(items: (RecipeItem & { swaps?: PromptSwap[] })[]) {
 	return items
-		.map((item) => `- ${item.food.name} — ${amountOf(item)}`)
+		.flatMap((item) => [
+			`- ${portionLine(item)}`,
+			...(item.swaps?.length
+				? [
+						`  pode trocar por: ${item.swaps
+							.map((swap) => `${swap.code} = ${portionLine(swap)}`)
+							.join("; ")}`,
+					]
+				: []),
+		])
 		.join("\n");
 }
 
@@ -86,7 +112,14 @@ export function recipeText(recipe: MealRecipe, items: RecipeItem[]) {
 		recipe.summary,
 		"",
 		"Ingredientes:",
-		...items.map((item) => `- ${amountOf(item)} de ${item.food.name}`),
+		...items.map(
+			(item) =>
+				`- ${amountOf(item)} de ${item.food.name}${
+					item.replaces
+						? ` (no lugar de ${amountOf(item.replaces)} de ${item.replaces.food.name})`
+						: ""
+				}`,
+		),
 		...recipe.extras.map((extra) => `- ${extra.name}: ${extra.amount}`),
 		"",
 		"Modo de preparo:",

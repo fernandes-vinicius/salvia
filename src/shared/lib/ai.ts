@@ -1,7 +1,7 @@
 import "server-only";
 
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { APICallError } from "ai";
+import { APICallError, RetryError } from "ai";
 
 import { getEnv } from "~/shared/lib/env";
 
@@ -13,7 +13,7 @@ const DEFAULT_MODEL = "gemini-3.1-flash-lite";
 export const AI_NOT_CONFIGURED =
 	"A IA não está configurada (falta GEMINI_API_KEY).";
 export const AI_RATE_LIMITED =
-	"Muitos pedidos agora. Espere um minuto e tente de novo.";
+	"A IA está ocupada agora. Espere um minuto e tente de novo.";
 
 /** O modelo configurado, ou null sem `GEMINI_API_KEY`. */
 export function getAiModel() {
@@ -23,7 +23,15 @@ export function getAiModel() {
 	return google(GEMINI_MODEL || DEFAULT_MODEL);
 }
 
-/** O fornecedor recusou por excesso de pedidos (cota do plano grátis). */
-export function isRateLimited(error: unknown) {
-	return APICallError.isInstance(error) && error.statusCode === 429;
+/**
+ * O fornecedor recusou por excesso de pedidos (cota do plano grátis, 429)
+ * ou está sobrecarregado (503). Depois das tentativas, o AI SDK embrulha o
+ * erro num `RetryError`: olha o último.
+ */
+export function isRateLimited(error: unknown): boolean {
+	const cause = RetryError.isInstance(error) ? error.lastError : error;
+	return (
+		APICallError.isInstance(cause) &&
+		(cause.statusCode === 429 || cause.statusCode === 503)
+	);
 }
