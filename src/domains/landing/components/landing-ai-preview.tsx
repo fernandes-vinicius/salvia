@@ -7,6 +7,7 @@ import {
 	FileDown,
 	type LucideIcon,
 	NotebookPen,
+	PiggyBank,
 	Shuffle,
 	Sparkles,
 	Target,
@@ -35,6 +36,11 @@ const AI_FEATURES: { icon: LucideIcon; title: string; text: string }[] = [
 		icon: Shuffle,
 		title: "Variar a refeição",
 		text: "Enjoou? Outra versão da refeição, com trocas que combinam e os mesmos macros.",
+	},
+	{
+		icon: PiggyBank,
+		title: "Troca mais em conta",
+		text: "Abriu um alimento? Já aparece um equivalente mais barato e quanto você economiza no mês.",
 	},
 	{
 		icon: Target,

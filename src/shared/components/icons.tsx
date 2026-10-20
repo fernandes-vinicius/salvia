@@ -69,6 +69,7 @@ export {
 	PartyPopper,
 	Pencil,
 	PersonStanding,
+	PiggyBank,
 	Plus,
 	Printer,
 	RefreshCw,

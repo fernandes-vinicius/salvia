@@ -29,6 +29,9 @@ export function PricesProvider({
 	return <PricesContext value={map}>{children}</PricesContext>;
 }
 
+/** Os preços da pessoa (vazio fora do provider: só referência). */
+export const usePrices = () => useContext(PricesContext);
+
 interface Portion {
 	food: Food;
 	quantity: number;

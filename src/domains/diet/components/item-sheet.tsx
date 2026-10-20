@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+import { CheaperSwapSuggestionCard } from "~/domains/cheaper-swap/components/cheaper-swap-suggestion";
 import { updateItemQuantityAction } from "~/domains/diet/actions/diet-actions";
 import type { DietItem, DietMeal } from "~/domains/diet/types/diet-types";
 import {
@@ -64,6 +65,8 @@ interface ItemSheetProps {
 	onRemoveOption: (itemId: string, optionId: string) => void;
 	onSwapOption: (itemId: string, optionId: string) => Promise<boolean>;
 	onDelete: (itemId: string) => void;
+	/** Sugere a troca mais em conta ao abrir (IA, beta). */
+	cheaperSwap?: boolean;
 }
 
 /** Buscar outro alimento pra substituir o item ou pra virar uma opção. */
@@ -142,6 +145,9 @@ export function ItemSheet({ item, ...props }: ItemSheetProps) {
 							key={item.id}
 							item={item}
 							{...props}
+							onReplaceItem={(food, quantity) =>
+								props.onReplace(item.id, food, quantity)
+							}
 							onStartFlow={(nextMode) =>
 								setSwap({
 									itemId: item.id,
@@ -168,12 +174,15 @@ function ItemEditor({
 	onSwapOption,
 	onDelete,
 	onStartFlow,
+	onReplaceItem,
+	cheaperSwap = false,
 }: Omit<
 	ItemSheetProps,
 	"item" | "onOpenChange" | "onReplace" | "onAddOption"
 > & {
 	item: DietItem;
 	onStartFlow: (mode: FlowMode) => void;
+	onReplaceItem: (food: Food, quantity: number) => Promise<boolean>;
 }) {
 	const [copyingTo, setCopyingTo] = useState<string | null>(null);
 	const [swappingOption, setSwappingOption] = useState<string | null>(null);
@@ -208,6 +217,10 @@ function ItemEditor({
 					schedule(quantity);
 				}}
 			/>
+
+			{cheaperSwap && (
+				<CheaperSwapSuggestionCard item={item} onReplace={onReplaceItem} />
+			)}
 
 			{/* Opções: alternativas pra comer no lugar ("ou 1 banana"). */}
 			<section className="flex flex-col gap-2" aria-labelledby="item-options">

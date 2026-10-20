@@ -128,6 +128,11 @@ export interface SwapCandidateOptions {
 	sameGroup?: boolean;
 	/** Café, lanche ou ceia (`isLightMeal`): sem comida de prato. */
 	light?: boolean;
+	/**
+	 * Com `sameGroup`, aceita outra variedade do mesmo alimento (mamão
+	 * papaia → formosa): na troca mais em conta, é a troca mais natural.
+	 */
+	variants?: boolean;
 }
 
 /**
@@ -138,7 +143,12 @@ export interface SwapCandidateOptions {
 export function swapCandidates(
 	item: SwapItem,
 	foods: Food[],
-	{ limit = 6, sameGroup = true, light = false }: SwapCandidateOptions = {},
+	{
+		limit = 6,
+		sameGroup = true,
+		light = false,
+		variants = false,
+	}: SwapCandidateOptions = {},
 ): { food: Food; quantity: number }[] {
 	const categories = swapCategories(item.food.category);
 	const own = nameWords(item.food.name);
@@ -156,7 +166,7 @@ export function swapCandidates(
 		const words = nameWords(food.name);
 		// Na receita, trocar mamão formosa por papaia não acrescenta nada; ao
 		// variar a refeição, leite em pó → leite é uma troca de verdade.
-		if (sameGroup && words[0] === own[0]) return [];
+		if (sameGroup && !variants && words[0] === own[0]) return [];
 		// Cru no lugar de pronto (frango cru, mandioca crua), menos fruta.
 		const raw = words.some((word) => RAW.includes(word));
 		if (raw && !ownIsRaw && food.category !== FRUITS) return [];

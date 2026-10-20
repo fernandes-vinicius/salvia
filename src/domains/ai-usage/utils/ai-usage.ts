@@ -8,6 +8,8 @@ export const AI_DAILY_LIMITS = {
 	"meal-variation": 20,
 	"meal-fill": 20,
 	"weekly-summary": 3,
+	// Roda sozinho ao abrir um alimento (só quando há troca mais barata).
+	"cheaper-swap": 60,
 } as const;
 
 export type AiFeature = keyof typeof AI_DAILY_LIMITS;
@@ -21,6 +23,7 @@ export function limitReachedMessage(feature: AiFeature) {
 		"meal-fill": `Você já completou refeições ${limit} vezes hoje. Amanhã tem mais!`,
 		"weekly-summary":
 			"Você já gerou o resumo da semana hoje. Tente de novo amanhã.",
+		"cheaper-swap": `Você já viu ${limit} sugestões de economia hoje. Amanhã tem mais!`,
 	};
 	return messages[feature];
 }
