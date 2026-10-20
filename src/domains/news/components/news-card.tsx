@@ -1,3 +1,4 @@
+import { NewsLink } from "~/domains/news/components/news-link";
 import { NEWS_SOURCE, type NewsItem } from "~/domains/news/utils/news";
 import { ExternalLink } from "~/shared/components/icons";
 import { APP_NAME } from "~/shared/lib/app-config";
@@ -26,22 +27,24 @@ export function NewsCard({ items }: NewsCardProps) {
 				<h2 id="manchetes" className="font-heading font-semibold">
 					Para ler
 				</h2>
-				<a
+				<NewsLink
 					href={NEWS_SOURCE.url}
-					target="_blank"
-					rel="noopener noreferrer"
+					event={{ fonte: NEWS_SOURCE.name, artigo: "blog", posicao: 0 }}
 					className="text-muted-foreground text-xs underline-offset-2 hover:underline"
 				>
 					Do blog {NEWS_SOURCE.name}
-				</a>
+				</NewsLink>
 			</header>
 			<ul className="flex flex-col divide-y divide-border">
-				{items.map((item) => (
+				{items.map((item, index) => (
 					<li key={item.id}>
-						<a
+						<NewsLink
 							href={item.url}
-							target="_blank"
-							rel="noopener noreferrer"
+							event={{
+								fonte: NEWS_SOURCE.name,
+								artigo: item.title,
+								posicao: index + 1,
+							}}
 							className="group flex flex-col gap-1 rounded-xl py-3 outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
 						>
 							<span className="flex items-start justify-between gap-3">
@@ -64,7 +67,7 @@ export function NewsCard({ items }: NewsCardProps) {
 							>
 								{dateFormat.format(new Date(item.publishedAt))}
 							</time>
-						</a>
+						</NewsLink>
 					</li>
 				))}
 			</ul>
