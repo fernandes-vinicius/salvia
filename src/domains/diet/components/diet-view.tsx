@@ -31,6 +31,7 @@ import {
 	deleteItemOptionAction,
 	deleteMealAction,
 	placeItemsAction,
+	reorderMealsAction,
 	replaceItemFoodAction,
 	resetDietAction,
 	swapItemOptionAction,
@@ -50,6 +51,7 @@ import {
 	MealMenu,
 	type MealMenuActions,
 } from "~/domains/diet/components/meal-menu";
+import { ReorderMealsSheet } from "~/domains/diet/components/reorder-meals-sheet";
 import { ShareDietSheet } from "~/domains/diet/components/share-diet-sheet";
 import { TRASH_ID, TrashZone } from "~/domains/diet/components/trash-zone";
 import type { DietItem, DietMeal } from "~/domains/diet/types/diet-types";
@@ -76,6 +78,7 @@ import {
 } from "~/domains/meal-variation/actions/meal-variation-actions";
 import { useCelebrate } from "~/providers/celebration-provider";
 import {
+	ArrowUpDown,
 	EllipsisVertical,
 	Eye,
 	FileDown,
@@ -218,6 +221,7 @@ export function DietView({
 	const [sharing, setSharing] = useState(false);
 	const [recipeMealId, setRecipeMealId] = useState<string | null>(null);
 	const [variationMealId, setVariationMealId] = useState<string | null>(null);
+	const [reorderingMeals, setReorderingMeals] = useState(false);
 	const [savedRecipes, setSavedRecipes] = useState(initialSavedRecipes);
 
 	// Menu ⋮ da refeição: o mesmo nos modos Editar e Visualizar.
@@ -440,6 +444,17 @@ export function DietView({
 			},
 		});
 		return true;
+	}
+
+	/** Nova ordem das refeições: muda na hora e volta se não salvar. */
+	async function reorderMeals(next: DietMeal[]) {
+		const previous = mealsRef.current;
+		setMeals(next);
+		const result = await reorderMealsAction(next.map((meal) => meal.id));
+		if (!result.ok) {
+			setMeals(previous);
+			handleError(result);
+		}
 	}
 
 	/** Atualiza alimento/quantidade do item, mantendo as opções. */
@@ -787,6 +802,12 @@ export function DietView({
 							<Share />
 							Compartilhar dieta
 						</DropdownMenuItem>
+						{meals.length > 1 && (
+							<DropdownMenuItem onClick={() => setReorderingMeals(true)}>
+								<ArrowUpDown />
+								Reordenar refeições
+							</DropdownMenuItem>
+						)}
 						{beta && (
 							<DropdownMenuItem onClick={() => router.push("/dieta/importar")}>
 								<Sparkles />
@@ -896,6 +917,13 @@ export function DietView({
 						[mealId]: (counts[mealId] ?? 0) + 1,
 					}))
 				}
+			/>
+
+			<ReorderMealsSheet
+				open={reorderingMeals}
+				onOpenChange={setReorderingMeals}
+				meals={meals}
+				onReorder={reorderMeals}
 			/>
 
 			<MealVariationSheet

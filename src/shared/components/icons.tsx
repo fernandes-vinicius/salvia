@@ -4,6 +4,7 @@ export {
 	ArrowLeftRight,
 	ArrowRight,
 	ArrowUp,
+	ArrowUpDown,
 	Beef,
 	Bike,
 	BookmarkCheck,

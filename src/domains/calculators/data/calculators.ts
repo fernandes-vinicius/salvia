@@ -1,4 +1,11 @@
-import { Beef, Droplet, Flame, Target } from "~/shared/components/icons";
+import {
+	Beef,
+	Droplet,
+	Flame,
+	PersonStanding,
+	Scale,
+	Target,
+} from "~/shared/components/icons";
 
 /** Calculadoras públicas (índice, sitemap e links internos). */
 export const CALCULATORS = [
@@ -29,5 +36,19 @@ export const CALCULATORS = [
 		title: "Água por dia",
 		description:
 			"O mínimo e o recomendado pra quem treina, pelo peso, treino e calor.",
+	},
+	{
+		href: "/calculadoras/imc",
+		icon: Scale,
+		title: "IMC e peso saudável",
+		description:
+			"Seu índice de massa corporal, a faixa da OMS e o peso saudável pra sua altura.",
+	},
+	{
+		href: "/calculadoras/gordura-corporal",
+		icon: PersonStanding,
+		title: "Percentual de gordura",
+		description:
+			"Estime a gordura corporal com fita métrica e veja quanto é massa magra.",
 	},
 ] as const;

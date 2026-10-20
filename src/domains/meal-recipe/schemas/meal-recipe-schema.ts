@@ -73,6 +73,8 @@ export const suggestRecipeInputSchema = z.object({
 	mealId: z.uuid(),
 	/** Títulos já sugeridos, pra não repetir. */
 	avoid: z.array(z.string().max(120)).max(10),
+	/** Estilo pedido ("Rápida", "Marmita", "Air fryer"); null = qualquer. */
+	style: z.enum(["rapida", "marmita", "airfryer"]).nullable().default(null),
 });
 
 // Receita vinda do client pra salvar: mesma forma, com limites de tamanho.

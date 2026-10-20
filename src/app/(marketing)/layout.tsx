@@ -18,6 +18,7 @@ const NAV = [
 
 const FOOTER_LINKS = [
 	{ href: "/calculadoras", label: "Calculadoras" },
+	{ href: "/como-calculamos", label: "Como calculamos" },
 	{ href: "/termos", label: "Termos de uso" },
 	{ href: "/privacidade", label: "Privacidade" },
 ] as const;

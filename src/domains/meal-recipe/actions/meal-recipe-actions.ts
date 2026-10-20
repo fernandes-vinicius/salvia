@@ -57,7 +57,12 @@ export async function suggestRecipeAction(
 	const items = await swapOptionsFor(user.id, meal.items, {
 		light: isLightMeal(meal),
 	});
-	const result = await suggestMealRecipe(meal, items, parsed.data.avoid);
+	const result = await suggestMealRecipe(
+		meal,
+		items,
+		parsed.data.avoid,
+		parsed.data.style,
+	);
 	if (!result.ok) {
 		await refundAiQuota(user.id, "recipe");
 		return result;

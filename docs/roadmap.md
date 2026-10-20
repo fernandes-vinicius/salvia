@@ -57,7 +57,7 @@ Origem: ao definir a gordura na Meta (70 kg, querendo perder peso sem perder mui
 
 ### Transparência
 
-- Página "Como calculamos" com as fórmulas e referências, e nota de que o app não substitui acompanhamento profissional.
+- [x] Página "Como calculamos" (`/como-calculamos`) com as fórmulas e referências: feita em 20/10/2026.
 
 ## IA no app (aos poucos)
 
@@ -81,7 +81,7 @@ Planejado em out/2026. Ordem pensada pra começar pelo que não usa IA e ir aume
 
 **Status:** feito em out/2026 (`/calculadoras/agua`, `calculators/utils/water.ts`): mínimo 35 ml/kg e recomendado 40 ml/kg + suor do treino (0,5/0,75/1 L por hora conforme clima) + 0,5 L no calor, em litros, copos e garrafas. Junto veio a **fibra na dieta** (TACO `dietaryFiber`, Resumo do dia com a recomendação da OMS).
 
-- [x] Reaproveitar peso e treinos da aba TMB quando logado: água sugerida no Resumo do dia (`suggestedWater`). Falta avaliar meta de água no Início.
+- [x] Reaproveitar peso e treinos da aba TMB quando logado: água sugerida no Resumo do dia e no card "Água por dia" do Início (20/10/2026).
 - [ ] Revisar as faixas com um nutricionista e, se preciso, citar as referências com link.
 
 ### 2. Sugestão de receitas da refeição (IA)
@@ -91,7 +91,7 @@ Planejado em out/2026. Ordem pensada pra começar pelo que não usa IA e ir aume
 - [x] No menu ⋮ da refeição: "Sugerir receita (beta)", com passos curtos, extras sem caloria, tempo e foto ilustrativa (Unsplash).
 - [x] Regra: só os alimentos da refeição + extras sem caloria (filtro `safeExtras` no servidor). Em vez de mostrar extras calóricos, a receita pode usar até 2 **trocas equivalentes** calculadas no servidor (mamão → banana).
 - [x] "Outra receita" (não repete), salvar em "Minhas receitas" e compartilhar por link (`/r/:token`, WhatsApp/redes).
-- [ ] Opções simples na hora de pedir (rápida, marmita, air fryer).
+- [x] Opções simples na hora de pedir: chips Rápida · Marmita · Air fryer (20/10/2026).
 - [x] **Variar refeição (beta)**: outra versão da refeição inteira com trocas equivalentes que combinam entre si, com "Usar esta" e "Desfazer" (`meal-variation`, `ideias-pro.md` nº 4).
 - [ ] Depois: "Montar refeição com IA" a partir dos macros que faltam (ex.: "faltam 40 g de proteína e 60 g de carbo"), sugerindo alimentos da TACO com quantidades no passo do editor, aplicáveis com "Desfazer".
 - [x] Extra: importar a dieta do nutricionista (PDF/foto) com IA, em beta (`diet-import`, `ideias-pro.md` nº 1).
@@ -105,7 +105,8 @@ Planejado em out/2026. Ordem pensada pra começar pelo que não usa IA e ir aume
 
 ### 4. Mais calculadoras (sem IA)
 
-- [ ] Ideias de páginas de busca: déficit/superávit em linguagem simples ("quantas calorias pra perder 1 kg por mês"), IMC com aviso das limitações, peso ideal/massa magra (se houver % de gordura), fibras por dia, creatina.
+- [x] IMC (com as limitações e o peso saudável) e % de gordura estimado (Marinha dos EUA, com massa magra): feitos em 20/10/2026.
+- [ ] Outras páginas de busca: "quantas calorias pra perder 1 kg por mês", fibras por dia, creatina.
 - [ ] Cada nova calculadora alimenta o sitemap, a lista em `/calculadoras` e a seção de calculadoras da landing.
 
 ## Ideias que agregam valor (out/2026)
@@ -130,7 +131,7 @@ Para quem treina e conta macro sem nutricionista; o que falta é motivo pra volt
 
 Feito (out/2026): grade de refeições, TACO + alimentos próprios, resumo estilo planilha, planejado × meta, arrastar e soltar, substituir alimento (com quantidade equivalente) e copiar pra outra refeição, modo Visualizar + PDF, resetar dieta.
 
-- Reordenar as próprias refeições arrastando (hoje só os alimentos se movem).
+- ~~Reordenar as próprias refeições arrastando~~: feito (20/10/2026) no painel "Reordenar refeições" do menu ⋮ (alça + setas).
 - ~~Substituições ("ou 100 g de cuscuz" da planilha)~~: feito (out/2026) como opções do item. Próximos passos possíveis: opções nas dietas prontas, lista de compras somando as opções, sugerir opções automaticamente (mesmo grupo de alimento).
 - Celular: resumo e meta ocupam a primeira tela; avaliar versão compacta/recolhível pra grade aparecer antes (desktop já resolvido com coluna lateral).
 - ~~Porções caseiras na TACO (1 fatia, 1 colher) além de gramas~~: feito (out/2026), `household-measures.ts`.

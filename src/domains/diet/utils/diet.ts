@@ -212,6 +212,21 @@ export function equivalentQuantity(
 
 // --- Arrastar e soltar ------------------------------------------------------
 
+/** Nova ordem das refeições ao soltar `fromId` no lugar de `toId`. */
+export function moveMeal<T extends { id: string }>(
+	meals: T[],
+	fromId: string,
+	toId: string,
+): T[] {
+	const from = meals.findIndex((meal) => meal.id === fromId);
+	const to = meals.findIndex((meal) => meal.id === toId);
+	if (from === -1 || to === -1 || from === to) return meals;
+	const next = [...meals];
+	const [moved] = next.splice(from, 1);
+	next.splice(to, 0, moved);
+	return next;
+}
+
 export function findMealOfItem(meals: DietMeal[], itemId: string) {
 	return meals.find((meal) => meal.items.some((item) => item.id === itemId));
 }

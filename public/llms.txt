@@ -10,6 +10,8 @@
   - [Macros](https://salvia-dieta.vercel.app/calculadoras/macros): calorias e g/kg de proteína, carboidrato e gordura pra perder peso, manter ou ganhar massa.
   - [Proteína por dia](https://salvia-dieta.vercel.app/calculadoras/proteina): 1,6–2,2 g/kg, por refeição e em frango, ovo ou whey.
   - [Água por dia](https://salvia-dieta.vercel.app/calculadoras/agua): mínimo (35 ml/kg) e recomendado pra quem treina (40 ml/kg + suor do treino e do calor), em litros e copos.
+  - [IMC](https://salvia-dieta.vercel.app/calculadoras/imc): índice de massa corporal, faixas da OMS e peso saudável pra altura.
+  - [Percentual de gordura](https://salvia-dieta.vercel.app/calculadoras/gordura-corporal): estimativa pelo método da Marinha dos EUA (pescoço, cintura e quadril), com massa gorda e magra.
 - [Entrar](https://salvia-dieta.vercel.app/login): login com conta Google.
 - [Termos de uso](https://salvia-dieta.vercel.app/termos) e [Política de privacidade](https://salvia-dieta.vercel.app/privacidade).
 

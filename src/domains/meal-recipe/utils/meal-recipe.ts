@@ -127,3 +127,26 @@ export function recipeText(recipe: MealRecipe, items: RecipeItem[]) {
 		...(recipe.tip ? ["", `Dica: ${recipe.tip}`] : []),
 	].join("\n");
 }
+
+/** Estilo pedido na hora de gerar ("Rápida", "Marmita", "Air fryer"). */
+export const RECIPE_STYLES = [
+	{ value: "rapida", label: "Rápida" },
+	{ value: "marmita", label: "Marmita" },
+	{ value: "airfryer", label: "Air fryer" },
+] as const;
+
+export type RecipeStyle = (typeof RECIPE_STYLES)[number]["value"];
+
+const STYLE_PROMPTS: Record<RecipeStyle, string> = {
+	rapida:
+		"Estilo pedido: bem rápida, pronta em até 10 minutos, com o mínimo de louça.",
+	marmita:
+		"Estilo pedido: pra levar na marmita. Que aguente geladeira e micro-ondas e fique boa reaquecida; diga como guardar no último passo.",
+	airfryer:
+		"Estilo pedido: feita na air fryer (diga temperatura e tempo). O que não couber na air fryer pode ser servido à parte.",
+};
+
+/** Linha extra do prompt pro estilo escolhido (null = sem preferência). */
+export function recipeStylePrompt(style: RecipeStyle | null) {
+	return style ? STYLE_PROMPTS[style] : null;
+}

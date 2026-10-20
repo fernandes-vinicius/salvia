@@ -177,6 +177,28 @@ async function mealPositions(userId: string) {
 		.orderBy(asc(dietMeal.position), asc(dietMeal.createdAt));
 }
 
+/**
+ * Nova ordem das refeições ("Reordenar refeições"). Precisa ter exatamente
+ * as refeições do usuário; senão, a lista mudou em outra aba.
+ */
+export async function reorderMeals(userId: string, mealIds: string[]) {
+	const current = await mealPositions(userId);
+	const known = new Set(current.map((meal) => meal.id));
+	if (
+		mealIds.length !== current.length ||
+		new Set(mealIds).size !== mealIds.length ||
+		!mealIds.every((id) => known.has(id))
+	) {
+		return false;
+	}
+	await db.transaction(async (tx) => {
+		for (const [position, id] of mealIds.entries()) {
+			await tx.update(dietMeal).set({ position }).where(eq(dietMeal.id, id));
+		}
+	});
+	return true;
+}
+
 export async function addMeal(userId: string, name: string) {
 	const positions = await mealPositions(userId);
 	const last = positions.at(-1);
