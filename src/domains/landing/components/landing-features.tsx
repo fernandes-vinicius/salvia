@@ -141,7 +141,7 @@ export function LandingFeatures() {
 				eyebrow="Começo rápido"
 				title="Não sabe por onde começar? Use uma dieta pronta"
 				points={[
-					"Modelos pra perder peso, ganhar massa e gastar pouco no mercado",
+					"Um modelo pra perder peso e outro pra ganhar massa, com comida do dia a dia",
 					"As quantidades são recalculadas pras metas que você definiu",
 					"Visualize a dieta inteira antes de usar e ajuste como quiser",
 				]}

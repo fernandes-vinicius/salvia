@@ -18,7 +18,7 @@ export const FAQ_QUESTIONS: FaqItem[] = [
 	{
 		question: "Não sei montar uma dieta. O app ajuda?",
 		answer:
-			"Ajuda. Tem dietas prontas (pra perder peso, ganhar massa ou gastar pouco) que já vêm com as quantidades recalculadas pras metas que você definiu. Você visualiza antes, usa com um toque e depois troca o que quiser.",
+			"Ajuda. Tem dietas prontas (uma pra perder peso e outra pra ganhar massa) que já vêm com as quantidades recalculadas pras metas que você definiu. Você visualiza antes, usa com um toque e depois troca o que quiser.",
 	},
 	{
 		question: "E se eu não estiver perdendo (ou ganhando) peso?",

@@ -97,9 +97,11 @@ export function InstallPrompt() {
 				aria-label={`Instalar o ${APP_NAME}`}
 				className="pointer-events-auto mx-auto flex max-w-md flex-wrap items-center gap-x-3 gap-y-2 rounded-3xl bg-card p-3 ring-1 ring-foreground/10"
 			>
+				{/* O logo em SVG (o PNG do PWA tem uma borda clara que aparecia
+				    nos cantos arredondados). */}
 				{/* biome-ignore lint/performance/noImgElement: ícone estático do PWA, sem otimização necessária */}
 				<img
-					src="/pwa-192x192.png"
+					src="/logo-salvia-icon.svg"
 					alt=""
 					width={44}
 					height={44}
