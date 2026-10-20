@@ -52,6 +52,16 @@ const SWAP_GROUPS = [
 	["Leite e derivados"],
 ];
 
+// Alimentos que a TACO põe em "Alimentos preparados" mas que na cozinha são
+// do grupo de outra categoria (cuscuz troca com arroz, pão e batata).
+const CATEGORY_OVERRIDES: Record<string, string> = {
+	"Cuscuz, de milho, cozido com sal": "Cereais e derivados",
+};
+
+/** Categoria usada nas trocas (a da TACO ou a corrigida acima). */
+export const swapCategoryOf = (food: Pick<Food, "name" | "category">) =>
+	CATEGORY_OVERRIDES[food.name] ?? food.category;
+
 export function swapCategories(category: string | null): string[] {
 	if (!category) return [];
 	return SWAP_GROUPS.find((group) => group.includes(category)) ?? [];
@@ -69,12 +79,29 @@ const close = (before: number, after: number, floor: number, share: number) =>
 	Math.abs(before - after) <= Math.max(floor, before * share);
 
 /**
+ * Quanto os macros podem mudar: `strict` (receita e variar refeição, "quase
+ * os mesmos macros": ±10% kcal, ±3 g ou 15% por macro) ou `loose` (troca mais
+ * em conta, "macros parecidos": ±20% kcal, ±5 g ou 30% por macro; senão
+ * arroz ou cuscuz no lugar de pão nunca passam, por 20 kcal).
+ */
+export type SwapTolerance = "strict" | "loose";
+
+const TOLERANCES: Record<
+	SwapTolerance,
+	{ kcal: [number, number]; macro: [number, number] }
+> = {
+	strict: { kcal: [15, 0.1], macro: [3, 0.15] },
+	loose: { kcal: [25, 0.2], macro: [5, 0.3] },
+};
+
+/**
  * Quantidade do `food` que substitui o item mantendo o macro principal
  * (`equivalentQuantity`), ou null se os outros macros/kcal mudam demais.
  */
 export function swapQuantity(
 	item: Pick<SwapItem, "food" | "quantity">,
 	food: Food,
+	tolerance: SwapTolerance = "strict",
 ): number | null {
 	if (food.id === item.food.id) return null;
 	const equivalent = equivalentQuantity(item, food);
@@ -85,8 +112,9 @@ export function swapQuantity(
 	if (food.unit !== "unit" && quantity > MAX_SWAP_PORTION) return null;
 	const before = macrosFor(item.food, item.quantity);
 	const after = macrosFor(food, quantity);
-	if (!close(kcalFor(before), kcalFor(after), 15, 0.1)) return null;
-	return MACRO_KEYS.every((key) => close(before[key], after[key], 3, 0.15))
+	const { kcal, macro } = TOLERANCES[tolerance];
+	if (!close(kcalFor(before), kcalFor(after), ...kcal)) return null;
+	return MACRO_KEYS.every((key) => close(before[key], after[key], ...macro))
 		? quantity
 		: null;
 }
@@ -112,6 +140,10 @@ export function isLightMeal(meal: { name: string; time: string | null }) {
 	return hour < 11 || (hour >= 15 && hour < 18) || hour >= 21;
 }
 const RAW = ["cru", "crua"];
+/** "Cru" na TACO, mas é assim que se come (não é carne crua). */
+const EATEN_RAW = new Set(
+	["Aveia, flocos, crua", "Castanha-do-Brasil, crua"].map(normalizeSearchText),
+);
 const FRUITS = "Frutas e derivados";
 
 const distance = (a: Macros, b: Macros) =>
@@ -133,6 +165,9 @@ export interface SwapCandidateOptions {
 	 * papaia → formosa): na troca mais em conta, é a troca mais natural.
 	 */
 	variants?: boolean;
+	/** Só a melhor de cada tipo de alimento (padrão: sim). */
+	onePerKind?: boolean;
+	tolerance?: SwapTolerance;
 }
 
 /**
@@ -148,15 +183,18 @@ export function swapCandidates(
 		sameGroup = true,
 		light = false,
 		variants = false,
+		onePerKind = true,
+		tolerance = "strict",
 	}: SwapCandidateOptions = {},
 ): { food: Food; quantity: number }[] {
-	const categories = swapCategories(item.food.category);
+	const categories = swapCategories(swapCategoryOf(item.food));
 	const own = nameWords(item.food.name);
 	const ownIsRaw = own.some((word) => RAW.includes(word));
 	const before = macrosFor(item.food, item.quantity);
 
 	const scored = foods.flatMap((food) => {
-		if (sameGroup && !(food.category && categories.includes(food.category))) {
+		const category = swapCategoryOf(food);
+		if (sameGroup && !(category && categories.includes(category))) {
 			return [];
 		}
 		const normalized = normalizeSearchText(food.name);
@@ -168,9 +206,10 @@ export function swapCandidates(
 		// variar a refeição, leite em pó → leite é uma troca de verdade.
 		if (sameGroup && !variants && words[0] === own[0]) return [];
 		// Cru no lugar de pronto (frango cru, mandioca crua), menos fruta.
-		const raw = words.some((word) => RAW.includes(word));
+		const raw =
+			!EATEN_RAW.has(normalized) && words.some((word) => RAW.includes(word));
 		if (raw && !ownIsRaw && food.category !== FRUITS) return [];
-		const quantity = swapQuantity(item, food);
+		const quantity = swapQuantity(item, food, tolerance);
 		if (quantity === null) return [];
 		return [
 			{
@@ -187,7 +226,7 @@ export function swapCandidates(
 	);
 	const heads = new Set<string>();
 	return scored
-		.filter(({ head }) => !heads.has(head) && heads.add(head))
+		.filter(({ head }) => !onePerKind || (!heads.has(head) && heads.add(head)))
 		.slice(0, limit)
 		.map(({ food, quantity }) => ({ food, quantity }));
 }

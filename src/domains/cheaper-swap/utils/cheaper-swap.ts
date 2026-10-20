@@ -11,8 +11,8 @@ import type { Price } from "~/domains/shopping/data/reference-prices";
 import { swapCost } from "~/domains/shopping/utils/prices";
 import { formatNumber } from "~/shared/lib/format";
 
-// Troca mais em conta: ao abrir um alimento da dieta, um equivalente (mesmos
-// macros, pela mesma regra das trocas da receita) que sai mais barato pelo
+// Troca mais em conta: um equivalente (macros parecidos, pela regra das
+// trocas da receita com a tolerância `loose`) que sai mais barato pelo
 // preço da pessoa ou o de referência. A IA só escolhe entre as opções daqui.
 
 /** Economia mínima pra sugerir (R$ por dia, ≈ R$ 3 por mês). */
@@ -54,7 +54,7 @@ export function cheaperSwap(
 	prices: ReadonlyMap<string, Price>,
 ): CheaperSwap | null {
 	if (purchaseName(food) === purchaseName(item.food)) return null;
-	const quantity = swapQuantity(item, food);
+	const quantity = swapQuantity(item, food, "loose");
 	if (quantity === null) return null;
 	const cost = swapCost(item, { food, quantity }, prices);
 	if (!cost || -cost.delta < MIN_SAVING) return null;
@@ -79,14 +79,24 @@ export function cheaperSwaps(
 	{ light = false }: { light?: boolean } = {},
 ): CheaperSwap[] {
 	if (kcalFor(macrosFor(item.food, item.quantity)) < MIN_SWAP_KCAL) return [];
+	// Todas as candidatas (não só a melhor de cada tipo): o pão de aveia sem
+	// preço não pode esconder o pão francês mais barato. Uma por produto de
+	// mercado, depois de saber o custo.
+	const seen = new Set<string>();
 	return swapCandidates(item, foods, {
 		sameGroup: true,
 		variants: true,
 		light,
+		onePerKind: false,
+		tolerance: "loose",
 		limit: Number.POSITIVE_INFINITY,
 	})
 		.flatMap(({ food }) => cheaperSwap(item, food, prices) ?? [])
 		.sort((a, b) => b.saving - a.saving)
+		.filter((swap) => {
+			const name = purchaseName(swap.food);
+			return !seen.has(name) && seen.add(name);
+		})
 		.slice(0, MAX_CHEAPER_OPTIONS);
 }
 
@@ -110,7 +120,7 @@ export function cheaperSwapPrompt(
 			? `Continua na refeição: ${others.map(portionText).join("; ")}`
 			: "Continua na refeição: nada",
 		`Trocar: ${portionText(item)}`,
-		"Opções (mesmos macros, mais baratas):",
+		"Opções (macros parecidos, mais baratas):",
 		...options.map(
 			(option, index) =>
 				`S${index + 1} = ${portionText(option)} (economiza ≈ R$ ${monthlySaving(option.saving)} por mês)`,

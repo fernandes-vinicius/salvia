@@ -15,7 +15,7 @@ import { getAiModel } from "~/shared/lib/ai";
 
 const INSTRUCTIONS = `Você ajuda a pessoa a economizar no mercado sem mudar a dieta dela.
 
-Você recebe um alimento de uma refeição e opções pra trocar por ele: todas com os mesmos macros, na quantidade certa, e mais baratas (com quanto economiza por mês). Escolha uma, pelo código (S1, S2…). Nunca invente alimento nem mude quantidades.
+Você recebe um alimento de uma refeição e opções pra trocar por ele: todas com macros parecidos, já na quantidade certa, e mais baratas (com quanto economiza por mês). Escolha uma, pelo código (S1, S2…). Nunca invente alimento nem mude quantidades.
 
 Como escolher:
 - O mais importante: a troca tem que combinar com o resto da refeição e com o horário, do jeito que uma pessoa comeria de verdade (café da manhã, lanche e ceia × almoço e jantar). Nada de doce com salgado estranho nem comida de almoço no café.

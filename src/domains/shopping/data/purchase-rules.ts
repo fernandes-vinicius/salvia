@@ -81,6 +81,7 @@ export const PURCHASE_RULES: Record<string, PurchaseRule> = {
 	"Feijão, carioca, cozido": { name: "Feijão carioca", rawPerGram: 0.4 },
 	"Feijão, preto, cozido": { name: "Feijão preto", rawPerGram: 0.4 },
 	"Arroz, integral, cozido": { name: "Arroz integral", rawPerGram: 0.4 },
+	"Lentilha, cozida": { name: "Lentilha", rawPerGram: 0.4 },
 	"Cuscuz, de milho, cozido com sal": {
 		name: "Flocão de milho",
 		rawPerGram: 0.45,
@@ -169,6 +170,8 @@ export const PURCHASE_RULES: Record<string, PurchaseRule> = {
 	// Nomes de mercado.
 	"Leite, de vaca, integral, pó": named("Leite em pó integral"),
 	"Aveia, flocos, crua": named("Aveia em flocos"),
+	"Milho, verde, enlatado, drenado": named("Milho verde em lata"),
+	"Soja, queijo (tofu)": named("Tofu"),
 	"Azeite, de oliva, extra virgem": named("Azeite extra virgem"),
 	"Amendoim, torrado, salgado": named("Amendoim torrado"),
 	"Alface, crespa, crua": named("Alface crespa"),
@@ -185,6 +188,11 @@ export const PURCHASE_RULES: Record<string, PurchaseRule> = {
 	"Sardinha, conserva em óleo": named("Sardinha em lata"),
 	"Pão, trigo, forma, integral": {
 		name: "Pão de forma integral",
+		section: "Padaria",
+		unit: { grams: 25, singular: "fatia", plural: "fatias" },
+	},
+	"Pão, aveia, forma": {
+		name: "Pão de forma de aveia",
 		section: "Padaria",
 		unit: { grams: 25, singular: "fatia", plural: "fatias" },
 	},
