@@ -34,8 +34,7 @@ Revisão de out/2026: o cálculo atual (Mifflin-St Jeor + método fatorial + MET
 
 ### Proteína total como opção
 
-- Hoje a meta de proteína conta só a **animal** (escolha do usuário, igual à planilha). Prática comum: meta de proteína **total** (opcionalmente com peso menor pra vegetal, por qualidade/DIAAS).
-- Opção na aba Meta: "Contar só proteína animal" (atual) × "Contar toda a proteína". O resumo da Dieta continua mostrando A e V separadas.
+**Status:** feito em 20/10/2026, em Configurações → "Como contar a proteína" (`goal/utils/protein-counting.ts`). Padrão das contas novas: proteína **total** (coluna P); "só animal" (coluna P(A)) é opção, e as contas que já existiam foram migradas pra ela. Vale na grade, Visualizar/PDF, Meta, plano × meta e dietas prontas; o Resumo do dia continua mostrando A e V separadas. Próximo passo possível: peso menor pra proteína vegetal (qualidade/DIAAS) em vez de 0 ou 100%.
 
 ### Proteína pelo peso ajustado com IMC alto
 
@@ -68,32 +67,39 @@ Planejado em out/2026. Ordem pensada pra começar pelo que não usa IA e ir aume
 
 ### 0. Base (antes da 1ª funcionalidade com IA)
 
-- [ ] Escolher provedor e acesso: Vercel AI Gateway + AI SDK (troca de modelo sem mudar código, custo por requisição visível).
-- [ ] Limite de uso por usuário por dia (custo controlado; tabela de uso no nosso banco) e mensagem amigável quando acabar.
-- [ ] Mandar pra IA só o mínimo (macros, metas, alimentos, tendência de peso), nunca nome/e-mail.
-- [ ] Atualizar a Política de privacidade (novo fornecedor que recebe dados) antes de lançar.
-- [ ] Prompt base com as regras do app: linguagem simples (sem "cutting", "déficit"…), tom de ferramenta e nunca prescrição, aviso de que não substitui nutricionista, sem conselho médico (gestação, doenças, remédios → procurar profissional).
-- [ ] Respostas estruturadas (schema Zod) em vez de texto livre, pra renderizar com os componentes do app e validar os números.
-- [ ] Candidato a recurso Pro (ver "Modelo de cobrança"); começar grátis com limite baixo pra medir uso.
+**Status:** feita em out/2026, com os recursos em beta fechado (`BETA_EMAILS`).
+
+- [x] Provedor: Gemini (grátis) pelo AI SDK, centralizado em `~/shared/lib/ai` (trocar de fornecedor = trocar esse arquivo). Vercel AI Gateway fica pra quando a IA for paga.
+- [x] Limite de uso por usuário por dia (`ai-usage`: receita 20, variar refeição 20, importação 10), com mensagem amigável quando acaba e devolução da cota se a IA falhar.
+- [x] Mandar pra IA só o mínimo (alimentos, quantidades, nome/horário da refeição), nunca nome/e-mail.
+- [x] Política de privacidade cita Google/Gemini e Unsplash. Falta antes de abrir pra todos: IA paga (o plano grátis do Gemini pode usar os dados).
+- [x] Prompt base com as regras do app: linguagem simples, nunca prescrição, sem falar de dieta/saúde nos textos gerados.
+- [x] Respostas estruturadas (schema Zod, `Output.object`) e números sempre calculados no servidor, nunca pela IA.
+- [x] Candidato a recurso Pro: em beta fechado; abrir com limite baixo pra medir uso.
 
 ### 1. Calculadora de água (sem IA)
 
 **Status:** feito em out/2026 (`/calculadoras/agua`, `calculators/utils/water.ts`): mínimo 35 ml/kg e recomendado 40 ml/kg + suor do treino (0,5/0,75/1 L por hora conforme clima) + 0,5 L no calor, em litros, copos e garrafas. Junto veio a **fibra na dieta** (TACO `dietaryFiber`, Resumo do dia com a recomendação da OMS).
 
-- [ ] Reaproveitar peso e treinos da aba TMB quando logado; avaliar meta de água no Início.
+- [x] Reaproveitar peso e treinos da aba TMB quando logado: água sugerida no Resumo do dia (`suggestedWater`). Falta avaliar meta de água no Início.
 - [ ] Revisar as faixas com um nutricionista e, se preciso, citar as referências com link.
 
 ### 2. Sugestão de receitas da refeição (IA)
 
-- [ ] No menu ⋮ da refeição: "Sugerir receita". A IA recebe os alimentos e quantidades da refeição e devolve um jeito de preparar (passos curtos, temperos, tempo).
-- [ ] Regra: a receita usa só os alimentos da refeição (mais temperos sem caloria: sal, alho, ervas, limão). Se sugerir ingrediente extra com caloria, mostrar à parte com o impacto nos macros.
-- [ ] Botão "Outra ideia" e opções simples (rápida, marmita, air fryer).
+**Status:** feito em out/2026, em beta fechado (`meal-recipe`; detalhes em `ideias-pro.md` nº 2).
+
+- [x] No menu ⋮ da refeição: "Sugerir receita (beta)", com passos curtos, extras sem caloria, tempo e foto ilustrativa (Unsplash).
+- [x] Regra: só os alimentos da refeição + extras sem caloria (filtro `safeExtras` no servidor). Em vez de mostrar extras calóricos, a receita pode usar até 2 **trocas equivalentes** calculadas no servidor (mamão → banana).
+- [x] "Outra receita" (não repete), salvar em "Minhas receitas" e compartilhar por link (`/r/:token`, WhatsApp/redes).
+- [ ] Opções simples na hora de pedir (rápida, marmita, air fryer).
+- [x] **Variar refeição (beta)**: outra versão da refeição inteira com trocas equivalentes que combinam entre si, com "Usar esta" e "Desfazer" (`meal-variation`, `ideias-pro.md` nº 4).
 - [ ] Depois: "Montar refeição com IA" a partir dos macros que faltam (ex.: "faltam 40 g de proteína e 60 g de carbo"), sugerindo alimentos da TACO com quantidades no passo do editor, aplicáveis com "Desfazer".
+- [x] Extra: importar a dieta do nutricionista (PDF/foto) com IA, em beta (`diet-import`, `ideias-pro.md` nº 1).
 
 ### 3. Insights de evolução e dicas (IA)
 
 - [ ] Card no Início com um resumo semanal: tendência do peso e da cintura (Medidas), se está no ritmo da meta, calibração sugerida e um próximo passo. As contas continuam nas funções puras (`analyzeCalibration`, `home.ts`); a IA só escreve o texto a partir delas.
-- [ ] Dicas contextuais: água (ligada à calculadora), proteína distribuída nas refeições (a coluna P(A) já mostra), sono e constância nas pesagens, fibras/vegetais.
+- [ ] Dicas contextuais: água (ligada à calculadora), proteína distribuída nas refeições (a coluna P já mostra), sono e constância nas pesagens, fibras/vegetais.
 - [ ] Gerar no máximo 1×/semana por usuário (cache no banco) pra controlar custo; "Ver de novo" não chama a IA de novo.
 - [ ] Evolui pro "Pergunte" com IA dos Insights contextuais (seção acima), usando perfil, meta e dieta como contexto.
 
@@ -116,6 +122,7 @@ Para quem treina e conta macro sem nutricionista; o que falta é motivo pra volt
 - [x] Porções caseiras (colher, concha, fatia): feito em out/2026 (`household-measures.ts`); próximo passo: medidas nos alimentos próprios (campo no cadastro) e ampliar a lista.
 - [x] Custo da dieta (preço de referência + preço do seu mercado): feito em out/2026 (lista de compras e Resumo da Dieta). Próximos passos: revisar os preços de referência todo mês, custo por grama de proteína nas trocas ("trocar por ovo economiza R$ 4/dia"), "dieta mais barata que bate as metas" no Pro.
 - [ ] Menores: lembrete de pesagem e de check-in (push do PWA), alertas de sódio e ferro (a TACO já tem).
+- [x] Manchetes do blog Hipertrofia.org no Início (card "Para ler", só título/resumo/link pelos termos de uso deles, cliques no PostHog): feito em 20/10/2026. Próximo passo: proposta de parceria (imagens, artigos ao lado de cada recurso, link pro app nos artigos).
 - [ ] Link da dieta compartilhada: interruptor "Mostrar meu nome" (desligado por padrão; "Montada por Vinicius Fernandes" ou só o primeiro nome), com linha na Política de privacidade.
 - Depois: IA (Sálvia Pro, seção "IA no app") e infra + cobrança ([`plano-infra-e-planos.md`](plano-infra-e-planos.md)), que é o pré-requisito da IA.
 
@@ -126,7 +133,8 @@ Feito (out/2026): grade de refeições, TACO + alimentos próprios, resumo estil
 - Reordenar as próprias refeições arrastando (hoje só os alimentos se movem).
 - ~~Substituições ("ou 100 g de cuscuz" da planilha)~~: feito (out/2026) como opções do item. Próximos passos possíveis: opções nas dietas prontas, lista de compras somando as opções, sugerir opções automaticamente (mesmo grupo de alimento).
 - Celular: resumo e meta ocupam a primeira tela; avaliar versão compacta/recolhível pra grade aparecer antes (desktop já resolvido com coluna lateral).
-- Porções caseiras na TACO (1 fatia, 1 colher) além de gramas.
+- ~~Porções caseiras na TACO (1 fatia, 1 colher) além de gramas~~: feito (out/2026), `household-measures.ts`.
+- Dados da TACO: leite integral e desnatado UHT vinham sem valores (0 kcal) e foram preenchidos com USDA em 20/10/2026 (`tacoMacros`); falta "Iogurte, sabor abacaxi".
 
 ## Posicionamento (decidido em 19/10/2026)
 
@@ -173,7 +181,7 @@ O app resolve um evento único (montar a dieta). Assinatura precisa de valor rec
 
 ### Medição
 
-- Feito (out/2026): Vercel Web Analytics pro tráfego + `user_activity` e `bun run metrics` pro funil (cadastro → TMB → Meta → dieta → pesou → voltou na 2ª semana). Falta: etapa "pagou" quando houver cobrança; eventos de clique (ex.: CTA das calculadoras) exigem Vercel Pro ou registrar no nosso banco.
+- Feito (out/2026): Vercel Web Analytics pro tráfego + `user_activity` e `bun run metrics` pro funil (cadastro → TMB → Meta → dieta → pesou → voltou na 2ª semana). Também PostHog (eventos, funil, retenção e gravações com texto mascarado) e Microsoft Clarity (mapa de calor das páginas públicas), sem cookies. Falta: etapa "pagou" quando houver cobrança.
 
 ### Marketing de custo quase zero
 
