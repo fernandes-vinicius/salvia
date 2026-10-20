@@ -30,6 +30,7 @@ import {
 	XIcon,
 } from "~/shared/components/icons";
 import { Button } from "~/shared/components/ui/button";
+import { analytics } from "~/shared/lib/analytics/analytics";
 import { cn } from "~/shared/lib/utils";
 
 const STATUS_BUTTONS: {
@@ -104,6 +105,7 @@ export function CheckinCard({
 		celebrateChange(previous, updated, meal.id, status, origin);
 
 		const result = await setCheckinAction({ mealId: meal.id, status: next });
+		if (result.ok && next) analytics.track("checkin", { status: next });
 		if (!result.ok) {
 			setCheckins(previous);
 			if (result.stale) {

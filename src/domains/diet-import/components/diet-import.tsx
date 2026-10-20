@@ -42,6 +42,7 @@ import {
 } from "~/shared/components/icons";
 import { Badge } from "~/shared/components/ui/badge";
 import { Button, buttonVariants } from "~/shared/components/ui/button";
+import { analytics } from "~/shared/lib/analytics/analytics";
 import { formatNumber } from "~/shared/lib/format";
 import { cn } from "~/shared/lib/utils";
 
@@ -74,6 +75,10 @@ export function DietImport() {
 			setStage({ kind: "upload" });
 			return;
 		}
+		analytics.track("dieta_lida", {
+			refeicoes: result.data.length,
+			arquivos: prepared.length,
+		});
 		setStage({ kind: "review", meals: result.data });
 	}
 
@@ -238,6 +243,7 @@ function ImportReview({
 			toast.error(result.error);
 			return;
 		}
+		analytics.track("dieta_importada", { refeicoes: meals.length });
 		toast.success("Dieta importada! Confira os totais com a sua meta.");
 		router.push("/dieta");
 	}

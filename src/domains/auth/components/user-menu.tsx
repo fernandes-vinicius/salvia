@@ -28,6 +28,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "~/shared/components/ui/dropdown-menu";
+import { analytics } from "~/shared/lib/analytics/analytics";
 
 function getInitials(name: string) {
 	return name
@@ -51,6 +52,7 @@ export function UserMenu({
 
 	async function handleSignOut() {
 		await authClient.signOut();
+		analytics.reset();
 		router.replace("/login");
 	}
 

@@ -8,6 +8,7 @@ import { isBetaUser } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { recordActivity } from "~/domains/metrics/services/activity-service";
 import { ShellProviders } from "~/providers/shell-providers";
+import { AnalyticsIdentify } from "~/shared/components/analytics-identify";
 import { Settings } from "~/shared/components/icons";
 import { Logo } from "~/shared/components/logo";
 import { ModeToggle } from "~/shared/components/mode-toggle";
@@ -56,8 +57,11 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
 					</div>
 				</header>
 				{/* Espaço no fim pra barra de abas flutuante não cobrir conteúdo. */}
+				{/* `data-ph-mask`: nas gravações do PostHog, todo texto daqui é
+				    mascarado (dieta, peso e medidas são dados de saúde). */}
 				<div
 					id="conteudo"
+					data-ph-mask
 					className="flex flex-1 flex-col pb-[calc(env(safe-area-inset-bottom)+6rem)] print:pb-0"
 				>
 					{children}
@@ -76,5 +80,10 @@ async function CurrentUserMenu() {
 	// "Usou o app hoje", pras métricas de retenção. Depois da resposta, sem
 	// atrasar a página.
 	after(() => recordActivity(user.id));
-	return <UserMenu user={user} beta={isBetaUser(user)} />;
+	return (
+		<>
+			<UserMenu user={user} beta={isBetaUser(user)} />
+			<AnalyticsIdentify user={user} />
+		</>
+	);
 }

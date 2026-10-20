@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ClarityScript } from "~/shared/components/clarity-script";
 import { Logo } from "~/shared/components/logo";
 import { ModeToggle } from "~/shared/components/mode-toggle";
 import { SkipLink } from "~/shared/components/skip-link";
@@ -63,6 +64,7 @@ export default function MarketingLayout({ children }: LayoutProps<"/">) {
 			<div id="conteudo" className="flex flex-1 flex-col">
 				{children}
 			</div>
+			<ClarityScript />
 
 			<footer className="border-border border-t">
 				<div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 text-muted-foreground text-sm sm:px-6">

@@ -28,6 +28,7 @@ import {
 	SheetHeader,
 	SheetTitle,
 } from "~/shared/components/ui/sheet";
+import { analytics } from "~/shared/lib/analytics/analytics";
 
 interface MealRecipeSheetProps {
 	meal: DietMeal | null;
@@ -92,6 +93,11 @@ function RecipeFlow({
 			return;
 		}
 		avoid.current.push(result.data.title);
+		analytics.track("receita_gerada", {
+			// A primeira já entrou na lista: "outra" é a partir da segunda.
+			outra: avoid.current.length > 1,
+			com_foto: result.data.photo !== null,
+		});
 		setState({ kind: "ready", recipe: result.data, savedId: null });
 	}
 
@@ -113,6 +119,7 @@ function RecipeFlow({
 		}
 		setState({ kind: "ready", recipe, savedId: result.data.id });
 		onSaved?.(meal.id);
+		analytics.track("receita_salva", { com_foto: recipe.photo !== null });
 		if (!quiet) toast.success("Receita salva em Minhas receitas.");
 		return result.data.id;
 	}

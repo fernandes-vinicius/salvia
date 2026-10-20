@@ -25,6 +25,7 @@ import {
 	SheetTitle,
 } from "~/shared/components/ui/sheet";
 import { Skeleton } from "~/shared/components/ui/skeleton";
+import { analytics } from "~/shared/lib/analytics/analytics";
 
 interface ShareDietSheetProps {
 	open: boolean;
@@ -55,6 +56,7 @@ export function ShareDietSheet({ open, onOpenChange }: ShareDietSheetProps) {
 		const next = await createDietShareAction(renew);
 		setPending(null);
 		setToken(next);
+		analytics.track("dieta_compartilhada", { novo_link: renew });
 		if (renew) toast.success("Link novo criado. O anterior parou de abrir.");
 	}
 

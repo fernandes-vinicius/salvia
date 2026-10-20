@@ -28,6 +28,7 @@ import {
 	SheetHeader,
 	SheetTitle,
 } from "~/shared/components/ui/sheet";
+import { analytics } from "~/shared/lib/analytics/analytics";
 import { formatNumber } from "~/shared/lib/format";
 
 interface DietTemplatesProps {
@@ -60,6 +61,10 @@ export function DietTemplates({
 			toast.error(result.error);
 			return;
 		}
+		analytics.track("dieta_pronta_aplicada", {
+			modelo: template.id,
+			personalizada: result.personalized,
+		});
 		toast.success(
 			result.personalized
 				? `${template.name} criada com as suas metas.`

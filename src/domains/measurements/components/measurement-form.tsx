@@ -26,6 +26,7 @@ import {
 	FieldLabel,
 } from "~/shared/components/ui/field";
 import { Input } from "~/shared/components/ui/input";
+import { analytics } from "~/shared/lib/analytics/analytics";
 
 interface MeasurementFormProps {
 	/** Medição a editar; sem ela, cria uma nova. */
@@ -74,6 +75,11 @@ export function MeasurementForm({
 			setPending(false);
 			if (result.ok) {
 				toast.success(measurement ? "Medição atualizada." : "Medição salva.");
+				if (!measurement) {
+					analytics.track("medida_salva", {
+						com_peso: submission.value.weightKg != null,
+					});
+				}
 				// Pesagem nova é uma meta cumprida (alimenta o ajuste pelo peso).
 				if (!measurement && submission.value.weightKg != null) {
 					celebrate("goal");

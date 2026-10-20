@@ -17,6 +17,7 @@ import {
 	AlertDialogTitle,
 } from "~/shared/components/ui/alert-dialog";
 import { Button } from "~/shared/components/ui/button";
+import { analytics } from "~/shared/lib/analytics/analytics";
 
 // "Excluir conta" em Configurações: apaga o usuário e todos os dados dele,
 // com confirmação. Depois volta pra landing.
@@ -33,6 +34,7 @@ export function DeleteAccount() {
 			toast.error(result.error);
 			return;
 		}
+		analytics.reset();
 		toast.success("Conta excluída. Seus dados foram apagados.");
 		router.replace("/");
 	}
