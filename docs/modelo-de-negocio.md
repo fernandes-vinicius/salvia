@@ -1,6 +1,6 @@
 # Modelo de negócio do Sálvia
 
-Documento vivo. Parte 1 (custos) feita em 19/10/2026; as próximas partes entram aqui conforme forem decididas. Relacionados: [`plano-infra-e-planos.md`](plano-infra-e-planos.md) (infra e planos), [`ideias-pro.md`](ideias-pro.md) (recursos pagos) e a seção Posicionamento do [`roadmap.md`](roadmap.md).
+Documento vivo. Parte 1 (custos) feita em 19/10/2026; Parte 2 (lançar grátis, Pro depois) em 22/10/2026; as próximas partes entram aqui conforme forem decididas. Relacionados: [`plano-infra-e-planos.md`](plano-infra-e-planos.md) (infra e planos), [`ideias-pro.md`](ideias-pro.md) (recursos pagos) e a seção Posicionamento do [`roadmap.md`](roadmap.md).
 
 **Premissas:** câmbio US$ 1 ≈ R$ 5,50; preços de IA da tabela oficial da Anthropic (out/2026: Haiku 5.5 US$ 0,10/US$ 0,50 e Sonnet 5.5 US$ 2/US$ 10 por milhão de tokens de entrada/saída); taxas da Stripe e impostos são estimativas **a confirmar** (stripe.com/br/pricing e contador).
 
@@ -72,6 +72,42 @@ Margem conservadora (IA no teto de R$ 2): mensal R$ 7,11, anual R$ 4,36/mês →
 - **Teto do MEI**: R$ 81 mil/ano (~R$ 6.750/mês ≈ 800 assinaturas); acima disso, Simples.
 - **Usuários grátis necessários**: freemium converte 2–5% dos ativos → 200 pagantes pedem **~4–10 mil usuários ativos**. O gargalo é aquisição, não custo.
 - Com a IA no gasto realista (~R$ 1), os números caem ~15%. Neon pago (~R$ 105) pode entrar na faixa de 5–10 mil ativos (+~18 assinantes no empate).
+
+## Parte 2 — Decisões de 22/10/2026: lançar grátis, Pro depois
+
+**Mudança de rumo:** o Sálvia Pro **não existe agora**. Lança grátis, com a IA aberta pra todos numa cota pequena; cobrança só quando houver gente usando (aí se decide lista de espera, oferta etc.). Objetivo dos 12 meses: **renda extra** (pagar os custos e chegar a R$ 500–2.000/mês, no próprio ritmo).
+
+### Lançamento (agora)
+- **Tudo grátis**, inclusive os 6 recursos de IA (receita, variar refeição, completar, troca mais em conta, importar dieta, resumo da semana), com **cota mensal pequena por pessoa**: 3 receitas, 3 variações, 3 "completar", 5 trocas mais em conta, 1 importação e 1 resumo da semana por mês (os limites diários atuais continuam).
+- **Gemini no plano pago** antes de abrir (o grátis pode usar os dados das pessoas pra treinar), com **alerta/teto de gasto** no Google Cloud. Atualizar Política de privacidade e Termos.
+- **Beta** (`BETA_EMAILS`) vira só o acesso do fundador pra testar recursos antes de lançar; sem cota.
+- **Domínio `.com.br` comprado já** e apontado pra Vercel Hobby (domínio próprio é permitido no Hobby; sem cobrança nem anúncio não há uso comercial). Os links divulgados e o SEO já nascem no endereço final.
+- **Divulgação:** boca a boca/academia, busca (calculadoras/SEO), vídeos curtos e parcerias (nutricionistas, personal trainers, Hipertrofia.org).
+- **Empresa:** CNPJ próprio no **Simples Nacional** (ME) já existe; sem receita, sem imposto a mais por enquanto.
+
+### Custo do lançamento grátis
+Gemini 3.1 Flash-Lite pago: US$ 0,25 (entrada) / US$ 1,50 (saída) por milhão de tokens (out/2026, conferir em ai.google.dev/pricing). Tokens estimados por uso: receita ~2k/1k, variar ~3k/0,5k, completar ~3k/0,3k, troca ~1,5k/0,2k, importação ~6k/3k, resumo ~2k/0,4k.
+
+| Item | R$/mês |
+|---|---|
+| Vercel Hobby, Neon free, Cloudflare, GitHub, Unsplash | 0 |
+| Domínio `.com.br` (R$ 40/ano) | ~3,35 |
+| IA: pessoa que gasta a cota toda | ~0,05 |
+| IA: 1.000 pessoas ativas gastando a cota toda (pior caso) | ~50 |
+| **Total com 1.000 ativos** | **~R$ 55** |
+
+Na prática, poucos gastam a cota inteira; o real deve ficar bem abaixo. Limite do Hobby a observar: banda/execuções do plano grátis da Vercel e o tamanho do Neon free.
+
+### Quando vier o Pro (decidido de antemão)
+- **Pro = recursos de IA** com uso alto; o resto continua grátis. Recursos sem IA não vão pro Pro por enquanto.
+- **Preço:** R$ 9,90/mês ou R$ 79,90/ano; **Fundador**: anual a R$ 59,90 pros 100 primeiros (cupom na Stripe, renova pelo mesmo preço).
+- **Grátis mantém a cota pequena** (amostra sem cartão; sem teste de 7 dias).
+- **Teto mensal no Pro** além do diário (~150 receitas, 150 variações, 150 completar, 300 trocas, 20 importações): sem ele, quem bate o limite diário todo dia custa ~R$ 30/mês, 3× o preço; com ele, no máximo ~R$ 4–5.
+- **Cancelou:** tudo o que a IA gerou fica (receitas salvas, links, dieta importada, resumos); só volta pra cota grátis.
+- **Pagamento:** cartão pela Stripe no CNPJ (Simples, ~6% sobre a receita + contador); Pix depois, se pedirem.
+- **Margem:** R$ 9,90 − taxa Stripe (~R$ 0,79) − ~6% Simples (~R$ 0,59) − IA (~R$ 1–1,50 no uso pesado) ≈ **R$ 7 por assinante mensal**.
+- **Infra no lançamento do Pro:** sair da Vercel Hobby (proíbe uso comercial) pra VPS em SP + Coolify (~R$ 30–45/mês), ver [`plano-infra-e-planos.md`](plano-infra-e-planos.md).
+- **Gatilho** (a definir quando houver uso): número de pessoas ativas por semana e uso da cota de IA (quantos batem o limite) no PostHog e no `bun run metrics`.
 
 ## Próximas partes
 Preço e oferta (grátis × Pro, anual, fundador), aquisição (calculadoras/SEO, conteúdo, indicação), vendas (gatilhos de upgrade no app), parceria com nutricionistas, metas de conversão e LTV/CAC.
