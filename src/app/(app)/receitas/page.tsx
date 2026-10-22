@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
-import { isBetaUser } from "~/domains/auth/services/beta-service";
+import { canUseAi } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { getDiet } from "~/domains/diet/services/diet-service";
 import { SavedRecipes } from "~/domains/meal-recipe";
@@ -29,7 +29,7 @@ export default function SavedRecipesPage() {
 // Beta fechado, como a geração de receitas (as actions checam de novo).
 async function SavedRecipesContent() {
 	const user = await getCurrentUser();
-	if (!isBetaUser(user)) notFound();
+	if (!canUseAi(user)) notFound();
 	const [recipes, meals] = await Promise.all([
 		listSavedRecipes(user.id),
 		getDiet(user.id, { createIfEmpty: false }),

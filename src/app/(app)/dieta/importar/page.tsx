@@ -3,7 +3,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
-import { isBetaUser } from "~/domains/auth/services/beta-service";
+import { AiQuotaProvider } from "~/domains/ai-usage/components/ai-quota-provider";
+import { monthlyQuotaLeft } from "~/domains/ai-usage/services/ai-usage-service";
+import { canUseAi } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { DietImport } from "~/domains/diet-import";
 import { ChevronLeft } from "~/shared/components/icons";
@@ -39,10 +41,14 @@ export default function ImportDietPage() {
 	);
 }
 
-// Beta fechado: quem não está em `BETA_EMAILS` não vê a página (as actions
+// IA fechada (`AI_OPEN` desligado): só o beta vê a página (as actions
 // checam de novo no servidor).
 async function ImportContent() {
 	const user = await getCurrentUser();
-	if (!isBetaUser(user)) notFound();
-	return <DietImport />;
+	if (!canUseAi(user)) notFound();
+	return (
+		<AiQuotaProvider initial={await monthlyQuotaLeft(user)}>
+			<DietImport />
+		</AiQuotaProvider>
+	);
 }

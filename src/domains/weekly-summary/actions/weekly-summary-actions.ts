@@ -5,7 +5,7 @@ import {
 	refundAiQuota,
 } from "~/domains/ai-usage/services/ai-usage-service";
 import { limitReachedMessage } from "~/domains/ai-usage/utils/ai-usage";
-import { isBetaUser } from "~/domains/auth/services/beta-service";
+import { canUseAi } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import type { WeeklySummary } from "~/domains/weekly-summary/schemas/weekly-summary-schema";
 import {
@@ -31,10 +31,10 @@ export type WeeklySummaryResult =
  */
 export async function generateWeeklySummaryAction(): Promise<WeeklySummaryResult> {
 	const user = await getCurrentUser();
-	if (!isBetaUser(user)) {
+	if (!canUseAi(user)) {
 		return {
 			ok: false,
-			error: "Recurso em teste, ainda não liberado pra sua conta.",
+			error: "Os recursos de IA ainda não estão liberados pra sua conta.",
 		};
 	}
 	const today = localDateString();

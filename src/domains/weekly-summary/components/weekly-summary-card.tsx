@@ -2,13 +2,17 @@
 
 import { useState } from "react";
 
+import {
+	AiQuotaNote,
+	useAiQuota,
+} from "~/domains/ai-usage/components/ai-quota-provider";
 import { generateWeeklySummaryAction } from "~/domains/weekly-summary/actions/weekly-summary-actions";
 import type { WeeklySummary } from "~/domains/weekly-summary/schemas/weekly-summary-schema";
 import { Loader2Icon, Sparkles } from "~/shared/components/icons";
 import { Button } from "~/shared/components/ui/button";
 import { analytics } from "~/shared/lib/analytics/analytics";
 
-// Resumo da semana (beta) no Início: a IA escreve a partir dos fatos que o
+// Resumo da semana no Início: a IA escreve a partir dos fatos que o
 // app calcula (peso, cintura, check-in, ajuste pelo peso). Um por semana,
 // gerado quando a pessoa pede.
 export function WeeklySummaryCard({
@@ -19,6 +23,7 @@ export function WeeklySummaryCard({
 	const [summary, setSummary] = useState(initialSummary);
 	const [pending, setPending] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const quota = useAiQuota("weekly-summary");
 
 	async function generate() {
 		setPending(true);
@@ -29,6 +34,7 @@ export function WeeklySummaryCard({
 			setError(result.error);
 			return;
 		}
+		quota.spend();
 		analytics.track("resumo_semanal_gerado");
 		setSummary(result.data);
 	}
@@ -43,7 +49,7 @@ export function WeeklySummaryCard({
 				className="flex items-center gap-2 font-heading font-semibold"
 			>
 				<Sparkles className="size-4 text-primary" />
-				{summary ? summary.title : "Resumo da semana (beta)"}
+				{summary ? summary.title : "Resumo da semana"}
 			</h2>
 
 			{summary ? (
@@ -69,7 +75,7 @@ export function WeeklySummaryCard({
 							{error}
 						</p>
 					)}
-					<div>
+					<div className="flex flex-col items-start gap-2">
 						<Button variant="secondary" disabled={pending} onClick={generate}>
 							{pending ? (
 								<Loader2Icon
@@ -81,6 +87,7 @@ export function WeeklySummaryCard({
 							)}
 							Gerar resumo da semana
 						</Button>
+						<AiQuotaNote feature="weekly-summary" />
 					</div>
 				</>
 			)}

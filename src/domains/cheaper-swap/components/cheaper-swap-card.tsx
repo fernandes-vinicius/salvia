@@ -83,7 +83,7 @@ export function CheaperSwapCard({
 			<div className="flex flex-wrap items-center justify-between gap-2">
 				<span className="flex items-center gap-1 text-muted-foreground text-xs">
 					<Sparkles className="size-3.5" aria-hidden />
-					Sugestão com IA (beta)
+					Sugestão com IA
 				</span>
 				<Button
 					size="sm"

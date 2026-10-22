@@ -74,19 +74,19 @@ export function MealMenu({
 				{onSuggestRecipe && meal.items.length > 0 && (
 					<DropdownMenuItem onClick={onSuggestRecipe}>
 						<Sparkles />
-						Sugerir receita (beta)
+						Sugerir receita
 					</DropdownMenuItem>
 				)}
 				{onVaryMeal && meal.items.length > 0 && (
 					<DropdownMenuItem onClick={onVaryMeal}>
 						<Shuffle />
-						Variar refeição (beta)
+						Variar refeição
 					</DropdownMenuItem>
 				)}
 				{onFillMeal && (
 					<DropdownMenuItem onClick={onFillMeal}>
 						<Target />
-						Completar com IA (beta)
+						Completar com IA
 					</DropdownMenuItem>
 				)}
 				{onOpenSavedRecipes && savedRecipes > 0 && (

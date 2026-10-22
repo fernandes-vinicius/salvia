@@ -29,7 +29,7 @@ type State =
 	| { kind: "done"; value: CheaperSwapSuggestion | null };
 
 /**
- * "Achar troca mais barata" (beta): só busca quando a pessoa pede, com
+ * "Achar troca mais barata": só busca quando a pessoa pede, com
  * carregando e um aviso quando não há opção mais barata (antes buscava
  * sozinho e a pessoa ficava sem saber se ia aparecer).
  */
@@ -97,11 +97,6 @@ export function CheaperSwapSuggestionCard({
 			{current.kind === "loading"
 				? "Procurando opção mais barata…"
 				: "Tem opção mais barata?"}
-			{current.kind === "idle" && (
-				<span className="rounded-full bg-secondary px-1.5 py-0.5 font-medium text-[0.65rem] text-secondary-foreground uppercase leading-none tracking-wide">
-					Beta
-				</span>
-			)}
 		</Button>
 	);
 }

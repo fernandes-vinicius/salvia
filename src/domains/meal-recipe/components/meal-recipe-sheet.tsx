@@ -4,6 +4,10 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import {
+	AiQuotaNote,
+	useAiQuota,
+} from "~/domains/ai-usage/components/ai-quota-provider";
 import type { DietMeal } from "~/domains/diet/types/diet-types";
 import { suggestRecipeAction } from "~/domains/meal-recipe/actions/meal-recipe-actions";
 import { saveRecipeAction } from "~/domains/meal-recipe/actions/saved-recipe-actions";
@@ -65,6 +69,8 @@ export function MealRecipeSheet({
 }
 
 type State =
+	/** Com cota do mês: espera a pessoa escolher o estilo e pedir. */
+	| { kind: "idle" }
 	| { kind: "loading"; previous: SuggestedRecipe | null }
 	/** `savedId`: a receita já está em Minhas receitas. */
 	| { kind: "ready"; recipe: SuggestedRecipe; savedId: string | null }
@@ -77,10 +83,13 @@ function RecipeFlow({
 	meal: DietMeal;
 	onSaved?: (mealId: string) => void;
 }) {
-	const [state, setState] = useState<State>({
-		kind: "loading",
-		previous: null,
-	});
+	const quota = useAiQuota("recipe");
+	// Com cota pequena, não gasta uma receita só por abrir o painel.
+	const [state, setState] = useState<State>(
+		quota.left === null
+			? { kind: "loading", previous: null }
+			: { kind: "idle" },
+	);
 	const [saving, setSaving] = useState(false);
 	/** Id da receita salva com o painel de compartilhar aberto. */
 	const [sharing, setSharing] = useState<string | null>(null);
@@ -103,6 +112,7 @@ function RecipeFlow({
 			setState({ kind: "error", error: result.error });
 			return;
 		}
+		quota.spend();
 		avoid.current.push(result.data.title);
 		analytics.track("receita_gerada", {
 			// A primeira já entrou na lista: "outra" é a partir da segunda.
@@ -115,7 +125,7 @@ function RecipeFlow({
 
 	// Pede a primeira ao abrir (o ref evita pedir duas vezes no StrictMode).
 	useEffect(() => {
-		if (started.current) return;
+		if (started.current || state.kind === "idle") return;
 		started.current = true;
 		void suggest(null);
 	});
@@ -179,7 +189,8 @@ function RecipeFlow({
 									onClick={() => {
 										if (active) return;
 										setStyle(option.value);
-										void suggest(recipe, option.value);
+										if (state.kind !== "idle")
+											void suggest(recipe, option.value);
 									}}
 								>
 									{option.label}
@@ -197,6 +208,18 @@ function RecipeFlow({
 						className={loading ? "opacity-50 transition-opacity" : undefined}
 					>
 						<RecipeView recipe={recipe} snapshot={recipeSnapshot(items)} />
+					</div>
+				) : state.kind === "idle" ? (
+					<div className="flex flex-col items-center gap-3 py-12 text-center">
+						<span className="flex size-14 items-center justify-center rounded-full bg-secondary text-primary">
+							<ChefHat className="size-7" aria-hidden />
+						</span>
+						<span className="font-heading font-semibold">
+							Uma receita com essa refeição
+						</span>
+						<span className="text-muted-foreground text-sm">
+							Escolha um estilo, se quiser, e toque em Gerar receita.
+						</span>
 					</div>
 				) : (
 					<output className="flex flex-col items-center gap-3 py-12 text-center">
@@ -232,7 +255,11 @@ function RecipeFlow({
 						) : (
 							<Shuffle data-icon="inline-start" />
 						)}
-						{state.kind === "error" ? "Tentar de novo" : "Outra receita"}
+						{state.kind === "idle"
+							? "Gerar receita"
+							: state.kind === "error"
+								? "Tentar de novo"
+								: "Outra receita"}
 					</Button>
 					{state.kind === "ready" && (
 						<>
@@ -264,6 +291,7 @@ function RecipeFlow({
 						</>
 					)}
 				</div>
+				<AiQuotaNote feature="recipe" />
 			</div>
 			<RecipeShareSheet
 				recipe={

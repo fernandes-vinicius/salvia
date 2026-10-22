@@ -5,6 +5,10 @@ import { useId, useState } from "react";
 import { toast } from "sonner";
 
 import {
+	AiQuotaNote,
+	useAiQuota,
+} from "~/domains/ai-usage/components/ai-quota-provider";
+import {
 	readDietAction,
 	saveImportedDietAction,
 } from "~/domains/diet-import/actions/diet-import-actions";
@@ -57,6 +61,7 @@ export function DietImport() {
 	const [stage, setStage] = useState<Stage>({ kind: "upload" });
 	const [files, setFiles] = useState<File[]>([]);
 	const [error, setError] = useState<string | null>(null);
+	const quota = useAiQuota("diet-import");
 
 	async function handleRead() {
 		setError(null);
@@ -75,6 +80,7 @@ export function DietImport() {
 			setStage({ kind: "upload" });
 			return;
 		}
+		quota.spend();
 		analytics.track("dieta_lida", {
 			refeicoes: result.data.length,
 			arquivos: prepared.length,
@@ -141,7 +147,7 @@ function UploadStep({
 				<div className="flex flex-col gap-1">
 					<p className="flex items-center gap-2 font-heading font-semibold">
 						Dieta do nutri pro app
-						<Badge variant="secondary">Beta</Badge>
+						<Badge variant="secondary">IA</Badge>
 					</p>
 					<p className="text-muted-foreground text-sm">
 						Envie o PDF ou fotos da sua dieta. A IA lê as refeições, os
@@ -204,6 +210,7 @@ function UploadStep({
 				<Sparkles data-icon="inline-start" />
 				Ler dieta
 			</Button>
+			<AiQuotaNote feature="diet-import" />
 			<p className="text-muted-foreground text-xs">
 				Até 4 arquivos. A leitura usa o Google Gemini e o arquivo não fica
 				guardado no app.

@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import {
+	AiQuotaNote,
+	useAiQuota,
+} from "~/domains/ai-usage/components/ai-quota-provider";
 import type { DietMeal } from "~/domains/diet/types/diet-types";
 import { suggestMealFillAction } from "~/domains/meal-fill/actions/meal-fill-actions";
 import { MealFillView } from "~/domains/meal-fill/components/meal-fill-view";
@@ -64,6 +68,7 @@ function FillFlow({
 		previous: null,
 	});
 	const [adding, setAdding] = useState(false);
+	const quota = useAiQuota("meal-fill");
 	const avoid = useRef<string[]>([]);
 	const started = useRef(false);
 
@@ -77,6 +82,7 @@ function FillFlow({
 			setState({ kind: "error", error: result.error });
 			return;
 		}
+		quota.spend();
 		avoid.current.push(fillKey(result.data));
 		analytics.track("refeicao_completada_gerada", {
 			outra: avoid.current.length > 1,
@@ -158,6 +164,7 @@ function FillFlow({
 					)}
 					{state.kind === "error" ? "Tentar de novo" : "Outra sugestão"}
 				</Button>
+				<AiQuotaNote feature="meal-fill" className="sm:col-span-2" />
 			</div>
 		</>
 	);

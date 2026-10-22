@@ -78,7 +78,7 @@ Margem conservadora (IA no teto de R$ 2): mensal R$ 7,11, anual R$ 4,36/mês →
 **Mudança de rumo:** o Sálvia Pro **não existe agora**. Lança grátis, com a IA aberta pra todos numa cota pequena; cobrança só quando houver gente usando (aí se decide lista de espera, oferta etc.). Objetivo dos 12 meses: **renda extra** (pagar os custos e chegar a R$ 500–2.000/mês, no próprio ritmo).
 
 ### Lançamento (agora)
-- **Tudo grátis**, inclusive os 6 recursos de IA (receita, variar refeição, completar, troca mais em conta, importar dieta, resumo da semana), com **cota mensal pequena por pessoa**: 3 receitas, 3 variações, 3 "completar", 5 trocas mais em conta, 1 importação e 1 resumo da semana por mês (os limites diários atuais continuam).
+- **Tudo grátis**, inclusive os 6 recursos de IA (receita, variar refeição, completar, troca mais em conta, importar dieta, resumo da semana), com **cota mensal pequena por pessoa**: 3 receitas, 3 variações, 3 "completar", 5 trocas mais em conta, 2 importações e 4 resumos da semana por mês (os limites diários atuais continuam; importação e resumo subiram de 1 pra 2 e 4 em 22/10/2026: o resumo promete um por semana e a leitura pode falhar por foto ruim).
 - **Gemini no plano pago** antes de abrir (o grátis pode usar os dados das pessoas pra treinar), com **alerta/teto de gasto** no Google Cloud. Atualizar Política de privacidade e Termos.
 - **Beta** (`BETA_EMAILS`) vira só o acesso do fundador pra testar recursos antes de lançar; sem cota.
 - **Domínio `.com.br` comprado já** e apontado pra Vercel Hobby (domínio próprio é permitido no Hobby; sem cobrança nem anúncio não há uso comercial). Os links divulgados e o SEO já nascem no endereço final.
@@ -92,11 +92,11 @@ Gemini 3.1 Flash-Lite pago: US$ 0,25 (entrada) / US$ 1,50 (saída) por milhão d
 |---|---|
 | Vercel Hobby, Neon free, Cloudflare, GitHub, Unsplash | 0 |
 | Domínio `.com.br` (R$ 40/ano) | ~3,35 |
-| IA: pessoa que gasta a cota toda | ~0,05 |
-| IA: 1.000 pessoas ativas gastando a cota toda (pior caso) | ~50 |
-| **Total com 1.000 ativos** | **~R$ 55** |
+| IA: pessoa que gasta a cota toda (US$ 0,034, dólar a R$ 5,40) | ~0,18 |
+| IA: 1.000 pessoas ativas gastando a cota toda (pior caso) | ~180 |
+| **Total com 1.000 ativos (pior caso)** | **~R$ 185** |
 
-Na prática, poucos gastam a cota inteira; o real deve ficar bem abaixo. Limite do Hobby a observar: banda/execuções do plano grátis da Vercel e o tamanho do Neon free.
+Conta refeita em 22/10/2026: a estimativa anterior (R$ 0,05 por pessoa, ~R$ 55 com 1.000 ativos) estava baixa, e a cota nova (2 importações, 4 resumos) soma ~R$ 0,05 por pessoa. Por recurso, com a cota toda: importação ~US$ 0,012, receita 0,006, variar 0,0045, resumo 0,0044, completar 0,0036, troca 0,0034. Na prática, poucos gastam a cota inteira (em apps assim, a maioria usa 1–2 vezes ou nenhuma); o real deve ficar entre 20% e 40% do pior caso, ~R$ 40–70 com 1.000 ativos. O alerta de orçamento do Google (R$ 50) serve de aviso cedo, não de teto. Limite do Hobby a observar: banda/execuções do plano grátis da Vercel e o tamanho do Neon free.
 
 ### Quando vier o Pro (decidido de antemão)
 - **Pro = recursos de IA** com uso alto; o resto continua grátis. Recursos sem IA não vão pro Pro por enquanto.

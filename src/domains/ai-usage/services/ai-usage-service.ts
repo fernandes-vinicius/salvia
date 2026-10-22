@@ -3,7 +3,9 @@ import "server-only";
 import { and, eq, gte, sql } from "drizzle-orm";
 
 import {
+	AI_MONTHLY_LIMITS,
 	type AiFeature,
+	type AiQuotaLeft,
 	monthStartOf,
 	type QuotaVerdict,
 	quotaVerdict,
@@ -72,4 +74,34 @@ export async function refundAiQuota(userId: string, feature: AiFeature) {
 				eq(aiUsage.day, localDateString()),
 			),
 		);
+}
+
+/**
+ * Quanto sobra da cota do mês em cada recurso (o beta não tem cota: `{}`).
+ * Só pra mostrar; quem barra de verdade é o `consumeAiQuota`.
+ */
+export async function monthlyQuotaLeft(
+	user: Pick<User, "id" | "email">,
+): Promise<AiQuotaLeft> {
+	if (isBetaUser(user)) return {};
+	const rows = await db
+		.select({
+			feature: aiUsage.feature,
+			used: sql<number>`coalesce(sum(${aiUsage.count}), 0)::int`,
+		})
+		.from(aiUsage)
+		.where(
+			and(
+				eq(aiUsage.userId, user.id),
+				gte(aiUsage.day, monthStartOf(localDateString())),
+			),
+		)
+		.groupBy(aiUsage.feature);
+	const used = new Map(rows.map((row) => [row.feature, row.used]));
+	return Object.fromEntries(
+		Object.entries(AI_MONTHLY_LIMITS).map(([feature, limit]) => [
+			feature,
+			Math.max(0, limit - (used.get(feature) ?? 0)),
+		]),
+	);
 }

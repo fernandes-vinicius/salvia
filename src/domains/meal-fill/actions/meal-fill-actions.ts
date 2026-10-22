@@ -5,7 +5,7 @@ import {
 	refundAiQuota,
 } from "~/domains/ai-usage/services/ai-usage-service";
 import { limitReachedMessage } from "~/domains/ai-usage/utils/ai-usage";
-import { isBetaUser } from "~/domains/auth/services/beta-service";
+import { canUseAi } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { getDiet } from "~/domains/diet/services/diet-service";
 import { summarizeDiet } from "~/domains/diet/utils/diet";
@@ -36,7 +36,7 @@ export type MealFillResult =
 	| { ok: false; error: string };
 
 const fail = (error: string) => ({ ok: false as const, error });
-const BETA_ONLY = "Recurso em teste, ainda não liberado pra sua conta.";
+const BETA_ONLY = "Os recursos de IA ainda não estão liberados pra sua conta.";
 
 /** Fontes de gordura além da base das trocas (que só tem oleaginosas). */
 const FILL_EXTRA_FOODS = ["Azeite, de oliva, extra virgem", "Abacate, cru"];
@@ -51,7 +51,7 @@ export async function suggestMealFillAction(
 	input: unknown,
 ): Promise<MealFillResult> {
 	const user = await getCurrentUser();
-	if (!isBetaUser(user)) return fail(BETA_ONLY);
+	if (!canUseAi(user)) return fail(BETA_ONLY);
 	const parsed = suggestMealFillInputSchema.safeParse(input);
 	if (!parsed.success) return fail("Refeição inválida.");
 

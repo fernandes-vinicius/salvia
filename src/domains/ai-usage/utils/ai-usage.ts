@@ -16,10 +16,12 @@ export const AI_DAILY_LIMITS = {
 
 export const AI_MONTHLY_LIMITS = {
 	recipe: 3,
-	"diet-import": 1,
+	// 2: se a foto sair ruim, dá pra tentar de novo no mesmo mês.
+	"diet-import": 2,
 	"meal-variation": 3,
 	"meal-fill": 3,
-	"weekly-summary": 1,
+	// Um por semana (o card promete um resumo novo toda segunda).
+	"weekly-summary": 4,
 	"cheaper-swap": 5,
 } as const satisfies Record<keyof typeof AI_DAILY_LIMITS, number>;
 
@@ -55,10 +57,10 @@ export function limitReachedMessage(
 		const limit = AI_MONTHLY_LIMITS[feature];
 		const monthly: Record<AiFeature, string> = {
 			recipe: `Você já usou suas ${limit} receitas deste mês.`,
-			"diet-import": "Você já usou a leitura de dieta deste mês.",
+			"diet-import": `Você já usou suas ${limit} leituras de dieta deste mês.`,
 			"meal-variation": `Você já usou suas ${limit} variações de refeição deste mês.`,
 			"meal-fill": `Você já completou refeições ${limit} vezes este mês.`,
-			"weekly-summary": "Você já gerou o resumo deste mês.",
+			"weekly-summary": `Você já gerou seus ${limit} resumos deste mês.`,
 			"cheaper-swap": `Você já viu suas ${limit} sugestões de economia deste mês.`,
 		};
 		return `${monthly[feature]} Volta no dia 1º!`;
@@ -74,4 +76,13 @@ export function limitReachedMessage(
 		"cheaper-swap": `Você já viu ${limit} sugestões de economia hoje. Amanhã tem mais!`,
 	};
 	return daily[feature];
+}
+
+/** Quanto ainda resta da cota do mês, por recurso (ausente = sem cota, beta). */
+export type AiQuotaLeft = Partial<Record<AiFeature, number>>;
+
+/** Texto curto da cota que sobra, mostrado no painel de cada recurso. */
+export function quotaLeftLabel(left: number, limit: number) {
+	if (left <= 0) return "Acabou a cota deste mês. Volta no dia 1º!";
+	return `${left === 1 ? "Resta" : "Restam"} ${left} de ${limit} este mês.`;
 }

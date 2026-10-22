@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
-import { isBetaUser } from "~/domains/auth/services/beta-service";
+import { AiQuotaProvider } from "~/domains/ai-usage/components/ai-quota-provider";
+import { monthlyQuotaLeft } from "~/domains/ai-usage/services/ai-usage-service";
+import { canUseAi } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { suggestedWater } from "~/domains/calculators/utils/water";
 import { DietView } from "~/domains/diet";
@@ -42,17 +44,26 @@ export default function DietaPage() {
 
 async function DietContent() {
 	const user = await getCurrentUser();
-	const beta = isBetaUser(user);
-	const [meals, profile, goal, settings, calibration, savedRecipes, prices] =
-		await Promise.all([
-			getDiet(user.id),
-			findProfileByUserId(user.id),
-			findGoalByUserId(user.id),
-			getSettingsByUserId(user.id),
-			findGoalCalibration(user.id),
-			beta ? countSavedByMeal(user.id) : {},
-			listUserPrices(user.id),
-		]);
+	const beta = canUseAi(user);
+	const [
+		meals,
+		profile,
+		goal,
+		settings,
+		calibration,
+		savedRecipes,
+		prices,
+		quota,
+	] = await Promise.all([
+		getDiet(user.id),
+		findProfileByUserId(user.id),
+		findGoalByUserId(user.id),
+		getSettingsByUserId(user.id),
+		findGoalCalibration(user.id),
+		beta ? countSavedByMeal(user.id) : {},
+		listUserPrices(user.id),
+		beta ? monthlyQuotaLeft(user) : {},
+	]);
 
 	// Gasto e meta vêm das abas TMB e Meta; sem eles, a grade funciona mas o
 	// resumo não mostra excedente nem comparação com a meta. O gasto inclui o
@@ -70,21 +81,23 @@ async function DietContent() {
 			: null;
 
 	return (
-		<DietView
-			// Remonta quando o servidor devolve outras refeições (ex.: depois de
-			// `router.refresh()` por mudança em outra aba).
-			key={meals.map((meal) => meal.id).join(",")}
-			initialMeals={meals}
-			weightKg={profile?.weightKg ?? null}
-			tdee={tdee}
-			targets={targets}
-			water={profile ? suggestedWater(profile) : null}
-			beta={beta}
-			initialSavedRecipes={savedRecipes}
-			proteinCounting={settings.proteinCounting}
-			ironGoal={ironTarget(profile)}
-			userPrices={prices}
-		/>
+		<AiQuotaProvider initial={quota}>
+			<DietView
+				// Remonta quando o servidor devolve outras refeições (ex.: depois de
+				// `router.refresh()` por mudança em outra aba).
+				key={meals.map((meal) => meal.id).join(",")}
+				initialMeals={meals}
+				weightKg={profile?.weightKg ?? null}
+				tdee={tdee}
+				targets={targets}
+				water={profile ? suggestedWater(profile) : null}
+				beta={beta}
+				initialSavedRecipes={savedRecipes}
+				proteinCounting={settings.proteinCounting}
+				ironGoal={ironTarget(profile)}
+				userPrices={prices}
+			/>
+		</AiQuotaProvider>
 	);
 }
 

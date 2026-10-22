@@ -5,6 +5,7 @@ import {
 	AI_MONTHLY_LIMITS,
 	limitReachedMessage,
 	monthStartOf,
+	quotaLeftLabel,
 	quotaVerdict,
 } from "~/domains/ai-usage/utils/ai-usage";
 
@@ -22,13 +23,13 @@ describe("AI_DAILY_LIMITS", () => {
 });
 
 describe("AI_MONTHLY_LIMITS", () => {
-	it("cota pequena do grátis: 3 receitas, variações e completar, 5 trocas, 1 importação e 1 resumo", () => {
+	it("cota pequena do grátis: 3 receitas, variações e completar, 5 trocas, 2 importações e 4 resumos (um por semana)", () => {
 		expect(AI_MONTHLY_LIMITS).toEqual({
 			recipe: 3,
-			"diet-import": 1,
+			"diet-import": 2,
 			"meal-variation": 3,
 			"meal-fill": 3,
-			"weekly-summary": 1,
+			"weekly-summary": 4,
 			"cheaper-swap": 5,
 		});
 	});
@@ -59,7 +60,7 @@ describe("quotaVerdict", () => {
 		expect(
 			quotaVerdict("diet-import", {
 				today: 0,
-				month: 1,
+				month: 2,
 				unlimitedMonth: false,
 			}),
 		).toBe("monthly");
@@ -99,13 +100,28 @@ describe("limitReachedMessage", () => {
 			"Você já usou suas 3 receitas deste mês. Volta no dia 1º!",
 		);
 		expect(limitReachedMessage("diet-import", "monthly")).toBe(
-			"Você já usou a leitura de dieta deste mês. Volta no dia 1º!",
+			"Você já usou suas 2 leituras de dieta deste mês. Volta no dia 1º!",
 		);
 		expect(limitReachedMessage("weekly-summary", "monthly")).toBe(
-			"Você já gerou o resumo deste mês. Volta no dia 1º!",
+			"Você já gerou seus 4 resumos deste mês. Volta no dia 1º!",
 		);
 		expect(limitReachedMessage("cheaper-swap", "monthly")).toBe(
 			"Você já viu suas 5 sugestões de economia deste mês. Volta no dia 1º!",
+		);
+	});
+});
+
+describe("quotaLeftLabel", () => {
+	it("quantos usos do mês ainda restam", () => {
+		expect(quotaLeftLabel(3, 3)).toBe("Restam 3 de 3 este mês.");
+		expect(quotaLeftLabel(2, 5)).toBe("Restam 2 de 5 este mês.");
+		expect(quotaLeftLabel(1, 3)).toBe("Resta 1 de 3 este mês.");
+		expect(quotaLeftLabel(1, 1)).toBe("Resta 1 de 1 este mês.");
+	});
+
+	it("acabou: avisa quando volta", () => {
+		expect(quotaLeftLabel(0, 3)).toBe(
+			"Acabou a cota deste mês. Volta no dia 1º!",
 		);
 	});
 });

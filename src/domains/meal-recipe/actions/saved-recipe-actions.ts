@@ -3,7 +3,7 @@
 import { after } from "next/server";
 import { z } from "zod";
 
-import { isBetaUser } from "~/domains/auth/services/beta-service";
+import { canUseAi } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { getDiet } from "~/domains/diet/services/diet-service";
 import { findVisibleFood } from "~/domains/food/services/food-service";
@@ -36,11 +36,11 @@ export type SavedRecipeResult<T = null> =
 	| { ok: false; error: string };
 
 const fail = (error: string) => ({ ok: false as const, error });
-const BETA_ONLY = "Recurso em teste, ainda não liberado pra sua conta.";
+const BETA_ONLY = "Os recursos de IA ainda não estão liberados pra sua conta.";
 
 async function betaUser() {
 	const user = await getCurrentUser();
-	return isBetaUser(user) ? user : null;
+	return canUseAi(user) ? user : null;
 }
 
 /**
