@@ -1,5 +1,5 @@
 import Link from "next/link";
-
+import { aiSectionCopy } from "~/domains/landing/utils/ai-copy";
 import {
 	ArrowRight,
 	BookmarkCheck,
@@ -14,7 +14,7 @@ import {
 } from "~/shared/components/icons";
 import { Badge } from "~/shared/components/ui/badge";
 import { Button } from "~/shared/components/ui/button";
-import { APP_NAME } from "~/shared/lib/app-config";
+import { AI_IS_OPEN } from "~/shared/lib/ai-launch";
 
 const AI_FEATURES: { icon: LucideIcon; title: string; text: string }[] = [
 	{
@@ -40,7 +40,7 @@ const AI_FEATURES: { icon: LucideIcon; title: string; text: string }[] = [
 	{
 		icon: PiggyBank,
 		title: "Troca mais em conta",
-		text: "Abriu um alimento? Já aparece um equivalente mais barato e quanto você economiza no mês.",
+		text: "Toque num alimento e veja se tem um equivalente mais barato, com quanto você economiza no mês.",
 	},
 	{
 		icon: Target,
@@ -54,32 +54,29 @@ const AI_FEATURES: { icon: LucideIcon; title: string; text: string }[] = [
 	},
 ];
 
-// Recursos com IA em teste fechado: mostra o que vem aí no plano Pro, sem
-// prometer data nem preço. Deixa claro que ainda não estão liberados.
-export function LandingAiPreview() {
+// Recursos com IA. Fechada: o que vem aí, sem data nem preço, deixando claro
+// que ainda não estão liberados. Aberta (`AI_OPEN`): grátis com a cota mensal.
+export function LandingAiPreview({ open = AI_IS_OPEN }: { open?: boolean }) {
+	const copy = aiSectionCopy(open);
 	return (
 		<section
-			id="em-breve"
-			aria-labelledby="em-breve-titulo"
+			id="ia"
+			aria-labelledby="ia-titulo"
 			className="mx-auto w-full max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6 lg:py-24"
 		>
 			<div className="flex flex-col gap-10 rounded-[2rem] bg-card p-6 sm:p-10">
 				<div className="flex max-w-2xl flex-col items-start gap-4">
 					<Badge variant="secondary">
 						<Sparkles data-icon="inline-start" />
-						Beta · em breve no {APP_NAME} Pro
+						{copy.badge}
 					</Badge>
 					<h2
-						id="em-breve-titulo"
+						id="ia-titulo"
 						className="text-balance font-heading font-semibold text-3xl tracking-tight"
 					>
-						Vem aí: a IA que trabalha junto com a sua dieta
+						{copy.title}
 					</h2>
-					<p className="text-pretty text-muted-foreground">
-						Estamos testando estes recursos com um grupo pequeno. Ainda não
-						estão liberados: chegam em breve no plano Pro. Enquanto isso, tudo o
-						que você viu acima é grátis.
-					</p>
+					<p className="text-pretty text-muted-foreground">{copy.text}</p>
 				</div>
 
 				<ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -93,7 +90,7 @@ export function LandingAiPreview() {
 									<Icon className="size-5" aria-hidden />
 								</span>
 								<span className="rounded-full bg-card px-2.5 py-0.5 font-medium text-xs">
-									Em breve
+									{copy.chip}
 								</span>
 							</div>
 							<h3 className="font-heading font-semibold">{title}</h3>
@@ -104,8 +101,7 @@ export function LandingAiPreview() {
 
 				<div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
 					<p className="text-pretty text-muted-foreground text-sm">
-						Comece agora com o grátis: sua dieta, metas e medidas já estarão
-						prontas quando o Pro chegar.
+						{copy.footer}
 					</p>
 					<Button
 						className="shrink-0"

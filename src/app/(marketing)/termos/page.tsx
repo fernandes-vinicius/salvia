@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { LegalDocument, LegalSection } from "~/domains/legal";
+import { AI_IS_OPEN } from "~/shared/lib/ai-launch";
 import { APP_NAME, SUPPORT_EMAIL } from "~/shared/lib/app-config";
 
 export const metadata: Metadata = {
@@ -11,6 +12,8 @@ export const metadata: Metadata = {
 };
 
 export default function TermsPage() {
+	let n = 0;
+	const title = (text: string) => `${++n}. ${text}`;
 	return (
 		<LegalDocument
 			title="Termos de uso"
@@ -22,7 +25,7 @@ export default function TermsPage() {
 				</p>
 			}
 		>
-			<LegalSection title="1. O que é o serviço">
+			<LegalSection title={title("O que é o serviço")}>
 				<p>
 					O {APP_NAME} é um aplicativo web que ajuda você a estimar seu gasto
 					calórico, definir metas de calorias e macronutrientes e organizar a
@@ -31,7 +34,7 @@ export default function TermsPage() {
 				</p>
 			</LegalSection>
 
-			<LegalSection title="2. Não é orientação nutricional nem médica">
+			<LegalSection title={title("Não é orientação nutricional nem médica")}>
 				<p>
 					<strong>
 						O {APP_NAME} não substitui nutricionista, médico ou outro
@@ -57,7 +60,7 @@ export default function TermsPage() {
 				</ul>
 			</LegalSection>
 
-			<LegalSection title="3. Sua conta">
+			<LegalSection title={title("Sua conta")}>
 				<p>
 					O acesso é pela sua conta Google. Você é responsável por manter essa
 					conta segura e pelos dados que cadastra. O uso é pessoal e destinado a
@@ -65,7 +68,7 @@ export default function TermsPage() {
 				</p>
 			</LegalSection>
 
-			<LegalSection title="4. Uso permitido">
+			<LegalSection title={title("Uso permitido")}>
 				<p>Você concorda em não:</p>
 				<ul>
 					<li>
@@ -78,7 +81,7 @@ export default function TermsPage() {
 				</ul>
 			</LegalSection>
 
-			<LegalSection title="5. Dados dos alimentos">
+			<LegalSection title={title("Dados dos alimentos")}>
 				<p>
 					Os valores nutricionais vêm da TACO e dos rótulos que você cadastra.
 					Fazemos o possível pra mantê-los corretos, mas podem existir
@@ -87,7 +90,37 @@ export default function TermsPage() {
 				</p>
 			</LegalSection>
 
-			<LegalSection title="6. Disponibilidade e mudanças">
+			{AI_IS_OPEN && (
+				<LegalSection title={title("Recursos com inteligência artificial")}>
+					<p>
+						Alguns recursos usam IA (Google Gemini): importar a dieta, receita
+						da refeição, variar a refeição, completar o que falta, troca mais em
+						conta e resumo da semana.
+					</p>
+					<ul>
+						<li>
+							<strong>A IA pode errar.</strong> Ela sugere; as quantidades e os
+							macros são calculados pelo app a partir da TACO e dos seus
+							alimentos. Confira tudo antes de salvar ou de usar uma sugestão,
+							principalmente a leitura de uma dieta importada.
+						</li>
+						<li>
+							As sugestões da IA também não são orientação nutricional (item 2).
+						</li>
+						<li>
+							O uso é grátis, com uma cota por mês em cada recurso, que volta no
+							dia 1º, e um limite por dia contra abuso. A cota pode mudar;
+							quando mudar, o app mostra o novo número antes do uso.
+						</li>
+						<li>
+							Envie só a sua própria dieta. Não envie documentos de outras
+							pessoas nem com dados que não sejam a dieta.
+						</li>
+					</ul>
+				</LegalSection>
+			)}
+
+			<LegalSection title={title("Disponibilidade e mudanças")}>
 				<p>
 					O serviço é oferecido como está. Podemos melhorar, mudar ou
 					descontinuar recursos, e podem ocorrer interrupções. Se no futuro
@@ -96,7 +129,7 @@ export default function TermsPage() {
 				</p>
 			</LegalSection>
 
-			<LegalSection title="7. Limitação de responsabilidade">
+			<LegalSection title={title("Limitação de responsabilidade")}>
 				<p>
 					Na extensão permitida pela lei, o {APP_NAME} não se responsabiliza por
 					resultados de saúde, estéticos ou de desempenho, nem por danos
@@ -105,21 +138,21 @@ export default function TermsPage() {
 				</p>
 			</LegalSection>
 
-			<LegalSection title="8. Privacidade">
+			<LegalSection title={title("Privacidade")}>
 				<p>
 					O tratamento dos seus dados segue a{" "}
 					<Link href="/privacidade">Política de privacidade</Link>.
 				</p>
 			</LegalSection>
 
-			<LegalSection title="9. Encerramento">
+			<LegalSection title={title("Encerramento")}>
 				<p>
 					Você pode excluir sua conta a qualquer momento em Configurações.
 					Podemos suspender contas que violem estes termos.
 				</p>
 			</LegalSection>
 
-			<LegalSection title="10. Lei e contato">
+			<LegalSection title={title("Lei e contato")}>
 				<p>
 					Estes termos seguem as leis brasileiras. Dúvidas:{" "}
 					<a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>.

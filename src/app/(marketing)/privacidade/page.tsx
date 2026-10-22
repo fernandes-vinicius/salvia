@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { LegalDocument, LegalSection } from "~/domains/legal";
+import { AI_IS_OPEN } from "~/shared/lib/ai-launch";
 import { APP_NAME, SUPPORT_EMAIL } from "~/shared/lib/app-config";
 
 export const metadata: Metadata = {
@@ -55,6 +56,10 @@ export default function PrivacyPage() {
 						<strong>Uso do app:</strong> os dias em que você abriu o app (só a
 						data, sem o que você fez), pra medir se o app está sendo útil ao
 						longo das semanas.
+					</li>
+					<li>
+						<strong>Uso dos recursos de IA:</strong> quantas vezes por dia você
+						usou cada um, pra controlar o limite diário e a cota grátis do mês.
 					</li>
 					<li>
 						<strong>Sugestões que você envia:</strong> o tipo (ideia, problema
@@ -161,11 +166,25 @@ export default function PrivacyPage() {
 						retenção) e gravações com textos mascarados.
 					</li>
 					<li>
-						<strong>Google (Gemini)</strong>: nos recursos com IA, ainda em
-						teste, lê o arquivo da dieta que você envia, sugere receitas e
-						alimentos a partir das suas refeições e escreve o resumo da semana a
-						partir de números do app (peso, cintura e check-in, sem nome nem
-						e-mail). O arquivo não fica guardado no app.
+						{AI_IS_OPEN ? (
+							<>
+								<strong>Google (Gemini, plano pago da API)</strong>: nos
+								recursos com IA, lê o arquivo da dieta que você envia, sugere
+								receitas e alimentos a partir das suas refeições e escreve o
+								resumo da semana a partir de números do app (peso, cintura e
+								check-in, sem nome nem e-mail). No plano pago, o Google não usa
+								esses dados pra treinar os modelos dele. O arquivo não fica
+								guardado no app.
+							</>
+						) : (
+							<>
+								<strong>Google (Gemini)</strong>: nos recursos com IA, ainda em
+								teste, lê o arquivo da dieta que você envia, sugere receitas e
+								alimentos a partir das suas refeições e escreve o resumo da
+								semana a partir de números do app (peso, cintura e check-in, sem
+								nome nem e-mail). O arquivo não fica guardado no app.
+							</>
+						)}
 					</li>
 					<li>
 						<strong>Unsplash</strong>: fotos ilustrativas das receitas,

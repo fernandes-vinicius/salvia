@@ -1,10 +1,12 @@
 import Link from "next/link";
 
+import { aiSectionCopy } from "~/domains/landing/utils/ai-copy";
 import { ClarityScript } from "~/shared/components/clarity-script";
 import { Logo } from "~/shared/components/logo";
 import { ModeToggle } from "~/shared/components/mode-toggle";
 import { SkipLink } from "~/shared/components/skip-link";
 import { Button } from "~/shared/components/ui/button";
+import { AI_IS_OPEN } from "~/shared/lib/ai-launch";
 import { APP_NAME, APP_TAGLINE } from "~/shared/lib/app-config";
 
 // Âncoras com `/` na frente: o layout também serve calculadoras e páginas
@@ -13,7 +15,7 @@ import { APP_NAME, APP_TAGLINE } from "~/shared/lib/app-config";
 const NAV = [
 	{ href: "/#recursos", label: "Recursos" },
 	{ href: "/#como-funciona", label: "Como funciona", wide: true },
-	{ href: "/#em-breve", label: "Em breve" },
+	{ href: "/#ia", label: aiSectionCopy(AI_IS_OPEN).nav },
 	{ href: "/calculadoras", label: "Calculadoras" },
 	{ href: "/#duvidas", label: "Dúvidas" },
 ] as const satisfies { href: string; label: string; wide?: boolean }[];
