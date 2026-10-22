@@ -44,8 +44,9 @@ export async function readDietAction(
 			mediaType: file.type,
 		})),
 	);
-	if (!(await consumeAiQuota(user.id, "diet-import"))) {
-		return fail(limitReachedMessage("diet-import"));
+	const quota = await consumeAiQuota(user, "diet-import");
+	if (quota !== "ok") {
+		return fail(limitReachedMessage("diet-import", quota));
 	}
 	const result = await readDietDocuments(documents);
 	if (!result.ok) {

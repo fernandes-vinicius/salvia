@@ -51,8 +51,9 @@ export async function generateWeeklySummaryAction(): Promise<WeeklySummaryResult
 		};
 	}
 
-	if (!(await consumeAiQuota(user.id, "weekly-summary"))) {
-		return { ok: false, error: limitReachedMessage("weekly-summary") };
+	const quota = await consumeAiQuota(user, "weekly-summary");
+	if (quota !== "ok") {
+		return { ok: false, error: limitReachedMessage("weekly-summary", quota) };
 	}
 	const result = await generateWeeklyText(factsPrompt(facts));
 	if (!result.ok) {

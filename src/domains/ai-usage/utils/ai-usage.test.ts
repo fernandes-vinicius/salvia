@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
 	AI_DAILY_LIMITS,
+	AI_MONTHLY_LIMITS,
 	limitReachedMessage,
+	monthStartOf,
+	quotaVerdict,
 } from "~/domains/ai-usage/utils/ai-usage";
 
 describe("AI_DAILY_LIMITS", () => {
@@ -18,16 +21,91 @@ describe("AI_DAILY_LIMITS", () => {
 	});
 });
 
+describe("AI_MONTHLY_LIMITS", () => {
+	it("cota pequena do grátis: 3 receitas, variações e completar, 5 trocas, 1 importação e 1 resumo", () => {
+		expect(AI_MONTHLY_LIMITS).toEqual({
+			recipe: 3,
+			"diet-import": 1,
+			"meal-variation": 3,
+			"meal-fill": 3,
+			"weekly-summary": 1,
+			"cheaper-swap": 5,
+		});
+	});
+});
+
+describe("monthStartOf", () => {
+	it("o dia 1º do mês do dia dado", () => {
+		expect(monthStartOf("2026-10-22")).toBe("2026-10-01");
+		expect(monthStartOf("2026-12-31")).toBe("2026-12-01");
+		expect(monthStartOf("2026-11-01")).toBe("2026-11-01");
+	});
+});
+
+describe("quotaVerdict", () => {
+	it("libera enquanto cabe no dia e no mês", () => {
+		expect(
+			quotaVerdict("recipe", { today: 0, month: 0, unlimitedMonth: false }),
+		).toBe("ok");
+		expect(
+			quotaVerdict("recipe", { today: 2, month: 2, unlimitedMonth: false }),
+		).toBe("ok");
+	});
+
+	it("barra quando a cota do mês acabou", () => {
+		expect(
+			quotaVerdict("recipe", { today: 0, month: 3, unlimitedMonth: false }),
+		).toBe("monthly");
+		expect(
+			quotaVerdict("diet-import", {
+				today: 0,
+				month: 1,
+				unlimitedMonth: false,
+			}),
+		).toBe("monthly");
+	});
+
+	it("o limite do dia vale mesmo sem cota do mês (beta)", () => {
+		expect(
+			quotaVerdict("recipe", { today: 19, month: 50, unlimitedMonth: true }),
+		).toBe("ok");
+		expect(
+			quotaVerdict("recipe", { today: 20, month: 50, unlimitedMonth: true }),
+		).toBe("daily");
+	});
+
+	it("o limite do dia vem antes do mês", () => {
+		expect(
+			quotaVerdict("recipe", { today: 20, month: 20, unlimitedMonth: false }),
+		).toBe("daily");
+	});
+});
+
 describe("limitReachedMessage", () => {
-	it("explica o limite de cada recurso e quando volta", () => {
+	it("explica o limite do dia de cada recurso e quando volta", () => {
 		expect(limitReachedMessage("recipe")).toBe(
 			"Você já gerou 20 receitas hoje. Amanhã tem mais!",
 		);
-		expect(limitReachedMessage("diet-import")).toBe(
+		expect(limitReachedMessage("diet-import", "daily")).toBe(
 			"Você já leu 10 dietas hoje. Tente de novo amanhã.",
 		);
 		expect(limitReachedMessage("meal-variation")).toBe(
 			"Você já variou refeições 20 vezes hoje. Amanhã tem mais!",
+		);
+	});
+
+	it("explica a cota do mês e que ela volta no dia 1º", () => {
+		expect(limitReachedMessage("recipe", "monthly")).toBe(
+			"Você já usou suas 3 receitas deste mês. Volta no dia 1º!",
+		);
+		expect(limitReachedMessage("diet-import", "monthly")).toBe(
+			"Você já usou a leitura de dieta deste mês. Volta no dia 1º!",
+		);
+		expect(limitReachedMessage("weekly-summary", "monthly")).toBe(
+			"Você já gerou o resumo deste mês. Volta no dia 1º!",
+		);
+		expect(limitReachedMessage("cheaper-swap", "monthly")).toBe(
+			"Você já viu suas 5 sugestões de economia deste mês. Volta no dia 1º!",
 		);
 	});
 });

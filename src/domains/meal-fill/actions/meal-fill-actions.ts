@@ -90,8 +90,9 @@ export async function suggestMealFillAction(
 		return fail("Não achei alimentos pra completar essa refeição.");
 	}
 
-	if (!(await consumeAiQuota(user.id, "meal-fill"))) {
-		return fail(limitReachedMessage("meal-fill"));
+	const quota = await consumeAiQuota(user, "meal-fill");
+	if (quota !== "ok") {
+		return fail(limitReachedMessage("meal-fill", quota));
 	}
 	const result = await suggestMealFill(
 		fillPrompt({ meal, gap, candidates, avoid: parsed.data.avoid }),

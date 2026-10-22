@@ -51,8 +51,9 @@ export async function suggestRecipeAction(
 		return { ok: false, error: "Adicione alimentos à refeição primeiro." };
 	}
 
-	if (!(await consumeAiQuota(user.id, "recipe"))) {
-		return { ok: false, error: limitReachedMessage("recipe") };
+	const quota = await consumeAiQuota(user, "recipe");
+	if (quota !== "ok") {
+		return { ok: false, error: limitReachedMessage("recipe", quota) };
 	}
 	const items = await swapOptionsFor(user.id, meal.items, {
 		light: isLightMeal(meal),

@@ -77,8 +77,9 @@ export async function suggestVariationAction(
 		return fail("Não achei trocas equivalentes pros alimentos dessa refeição.");
 	}
 
-	if (!(await consumeAiQuota(user.id, "meal-variation"))) {
-		return fail(limitReachedMessage("meal-variation"));
+	const quota = await consumeAiQuota(user, "meal-variation");
+	if (quota !== "ok") {
+		return fail(limitReachedMessage("meal-variation", quota));
 	}
 	const result = await suggestMealVariation(meal, items, parsed.data.avoid);
 	if (!result.ok) {
