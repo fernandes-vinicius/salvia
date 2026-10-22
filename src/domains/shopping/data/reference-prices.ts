@@ -44,6 +44,7 @@ export const REFERENCE_PRICES: Record<string, Price> = {
 	"Atum, conserva em óleo": kg(75),
 	"Leite em pó integral": kg(50),
 	"Leite, de vaca, desnatado, pó": kg(55),
+	"Café em pó": kg(65),
 	// Açougue e peixaria
 	"Peito de frango sem pele": kg(22),
 	"Peito de frango com pele": kg(18),
@@ -57,6 +58,8 @@ export const REFERENCE_PRICES: Record<string, Price> = {
 	Músculo: kg(33),
 	"Fígado bovino": kg(20),
 	Sardinha: kg(20),
+	"Filé de merluza": kg(40),
+	"Filé de pescada": kg(38),
 	// Laticínios e ovos
 	Ovos: dozen(10),
 	"Leite, de vaca, integral": liter(6),
@@ -83,6 +86,10 @@ export const REFERENCE_PRICES: Record<string, Price> = {
 	Tomate: kg(9),
 	"Alface crespa": kg(16),
 	Repolho: kg(5),
+	Brócolis: kg(14),
+	"Couve-flor": kg(12),
+	Abobrinha: kg(7),
+	Chuchu: kg(5),
 	Abacate: kg(10),
 	"Maçã, Fuji, com casca, crua": kg(12),
 	"Maçã, Argentina, com casca, crua": kg(14),

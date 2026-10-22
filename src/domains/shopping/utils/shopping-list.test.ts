@@ -145,3 +145,41 @@ describe("buildShoppingList — cru e pronto juntos", () => {
 		});
 	});
 });
+
+describe("buildShoppingList — café, verduras cozidas e peixe", () => {
+	const cafe = taco(
+		"Café, infusão 10%",
+		"Bebidas (alcoólicas e não alcoólicas)",
+	);
+	const brocolis = taco("Brócolis, cozido", "Verduras, hortaliças e derivados");
+	const merluza = taco("Merluza, filé, assado", "Pescados e frutos do mar");
+	const groups = buildShoppingList(
+		[
+			meal([
+				[cafe, 100],
+				[brocolis, 80],
+				[merluza, 150],
+			]),
+		],
+		7,
+	);
+	const find = (name: string) =>
+		groups.flatMap((g) => g.items).find((item) => item.name === name);
+
+	it("o café vira pó na mercearia (10 g de pó por 100 ml)", () => {
+		// 100 × 7 = 700 de café pronto → × 0,1 = 70 g de pó.
+		expect(find("Café em pó")).toMatchObject({ amount: "70 g" });
+		expect(
+			groups.find((g) => g.section === "Mercearia")?.items.map((i) => i.name),
+		).toContain("Café em pó");
+	});
+
+	it("brócolis e merluza com nome de mercado e peso cru", () => {
+		expect(find("Brócolis")?.amount).toBe("600 g");
+		// 150 × 7 = 1.050 g assado → × 1,35 ≈ 1.418 g cru.
+		expect(find("Filé de merluza")).toMatchObject({
+			amount: "1,5 kg",
+			detail: "peso cru · rende ≈ 1,1 kg pronto",
+		});
+	});
+});
