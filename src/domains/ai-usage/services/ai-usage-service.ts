@@ -13,7 +13,7 @@ import {
 import { isBetaUser } from "~/domains/auth/services/beta-service";
 import type { User } from "~/domains/auth/types/user-types";
 import { db } from "~/shared/db";
-import { aiUsage } from "~/shared/db/schema";
+import { aiInterest, aiUsage } from "~/shared/db/schema";
 import { localDateString } from "~/shared/lib/dates";
 
 /**
@@ -104,4 +104,18 @@ export async function monthlyQuotaLeft(
 			Math.max(0, limit - (used.get(feature) ?? 0)),
 		]),
 	);
+}
+
+/** Anota o "Quero usar mais" (tocar de novo não duplica). */
+export async function registerAiInterest(userId: string, feature: AiFeature) {
+	await db.insert(aiInterest).values({ userId, feature }).onConflictDoNothing();
+}
+
+/** Recursos em que a pessoa já pediu mais. */
+export async function aiInterests(userId: string): Promise<AiFeature[]> {
+	const rows = await db
+		.select({ feature: aiInterest.feature })
+		.from(aiInterest)
+		.where(eq(aiInterest.userId, userId));
+	return rows.map((row) => row.feature as AiFeature);
 }

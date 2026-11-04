@@ -27,6 +27,19 @@ export const AI_MONTHLY_LIMITS = {
 
 export type AiFeature = keyof typeof AI_DAILY_LIMITS;
 
+export const AI_FEATURES = Object.keys(AI_DAILY_LIMITS) as [
+	AiFeature,
+	...AiFeature[],
+];
+
+/** "Quero usar mais" quando a cota do mês acaba: mede quem pagaria por mais. */
+export const INTEREST_COPY = {
+	button: "Quero usar mais",
+	thanks:
+		"Anotado! Se surgir um jeito de usar mais, a gente te avisa por e-mail.",
+	error: "Não deu pra anotar agora. Tente de novo.",
+} as const;
+
 /** Qual limite barrou o pedido. */
 export type QuotaPeriod = "daily" | "monthly";
 

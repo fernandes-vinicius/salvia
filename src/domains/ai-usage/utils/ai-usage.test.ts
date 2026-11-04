@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
 	AI_DAILY_LIMITS,
+	AI_FEATURES,
 	AI_MONTHLY_LIMITS,
 	limitReachedMessage,
 	monthStartOf,
@@ -122,6 +123,14 @@ describe("quotaLeftLabel", () => {
 	it("acabou: avisa quando volta", () => {
 		expect(quotaLeftLabel(0, 3)).toBe(
 			"Acabou a cota deste mês. Volta no dia 1º!",
+		);
+	});
+});
+
+describe("AI_FEATURES", () => {
+	it("lista todos os recursos com cota", () => {
+		expect([...AI_FEATURES].sort()).toEqual(
+			Object.keys(AI_MONTHLY_LIMITS).sort(),
 		);
 	});
 });

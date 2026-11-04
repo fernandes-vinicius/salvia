@@ -23,6 +23,8 @@
 		"metrics:prod": "bun --env-file=.env.neon scripts/metrics.ts",
 		"feedback": "bun scripts/feedback.ts",
 		"feedback:prod": "bun --env-file=.env.neon scripts/feedback.ts",
+		"ai-interest": "bun scripts/ai-interest.ts",
+		"ai-interest:prod": "bun --env-file=.env.neon scripts/ai-interest.ts",
 		"storybook": "storybook dev -p 6006",
 		"build-storybook": "storybook build -o storybook-static",
 		"generate-pwa-assets": "pwa-assets-generator"

@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { AiQuotaProvider } from "~/domains/ai-usage/components/ai-quota-provider";
-import { monthlyQuotaLeft } from "~/domains/ai-usage/services/ai-usage-service";
+import {
+	aiInterests,
+	monthlyQuotaLeft,
+} from "~/domains/ai-usage/services/ai-usage-service";
 import { canUseAi } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { suggestedWater } from "~/domains/calculators/utils/water";
@@ -96,6 +99,7 @@ async function HomeContent() {
 		dietCycle,
 		weekly,
 		quota,
+		interested,
 	] = await Promise.all([
 		findProfileByUserId(user.id),
 		findGoalByUserId(user.id),
@@ -111,6 +115,7 @@ async function HomeContent() {
 		findDietCycle(user.id),
 		beta ? findWeeklySummary(user.id, weekStartOf(today)) : null,
 		beta ? monthlyQuotaLeft(user) : {},
+		beta ? aiInterests(user.id) : [],
 	]);
 
 	// Gasto da fórmula + o ajuste pelo peso real já aplicado.
@@ -233,7 +238,7 @@ async function HomeContent() {
 			{!hasFoods && templates}
 
 			{beta && (
-				<AiQuotaProvider initial={quota}>
+				<AiQuotaProvider initial={quota} interested={interested}>
 					<WeeklySummaryCard initialSummary={weekly} />
 				</AiQuotaProvider>
 			)}

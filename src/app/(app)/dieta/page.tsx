@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { AiQuotaProvider } from "~/domains/ai-usage/components/ai-quota-provider";
-import { monthlyQuotaLeft } from "~/domains/ai-usage/services/ai-usage-service";
+import {
+	aiInterests,
+	monthlyQuotaLeft,
+} from "~/domains/ai-usage/services/ai-usage-service";
 import { canUseAi } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { suggestedWater } from "~/domains/calculators/utils/water";
@@ -54,6 +57,7 @@ async function DietContent() {
 		savedRecipes,
 		prices,
 		quota,
+		interested,
 	] = await Promise.all([
 		getDiet(user.id),
 		findProfileByUserId(user.id),
@@ -63,6 +67,7 @@ async function DietContent() {
 		beta ? countSavedByMeal(user.id) : {},
 		listUserPrices(user.id),
 		beta ? monthlyQuotaLeft(user) : {},
+		beta ? aiInterests(user.id) : [],
 	]);
 
 	// Gasto e meta vêm das abas TMB e Meta; sem eles, a grade funciona mas o
@@ -81,7 +86,7 @@ async function DietContent() {
 			: null;
 
 	return (
-		<AiQuotaProvider initial={quota}>
+		<AiQuotaProvider initial={quota} interested={interested}>
 			<DietView
 				// Remonta quando o servidor devolve outras refeições (ex.: depois de
 				// `router.refresh()` por mudança em outra aba).

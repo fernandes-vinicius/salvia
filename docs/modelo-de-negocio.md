@@ -107,7 +107,7 @@ Conta refeita em 22/10/2026: a estimativa anterior (R$ 0,05 por pessoa, ~R$ 55 c
 - **Pagamento:** cartão pela Stripe no CNPJ (Simples, ~6% sobre a receita + contador); Pix depois, se pedirem.
 - **Margem:** R$ 9,90 − taxa Stripe (~R$ 0,79) − ~6% Simples (~R$ 0,59) − IA (~R$ 1–1,50 no uso pesado) ≈ **R$ 7 por assinante mensal**.
 - **Infra no lançamento do Pro:** sair da Vercel Hobby (proíbe uso comercial) pra VPS em SP + Coolify (~R$ 30–45/mês), ver [`plano-infra-e-planos.md`](plano-infra-e-planos.md).
-- **Gatilho** (a definir quando houver uso): número de pessoas ativas por semana e uso da cota de IA (quantos batem o limite) no PostHog e no `bun run metrics`.
+- **Gatilho** (a definir quando houver uso): número de pessoas ativas por semana e uso da cota de IA (quantos batem o limite) no PostHog e no `bun run metrics`. Desde 04/11/2026, quem zera a cota vê "Quero usar mais": cada toque fica em `ai_interest` (evento `quero_mais_ia`), e o número de pessoas que pediram (`bun run metrics`) é o sinal principal pra criar o Pro; a lista pra avisar sai de `bun run ai-interest:prod`.
 
 ## Próximas partes
 Preço e oferta (grátis × Pro, anual, fundador), aquisição (calculadoras/SEO, conteúdo, indicação), vendas (gatilhos de upgrade no app), parceria com nutricionistas, metas de conversão e LTV/CAC.

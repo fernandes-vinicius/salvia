@@ -169,6 +169,13 @@
       "when": 1792521827001,
       "tag": "0023_sloppy_blur",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1793796612387,
+      "tag": "0024_cool_blue_shield",
+      "breakpoints": true
     }
   ]
 }

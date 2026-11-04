@@ -17,4 +17,4 @@ export const SITE_URL = new URL(
 export const SUPPORT_EMAIL = "contato.viniciusfdiogenes@gmail.com";
 
 /** Última revisão dos Termos de uso e da Política de privacidade. */
-export const LEGAL_UPDATED_AT = "22 de outubro de 2026";
+export const LEGAL_UPDATED_AT = "4 de novembro de 2026";
