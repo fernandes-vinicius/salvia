@@ -176,6 +176,13 @@
       "when": 1793796612387,
       "tag": "0024_cool_blue_shield",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1793834187043,
+      "tag": "0025_grey_zaladane",
+      "breakpoints": true
     }
   ]
 }

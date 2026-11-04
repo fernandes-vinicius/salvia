@@ -2,23 +2,15 @@
 
 import { useQueryState } from "nuqs";
 
-import { TriangleAlertIcon } from "~/shared/components/icons";
-import { Alert, AlertDescription } from "~/shared/components/ui/alert";
+import { AuthFormError } from "~/domains/auth/components/auth-form-error";
+import { authErrorMessage } from "~/domains/auth/utils/auth-errors";
 
-// O Better Auth redireciona pro `errorCallbackURL` com `?error=<código>`
-// quando o OAuth falha (ex.: usuário cancelou o consentimento).
+// O Better Auth volta pro login com `?error=<código>` quando o Google falha
+// (ex.: cancelou) ou o link de confirmação do e-mail venceu.
 export function LoginErrorAlert() {
 	const [error] = useQueryState("error");
 
 	if (!error) return null;
 
-	return (
-		<Alert variant="destructive">
-			<TriangleAlertIcon />
-			{/* Cor cheia: a padrão (90%) fica abaixo de 4,5:1 sobre o card. */}
-			<AlertDescription className="text-destructive!">
-				Não foi possível entrar com o Google. Tente novamente.
-			</AlertDescription>
-		</Alert>
-	);
+	return <AuthFormError message={authErrorMessage({ code: error })} />;
 }

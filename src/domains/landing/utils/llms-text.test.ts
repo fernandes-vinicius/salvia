@@ -28,6 +28,10 @@ describe("llmsText", () => {
 		}
 	});
 
+	it("mentions both ways to sign in", () => {
+		expect(llmsText(site, false)).toContain("Google ou com e-mail e senha");
+	});
+
 	it("says AI is coming soon while closed", () => {
 		expect(llmsText(site, false)).toContain("em breve");
 	});

@@ -62,9 +62,9 @@ export default function TermsPage() {
 
 			<LegalSection title={title("Sua conta")}>
 				<p>
-					O acesso é pela sua conta Google. Você é responsável por manter essa
-					conta segura e pelos dados que cadastra. O uso é pessoal e destinado a
-					maiores de 18 anos.
+					O acesso é pela sua conta Google ou por e-mail e senha. Você é
+					responsável por manter essa conta e a sua senha seguras e pelos dados
+					que cadastra. O uso é pessoal e destinado a maiores de 18 anos.
 				</p>
 			</LegalSection>
 

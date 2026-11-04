@@ -84,6 +84,13 @@ As `NEXT_PUBLIC_*` entram no build: na Vercel, cadastre antes do deploy.
 3. **URIs de redirecionamento autorizados:** `http://localhost:3000/api/auth/callback/google`
 4. Copie o client ID/secret para o `.env`. Em produção, repita com o domínio real.
 
+### Login com e-mail e senha (Resend)
+
+Cadastro com confirmação de e-mail obrigatória, "Esqueci a senha" (cria a senha também pra quem só entra com Google) e limite de tentativas guardado no banco (tabela `rate_limit`). Rotas: `/criar-conta`, `/esqueci-a-senha`, `/redefinir-senha`.
+
+- **Local:** sem `RESEND_API_KEY`, o e-mail sai no terminal do `bun dev` com o link. É só abrir o link.
+- **Produção:** em [resend.com](https://resend.com), **Domains → Add domain** `salvia-dieta.com.br` e copie os registros (TXT do DKIM, MX e TXT do SPF no subdomínio `send`) para a zona DNS no registro.br. Espere ficar **Verified**, crie uma **API Key** (permissão *Sending access*) e cadastre `RESEND_API_KEY` na Vercel (Production).
+
 ### Recursos em beta
 
 Ponha seu e-mail em `BETA_EMAILS` e a chave do Gemini em `GEMINI_API_KEY`. Aparecem: **Importar dieta (beta)** no menu ⋮ da Dieta, **Sugerir receita (beta)** no menu ⋮ de cada refeição e **Minhas receitas** no menu do perfil. A checagem é sempre no servidor (`isBetaUser`); pra quem não está na lista, as páginas dão 404.

@@ -6,10 +6,12 @@ import { drizzle } from "drizzle-orm/node-postgres";
 // Config usada só pelo CLI do Better Auth (`bun run auth:generate`) pra gerar
 // o schema do Drizzle. O CLI não resolve imports `server-only` (nem
 // transitivos), então aqui não dá pra reaproveitar `auth.ts`: o banco é um
-// mock e as credenciais são vazias. Mantenha `plugins` e campos extras de
-// user/session em sincronia com `auth.ts`.
+// mock e as credenciais são vazias. Mantenha `plugins`, `emailAndPassword`,
+// `rateLimit` e campos extras de user/session em sincronia com `auth.ts`.
 export const auth = betterAuth({
 	database: drizzleAdapter(drizzle.mock(), { provider: "pg" }),
 	socialProviders: { google: { clientId: "", clientSecret: "" } },
+	emailAndPassword: { enabled: true, requireEmailVerification: true },
+	rateLimit: { storage: "database" },
 	plugins: [nextCookies()],
 });
