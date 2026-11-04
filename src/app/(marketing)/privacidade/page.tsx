@@ -38,7 +38,10 @@ export default function PrivacyPage() {
 				<ul>
 					<li>
 						<strong>Conta:</strong> nome, e-mail e foto da sua conta Google,
-						recebidos quando você entra. Não temos acesso à sua senha.
+						recebidos quando você entra com o Google (não temos acesso à senha
+						do Google). Se você cria conta com e-mail e senha, guardamos o nome,
+						o e-mail e a senha embaralhada (hash): ninguém, nem a gente,
+						consegue ler a sua senha.
 					</li>
 					<li>
 						<strong>Dados de saúde e corpo:</strong> sexo, idade, peso, altura,
@@ -155,6 +158,11 @@ export default function PrivacyPage() {
 						<strong>Google</strong>: login (autenticação da sua conta Google).
 					</li>
 					<li>
+						<strong>Resend</strong>: envio dos e-mails da conta (confirmar o
+						e-mail e criar uma nova senha). Recebe só o seu nome, o e-mail e o
+						link.
+					</li>
+					<li>
 						<strong>Vercel</strong>: hospedagem do site, com servidores em São
 						Paulo, e estatísticas anônimas de visita (Vercel Web Analytics).
 					</li>
@@ -261,11 +269,11 @@ export default function PrivacyPage() {
 
 			<LegalSection title="8. Segurança">
 				<p>
-					A conexão é sempre criptografada (HTTPS), o login é feito pelo Google,
-					cada pessoa só acessa os próprios dados e o banco fica em fornecedor
-					com criptografia em repouso. Nenhum sistema é 100% seguro; se
-					acontecer um incidente que traga risco a você, avisaremos você e a
-					ANPD.
+					A conexão é sempre criptografada (HTTPS), o login é feito pelo Google
+					ou por senha guardada só como hash, com limite de tentativas, cada
+					pessoa só acessa os próprios dados e o banco fica em fornecedor com
+					criptografia em repouso. Nenhum sistema é 100% seguro; se acontecer um
+					incidente que traga risco a você, avisaremos você e a ANPD.
 				</p>
 			</LegalSection>
 

@@ -7,7 +7,7 @@ export const FAQ_QUESTIONS: FaqItem[] = [
 	{
 		question: "É grátis?",
 		answer:
-			"Sim. Entra com a conta Google e usa tudo o que está no app hoje, sem cartão de crédito.",
+			"Sim. Entra com a conta Google ou com e-mail e senha e usa tudo o que está no app hoje, sem cartão de crédito.",
 	},
 	{
 		question: "Substitui o nutricionista?",

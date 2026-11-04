@@ -61,7 +61,7 @@ export function llmsText(site: URL, aiOpen: boolean) {
 		`- [Calculadoras](${url("/calculadoras")}): calculadoras grátis e sem cadastro.`,
 		...calculators,
 		`- [Como calculamos](${url("/como-calculamos")}): fórmulas e referências em linguagem simples.`,
-		`- [Entrar](${url("/login")}): login com conta Google.`,
+		`- [Entrar](${url("/login")}): login com Google ou com e-mail e senha.`,
 		`- [Termos de uso](${url("/termos")}) e [Política de privacidade](${url("/privacidade")}).`,
 		"",
 		"## Observações",

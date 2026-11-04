@@ -7,7 +7,7 @@ import { ArrowLeftRight, ArrowRight, Check } from "~/shared/components/icons";
 import { Badge } from "~/shared/components/ui/badge";
 import { Button } from "~/shared/components/ui/button";
 
-const PERKS = ["Grátis", "Entra com Google", "Sem cartão"];
+const PERKS = ["Grátis", "Google ou e-mail", "Sem cartão"];
 
 export function LandingHero() {
 	const lunch = SAMPLE_MEALS.filter((meal) => meal.id === "almoco");

@@ -11,6 +11,9 @@ import { type NextRequest, NextResponse } from "next/server";
 const PUBLIC_PATHS = new Set([
 	"/",
 	"/login",
+	"/criar-conta",
+	"/esqueci-a-senha",
+	"/redefinir-senha",
 	"/termos",
 	"/privacidade",
 	"/como-calculamos",

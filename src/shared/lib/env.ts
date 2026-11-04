@@ -16,6 +16,9 @@ const envSchema = z.object({
 	AI_OPEN: z.string().optional(),
 	// Fotos ilustrativas das receitas; sem a chave, receitas sem foto.
 	UNSPLASH_ACCESS_KEY: z.string().optional(),
+	// E-mails do login (confirmação, nova senha). Sem a chave, vão pro console.
+	RESEND_API_KEY: z.string().optional(),
+	EMAIL_FROM: z.string().optional(),
 });
 
 // Validação lazy: só quebra quando algo server-side realmente precisa das
