@@ -4,7 +4,10 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
 import { AiQuotaProvider } from "~/domains/ai-usage/components/ai-quota-provider";
-import { monthlyQuotaLeft } from "~/domains/ai-usage/services/ai-usage-service";
+import {
+	aiInterests,
+	monthlyQuotaLeft,
+} from "~/domains/ai-usage/services/ai-usage-service";
 import { canUseAi } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { DietImport } from "~/domains/diet-import";
@@ -46,8 +49,12 @@ export default function ImportDietPage() {
 async function ImportContent() {
 	const user = await getCurrentUser();
 	if (!canUseAi(user)) notFound();
+	const [quota, interested] = await Promise.all([
+		monthlyQuotaLeft(user),
+		aiInterests(user.id),
+	]);
 	return (
-		<AiQuotaProvider initial={await monthlyQuotaLeft(user)}>
+		<AiQuotaProvider initial={quota} interested={interested}>
 			<DietImport />
 		</AiQuotaProvider>
 	);

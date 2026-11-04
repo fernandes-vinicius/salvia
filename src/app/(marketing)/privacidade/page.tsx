@@ -62,6 +62,12 @@ export default function PrivacyPage() {
 						usou cada um, pra controlar o limite diário e a cota grátis do mês.
 					</li>
 					<li>
+						<strong>Pedidos de mais IA:</strong> quando a cota do mês acaba e
+						você toca em “Quero usar mais”, guardamos o recurso e a data,
+						ligados à sua conta. Seu e-mail só é usado pra avisar se surgir um
+						jeito de usar mais; sem o toque, não mandamos nada.
+					</li>
+					<li>
 						<strong>Sugestões que você envia:</strong> o tipo (ideia, problema
 						ou outro), a mensagem e a página do app em que você estava, quando
 						você usa “Enviar sugestão”. Elas ficam ligadas à sua conta (nome e

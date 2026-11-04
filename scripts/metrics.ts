@@ -114,6 +114,16 @@ console.table(
 		}),
 );
 
+const interest = await query<{ feature: string; pessoas: string }>(`
+	select feature, count(*) as pessoas from ai_interest group by feature
+	union all
+	select 'total (pessoas distintas)', count(distinct user_id) from ai_interest
+`);
+console.log('Pediram mais IA ("Quero usar mais" com a cota no fim)');
+console.table(
+	interest.map((row) => ({ recurso: row.feature, pessoas: row.pessoas })),
+);
+
 console.log(
 	"Obs.: a atividade diária começou a ser registrada em out/2026; cadastros anteriores aparecem com retenção subestimada.\n",
 );
