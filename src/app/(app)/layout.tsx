@@ -4,7 +4,7 @@ import { after } from "next/server";
 import { Suspense } from "react";
 
 import { UserMenu } from "~/domains/auth";
-import { isBetaUser } from "~/domains/auth/services/beta-service";
+import { canUseAi } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { recordActivity } from "~/domains/metrics/services/activity-service";
 import { ShellProviders } from "~/providers/shell-providers";
@@ -82,7 +82,7 @@ async function CurrentUserMenu() {
 	after(() => recordActivity(user.id));
 	return (
 		<>
-			<UserMenu user={user} beta={isBetaUser(user)} />
+			<UserMenu user={user} beta={canUseAi(user)} />
 			<AnalyticsIdentify user={user} />
 		</>
 	);

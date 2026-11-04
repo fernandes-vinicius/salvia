@@ -4,7 +4,7 @@ import {
 	consumeAiQuota,
 	refundAiQuota,
 } from "~/domains/ai-usage/services/ai-usage-service";
-import { isBetaUser } from "~/domains/auth/services/beta-service";
+import { canUseAi } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import {
 	type CheaperSwapSuggestion,
@@ -31,7 +31,7 @@ export async function suggestCheaperSwapAction(
 	input: unknown,
 ): Promise<CheaperSwapSuggestion | null> {
 	const user = await getCurrentUser();
-	if (!isBetaUser(user)) return null;
+	if (!canUseAi(user)) return null;
 	const parsed = suggestCheaperSwapInputSchema.safeParse(input);
 	if (!parsed.success) return null;
 
@@ -52,7 +52,7 @@ export async function suggestCheaperSwapAction(
 	if (options.length === 0) return null;
 
 	const best = { food: options[0].food, insight: null };
-	if (!(await consumeAiQuota(user.id, "cheaper-swap"))) return best;
+	if ((await consumeAiQuota(user, "cheaper-swap")) !== "ok") return best;
 	const others = meal.items.filter((entry) => entry.id !== item.id);
 	const choice = await suggestCheaperSwap(meal, item, others, options);
 	if (!choice) {

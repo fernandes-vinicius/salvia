@@ -10,11 +10,11 @@ export const APP_DESCRIPTION =
  * defina `NEXT_PUBLIC_SITE_URL`.
  */
 export const SITE_URL = new URL(
-	process.env.NEXT_PUBLIC_SITE_URL ?? "https://salvia-dieta.vercel.app",
+	process.env.NEXT_PUBLIC_SITE_URL ?? "https://salvia-dieta.com.br",
 );
 
 /** Contato pra suporte e pedidos sobre dados pessoais (LGPD). */
 export const SUPPORT_EMAIL = "contato.viniciusfdiogenes@gmail.com";
 
 /** Última revisão dos Termos de uso e da Política de privacidade. */
-export const LEGAL_UPDATED_AT = "20 de outubro de 2026";
+export const LEGAL_UPDATED_AT = "22 de outubro de 2026";

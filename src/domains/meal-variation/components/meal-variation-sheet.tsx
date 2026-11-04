@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import {
+	AiQuotaNote,
+	useAiQuota,
+} from "~/domains/ai-usage/components/ai-quota-provider";
 import type { DietMeal } from "~/domains/diet/types/diet-types";
 import { suggestVariationAction } from "~/domains/meal-variation/actions/meal-variation-actions";
 import { MealVariationView } from "~/domains/meal-variation/components/meal-variation-view";
@@ -63,6 +67,7 @@ function VariationFlow({
 		previous: null,
 	});
 	const [using, setUsing] = useState(false);
+	const quota = useAiQuota("meal-variation");
 	const avoid = useRef<string[]>([]);
 	const started = useRef(false);
 
@@ -76,6 +81,7 @@ function VariationFlow({
 			setState({ kind: "error", error: result.error });
 			return;
 		}
+		quota.spend();
 		avoid.current.push(variationKey(meal.items, result.data.swaps));
 		analytics.track("refeicao_variada_gerada", {
 			outra: avoid.current.length > 1,
@@ -157,6 +163,7 @@ function VariationFlow({
 					)}
 					{state.kind === "error" ? "Tentar de novo" : "Outra versão"}
 				</Button>
+				<AiQuotaNote feature="meal-variation" className="sm:col-span-2" />
 			</div>
 		</>
 	);

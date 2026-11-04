@@ -893,7 +893,7 @@ export function DietView({
 									onClick={() => router.push("/dieta/importar")}
 								>
 									<Sparkles />
-									Importar dieta (beta)
+									Importar dieta
 								</DropdownMenuItem>
 							)}
 							<DropdownMenuSeparator />

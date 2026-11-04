@@ -1,4 +1,6 @@
+import { aiFaqAnswer } from "~/domains/landing/utils/ai-copy";
 import { type FaqItem, FaqList } from "~/shared/components/faq-list";
+import { AI_IS_OPEN } from "~/shared/lib/ai-launch";
 import { APP_NAME } from "~/shared/lib/app-config";
 
 export const FAQ_QUESTIONS: FaqItem[] = [
@@ -47,8 +49,8 @@ export const FAQ_QUESTIONS: FaqItem[] = [
 			"Conta. Por padrão a meta é da proteína total (animal + vegetal), como a maioria dos nutricionistas faz. Se você prefere contar só a animal, é só trocar nas Configurações. O resumo do dia mostra as duas separadas.",
 	},
 	{
-		question: "Vai ter IA no app?",
-		answer: `Vai. Estamos testando com um grupo pequeno: importar a dieta do nutricionista por PDF ou foto, receita da refeição (com receitas salvas e compartilhadas por link), variar a refeição com os mesmos macros, trocar um alimento por outro equivalente mais barato, completar o que falta no dia e um resumo da semana. Ainda não estão liberados e vão fazer parte do ${APP_NAME} Pro, que chega em breve.`,
+		question: AI_IS_OPEN ? "O app tem IA?" : "Vai ter IA no app?",
+		answer: aiFaqAnswer(AI_IS_OPEN),
 	},
 	{
 		question: "Meus dados ficam comigo?",

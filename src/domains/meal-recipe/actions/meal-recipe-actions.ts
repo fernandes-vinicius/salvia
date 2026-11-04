@@ -5,7 +5,7 @@ import {
 	refundAiQuota,
 } from "~/domains/ai-usage/services/ai-usage-service";
 import { limitReachedMessage } from "~/domains/ai-usage/utils/ai-usage";
-import { isBetaUser } from "~/domains/auth/services/beta-service";
+import { canUseAi } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { getDiet } from "~/domains/diet/services/diet-service";
 import {
@@ -35,10 +35,10 @@ export async function suggestRecipeAction(
 	input: unknown,
 ): Promise<SuggestRecipeActionResult> {
 	const user = await getCurrentUser();
-	if (!isBetaUser(user)) {
+	if (!canUseAi(user)) {
 		return {
 			ok: false,
-			error: "Recurso em teste, ainda não liberado pra sua conta.",
+			error: "Os recursos de IA ainda não estão liberados pra sua conta.",
 		};
 	}
 	const parsed = suggestRecipeInputSchema.safeParse(input);
@@ -51,8 +51,9 @@ export async function suggestRecipeAction(
 		return { ok: false, error: "Adicione alimentos à refeição primeiro." };
 	}
 
-	if (!(await consumeAiQuota(user.id, "recipe"))) {
-		return { ok: false, error: limitReachedMessage("recipe") };
+	const quota = await consumeAiQuota(user, "recipe");
+	if (quota !== "ok") {
+		return { ok: false, error: limitReachedMessage("recipe", quota) };
 	}
 	const items = await swapOptionsFor(user.id, meal.items, {
 		light: isLightMeal(meal),

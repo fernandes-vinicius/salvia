@@ -5,7 +5,7 @@ import {
 	refundAiQuota,
 } from "~/domains/ai-usage/services/ai-usage-service";
 import { limitReachedMessage } from "~/domains/ai-usage/utils/ai-usage";
-import { isBetaUser } from "~/domains/auth/services/beta-service";
+import { canUseAi } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { replaceDiet } from "~/domains/diet/services/diet-service";
 import { importedDietInputSchema } from "~/domains/diet-import/schemas/diet-import-schema";
@@ -20,7 +20,7 @@ export type ImportActionResult<T = null> =
 	| { ok: false; error: string };
 
 const fail = (error: string) => ({ ok: false as const, error });
-const BETA_ONLY = "Recurso em teste, ainda não liberado pra sua conta.";
+const BETA_ONLY = "Os recursos de IA ainda não estão liberados pra sua conta.";
 
 /**
  * Lê a dieta dos arquivos (PDF/fotos) com IA e casa os alimentos com a base.
@@ -30,7 +30,7 @@ export async function readDietAction(
 	formData: FormData,
 ): Promise<ImportActionResult<ImportedMeal[]>> {
 	const user = await getCurrentUser();
-	if (!isBetaUser(user)) return fail(BETA_ONLY);
+	if (!canUseAi(user)) return fail(BETA_ONLY);
 
 	const files = formData
 		.getAll("files")
@@ -44,8 +44,9 @@ export async function readDietAction(
 			mediaType: file.type,
 		})),
 	);
-	if (!(await consumeAiQuota(user.id, "diet-import"))) {
-		return fail(limitReachedMessage("diet-import"));
+	const quota = await consumeAiQuota(user, "diet-import");
+	if (quota !== "ok") {
+		return fail(limitReachedMessage("diet-import", quota));
 	}
 	const result = await readDietDocuments(documents);
 	if (!result.ok) {
@@ -67,7 +68,7 @@ export async function saveImportedDietAction(
 	input: unknown,
 ): Promise<ImportActionResult> {
 	const user = await getCurrentUser();
-	if (!isBetaUser(user)) return fail(BETA_ONLY);
+	if (!canUseAi(user)) return fail(BETA_ONLY);
 
 	const parsed = importedDietInputSchema.safeParse(input);
 	if (!parsed.success) return fail("Confira a dieta antes de salvar.");

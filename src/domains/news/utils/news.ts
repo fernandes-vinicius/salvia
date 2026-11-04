@@ -9,10 +9,11 @@ export const NEWS_SOURCE = {
 	name: "Hipertrofia.org",
 	url: "https://www.hipertrofia.org/blog/",
 	api: "https://www.hipertrofia.org/blog/wp-json/wp/v2/posts",
-	// Só o assunto do app: Nutrição, Suplementação e Creatina. Fora Recursos
-	// ergogênicos (anabolizantes) e Fisiculturismo. Ids das categorias do
-	// WordPress deles (`/wp-json/wp/v2/categories`).
-	categories: [5, 4, 1288],
+	// Só alimentação e dieta: Nutrição e Receitas Anabólicas. Fora
+	// Suplementação/Creatina (comparativos de marca), Recursos ergogênicos
+	// (anabolizantes) e Fisiculturismo. Ids das categorias do WordPress deles
+	// (`/wp-json/wp/v2/categories`).
+	categories: [5, 62],
 	excludeCategories: [3, 1229],
 } as const;
 

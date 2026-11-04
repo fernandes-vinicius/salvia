@@ -8,10 +8,12 @@ const envSchema = z.object({
 	BETTER_AUTH_URL: z.url(),
 	GOOGLE_CLIENT_ID: z.string().min(1),
 	GOOGLE_CLIENT_SECRET: z.string().min(1),
-	// IA (beta): sem a chave, os recursos de IA avisam que estão indisponíveis.
+	// IA: sem a chave, os recursos de IA avisam que estão indisponíveis.
 	GEMINI_API_KEY: z.string().optional(),
 	GEMINI_MODEL: z.string().optional(),
 	BETA_EMAILS: z.string().optional(),
+	// "true" abre a IA pra todos (com cota mensal); vazio = só o beta.
+	AI_OPEN: z.string().optional(),
 	// Fotos ilustrativas das receitas; sem a chave, receitas sem foto.
 	UNSPLASH_ACCESS_KEY: z.string().optional(),
 });

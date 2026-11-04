@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 
-import { isBetaUser } from "~/domains/auth/services/beta-service";
+import { AiQuotaProvider } from "~/domains/ai-usage/components/ai-quota-provider";
+import { monthlyQuotaLeft } from "~/domains/ai-usage/services/ai-usage-service";
+import { canUseAi } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { suggestedWater } from "~/domains/calculators/utils/water";
 import { addDays, CheckinCard, type CheckinMeal } from "~/domains/checkin";
@@ -79,7 +81,7 @@ async function LatestNews() {
 
 async function HomeContent() {
 	const user = await getCurrentUser();
-	const beta = isBetaUser(user);
+	const beta = canUseAi(user);
 	const today = localDateString();
 	const [
 		profile,
@@ -93,6 +95,7 @@ async function HomeContent() {
 		checkins,
 		dietCycle,
 		weekly,
+		quota,
 	] = await Promise.all([
 		findProfileByUserId(user.id),
 		findGoalByUserId(user.id),
@@ -107,6 +110,7 @@ async function HomeContent() {
 		listCheckins(user.id, addDays(today, -60)),
 		findDietCycle(user.id),
 		beta ? findWeeklySummary(user.id, weekStartOf(today)) : null,
+		beta ? monthlyQuotaLeft(user) : {},
 	]);
 
 	// Gasto da fórmula + o ajuste pelo peso real já aplicado.
@@ -228,7 +232,11 @@ async function HomeContent() {
 			{/* Sem dieta ainda: as prontas são o atalho mais útil, vêm antes. */}
 			{!hasFoods && templates}
 
-			{beta && <WeeklySummaryCard initialSummary={weekly} />}
+			{beta && (
+				<AiQuotaProvider initial={quota}>
+					<WeeklySummaryCard initialSummary={weekly} />
+				</AiQuotaProvider>
+			)}
 
 			{targets && (
 				<PlanOverview

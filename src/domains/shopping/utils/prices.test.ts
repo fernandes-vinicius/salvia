@@ -171,3 +171,19 @@ describe("portionCost e swapCost", () => {
 		expect(costChangeShort(0)).toBe("mesmo custo");
 	});
 });
+
+describe("referencePrice — itens comuns da dieta", () => {
+	it("café em pó, brócolis e peixes têm preço de referência", () => {
+		for (const name of [
+			"Café em pó",
+			"Brócolis",
+			"Couve-flor",
+			"Abobrinha",
+			"Chuchu",
+			"Filé de merluza",
+			"Filé de pescada",
+		]) {
+			expect(referencePrice(name), name).not.toBeNull();
+		}
+	});
+});
