@@ -10,7 +10,7 @@ export const APP_DESCRIPTION =
  * defina `NEXT_PUBLIC_SITE_URL`.
  */
 export const SITE_URL = new URL(
-	process.env.NEXT_PUBLIC_SITE_URL ?? "https://salvia-dieta.vercel.app",
+	process.env.NEXT_PUBLIC_SITE_URL ?? "https://salvia-dieta.com.br",
 );
 
 /** Contato pra suporte e pedidos sobre dados pessoais (LGPD). */
