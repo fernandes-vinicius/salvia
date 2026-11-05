@@ -98,3 +98,22 @@ export async function deleteAllMeasurements(userId: string) {
 		.returning({ id: bodyMeasurement.id });
 	return rows.length;
 }
+
+/**
+ * Importação de planilha: grava as medições de uma vez. Dia que já existe
+ * fica como está (vale o que foi registrado no app). Devolve quantas entraram.
+ */
+export async function importMeasurements(
+	userId: string,
+	inputs: MeasurementInput[],
+): Promise<number> {
+	if (inputs.length === 0) return 0;
+	const rows = await db
+		.insert(bodyMeasurement)
+		.values(inputs.map((input) => ({ userId, ...input })))
+		.onConflictDoNothing({
+			target: [bodyMeasurement.userId, bodyMeasurement.measuredOn],
+		})
+		.returning({ id: bodyMeasurement.id });
+	return rows.length;
+}

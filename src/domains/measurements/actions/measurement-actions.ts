@@ -8,9 +8,11 @@ import {
 	createMeasurement,
 	deleteAllMeasurements,
 	deleteMeasurement,
+	importMeasurements,
 	updateMeasurement,
 } from "~/domains/measurements/services/measurement-service";
 import type { Measurement } from "~/domains/measurements/types/measurement-types";
+import { MAX_IMPORT_ROWS } from "~/domains/measurements/utils/measurement-import";
 
 export type ActionResult<T = null> =
 	| { ok: true; data: T }
@@ -70,4 +72,34 @@ export async function resetMeasurementsAction(): Promise<ActionResult> {
 	const user = await getCurrentUser();
 	await deleteAllMeasurements(user.id);
 	return { ok: true, data: null };
+}
+
+const importSchema = z
+	.array(measurementSchema)
+	.min(1, "Nenhuma medição pra importar.")
+	.max(
+		MAX_IMPORT_ROWS,
+		`Dá pra importar até ${MAX_IMPORT_ROWS} medições por vez.`,
+	);
+
+/** Importar planilha: o arquivo é lido no navegador; aqui só valida e grava. */
+export async function importMeasurementsAction(
+	input: unknown,
+): Promise<ActionResult<{ imported: number }>> {
+	const user = await getCurrentUser();
+	const parsed = importSchema.safeParse(input);
+	if (!parsed.success) {
+		return {
+			ok: false,
+			error: parsed.error.issues[0]?.message ?? "Dados inválidos.",
+		};
+	}
+	const days = parsed.data.map((entry) => entry.measuredOn);
+	if (new Set(days).size !== days.length) {
+		return { ok: false, error: "A planilha tem dias repetidos." };
+	}
+	return {
+		ok: true,
+		data: { imported: await importMeasurements(user.id, parsed.data) },
+	};
 }

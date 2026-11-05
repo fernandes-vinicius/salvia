@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -22,6 +23,7 @@ import {
 import { BottomSheetContent } from "~/shared/components/bottom-sheet";
 import {
 	EllipsisVertical,
+	FileSpreadsheet,
 	Loader2Icon,
 	Plus,
 	RotateCcw,
@@ -142,7 +144,17 @@ export function MeasurementsView({
 							por exemplo) pra acompanhar sua evolução.
 						</EmptyDescription>
 					</EmptyHeader>
-					<EmptyContent>{newButton}</EmptyContent>
+					<EmptyContent className="flex-row flex-wrap justify-center">
+						{newButton}
+						<Button
+							variant="outline"
+							nativeButton={false}
+							render={<Link href="/medidas/importar" />}
+						>
+							<FileSpreadsheet data-icon="inline-start" />
+							Importar planilha
+						</Button>
+					</EmptyContent>
 				</Empty>
 			) : (
 				<>
@@ -166,6 +178,10 @@ export function MeasurementsView({
 									<EllipsisVertical />
 								</DropdownMenuTrigger>
 								<DropdownMenuContent align="end" className="w-auto">
+									<DropdownMenuItem render={<Link href="/medidas/importar" />}>
+										<FileSpreadsheet />
+										Importar planilha
+									</DropdownMenuItem>
 									<DropdownMenuItem
 										variant="destructive"
 										onClick={() => setConfirmingReset(true)}

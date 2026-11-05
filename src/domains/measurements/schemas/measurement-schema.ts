@@ -13,12 +13,21 @@ const optionalNumber = (min: number, max: number) =>
 		.optional()
 		.transform((value) => value ?? null);
 
-const cm = optionalNumber(10, 250);
+/** Faixas aceitas (formulário e importação de planilha). */
+export const MEASUREMENT_RANGES = {
+	kg: { min: 20, max: 300 },
+	cm: { min: 10, max: 250 },
+} as const;
+
+const cm = optionalNumber(MEASUREMENT_RANGES.cm.min, MEASUREMENT_RANGES.cm.max);
 
 export const measurementSchema = z
 	.object({
 		measuredOn: z.iso.date("Data inválida."),
-		weightKg: optionalNumber(20, 300),
+		weightKg: optionalNumber(
+			MEASUREMENT_RANGES.kg.min,
+			MEASUREMENT_RANGES.kg.max,
+		),
 		waistCm: cm,
 		neckCm: cm,
 		shoulderCm: cm,
