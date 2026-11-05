@@ -6,7 +6,13 @@ import type { DietItemOption, DietMeal } from "~/domains/diet/types/diet-types";
 import { MAX_ITEM_OPTIONS } from "~/domains/diet/utils/diet";
 import { foodColumns } from "~/domains/food/services/food-service";
 import { db } from "~/shared/db";
-import { dietItem, dietItemOption, dietMeal, food } from "~/shared/db/schema";
+import {
+	dietItem,
+	dietItemOption,
+	dietMeal,
+	dietSupplement,
+	food,
+} from "~/shared/db/schema";
 
 const INITIAL_MEALS = 3;
 
@@ -97,11 +103,13 @@ function insertInitialMeals(executor: typeof db | Tx, userId: string) {
 
 /**
  * Volta a dieta ao estado inicial: apaga todas as refeições (os itens vão
- * junto, cascade) e recria as 3 em branco, tudo numa transação.
+ * junto, cascade) e a suplementação, e recria as 3 em branco, tudo numa
+ * transação.
  */
 export async function resetDiet(userId: string): Promise<DietMeal[]> {
 	const meals = await db.transaction(async (tx) => {
 		await tx.delete(dietMeal).where(eq(dietMeal.userId, userId));
+		await tx.delete(dietSupplement).where(eq(dietSupplement.userId, userId));
 		return insertInitialMeals(tx, userId);
 	});
 	return meals.map((meal) => ({ ...meal, items: [] }));

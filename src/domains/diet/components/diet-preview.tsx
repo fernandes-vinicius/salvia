@@ -12,6 +12,8 @@ import {
 	PROTEIN_LABELS,
 	type ProteinCounting,
 } from "~/domains/goal/utils/protein-counting";
+import { SupplementsPreview } from "~/domains/supplements/components/supplements-preview";
+import type { Supplement } from "~/domains/supplements/types/supplement-types";
 import { Clock } from "~/shared/components/icons";
 import { formatNonZero, formatNumber } from "~/shared/lib/format";
 
@@ -25,8 +27,11 @@ export function DietPreview({
 	printable = false,
 	mealActions,
 	proteinCounting = DEFAULT_PROTEIN_COUNTING,
+	supplements = [],
 }: {
 	meals: DietMeal[];
+	/** Suplementação, depois das refeições (some quando vazia). */
+	supplements?: Supplement[];
 	printable?: boolean;
 	/** Coluna P (total) ou P(A) (só animal); sem sessão (landing), o padrão. */
 	proteinCounting?: ProteinCounting;
@@ -44,6 +49,7 @@ export function DietPreview({
 					counting={proteinCounting}
 				/>
 			))}
+			<SupplementsPreview supplements={supplements} meals={meals} />
 			{printable && <PrintFooter />}
 		</div>
 	);

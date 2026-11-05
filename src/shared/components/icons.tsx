@@ -72,6 +72,7 @@ export {
 	Pencil,
 	PersonStanding,
 	PiggyBank,
+	Pill,
 	Plus,
 	Printer,
 	RefreshCw,

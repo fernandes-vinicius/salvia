@@ -6,6 +6,8 @@ import { eq } from "drizzle-orm";
 
 import { getDiet } from "~/domains/diet/services/diet-service";
 import type { DietMeal } from "~/domains/diet/types/diet-types";
+import { listSupplements } from "~/domains/supplements/services/supplement-service";
+import type { Supplement } from "~/domains/supplements/types/supplement-types";
 import { db } from "~/shared/db";
 import { dietShare } from "~/shared/db/schema";
 
@@ -41,12 +43,18 @@ export async function deleteDietShare(userId: string) {
 }
 
 /** Dieta atual de quem compartilhou; null se o link não existe mais. */
-export async function getSharedDiet(token: string): Promise<DietMeal[] | null> {
+export async function getSharedDiet(
+	token: string,
+): Promise<{ meals: DietMeal[]; supplements: Supplement[] } | null> {
 	const [row] = await db
 		.select({ userId: dietShare.userId })
 		.from(dietShare)
 		.where(eq(dietShare.token, token))
 		.limit(1);
 	if (!row) return null;
-	return getDiet(row.userId, { createIfEmpty: false });
+	const [meals, supplements] = await Promise.all([
+		getDiet(row.userId, { createIfEmpty: false }),
+		listSupplements(row.userId),
+	]);
+	return { meals, supplements };
 }

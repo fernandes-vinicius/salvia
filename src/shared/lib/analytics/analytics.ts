@@ -30,7 +30,8 @@ export type AnalyticsEvent =
 	| "sugestao_enviada"
 	| "quero_mais_ia"
 	| "conta_criada"
-	| "medidas_importadas";
+	| "medidas_importadas"
+	| "suplemento_adicionado";
 
 type Properties = Record<string, string | number | boolean | null>;
 
