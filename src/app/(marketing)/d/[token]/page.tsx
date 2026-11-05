@@ -38,8 +38,9 @@ export default function SharedDietPage({ params }: PageProps<"/d/[token]">) {
 
 async function SharedDiet({ params }: Pick<PageProps<"/d/[token]">, "params">) {
 	const { token } = await params;
-	const meals = await getSharedDiet(token);
-	if (!meals) notFound();
+	const shared = await getSharedDiet(token);
+	if (!shared) notFound();
+	const { meals, supplements } = shared;
 
 	const filled = meals.filter((meal) => meal.items.length > 0);
 	const { kcal, lines } = summarizeDiet(filled, { weightKg: null, tdee: null });
@@ -72,12 +73,12 @@ async function SharedDiet({ params }: Pick<PageProps<"/d/[token]">, "params">) {
 				))}
 			</dl>
 
-			{filled.length > 0 ? (
+			{filled.length > 0 || supplements.length > 0 ? (
 				<section aria-labelledby="refeicoes">
 					<h2 id="refeicoes" className="sr-only">
 						Refeições
 					</h2>
-					<DietPreview meals={filled} />
+					<DietPreview meals={filled} supplements={supplements} />
 				</section>
 			) : (
 				<p className="rounded-3xl bg-card p-5 text-muted-foreground">

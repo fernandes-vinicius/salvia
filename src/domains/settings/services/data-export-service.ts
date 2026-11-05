@@ -3,6 +3,7 @@ import "server-only";
 import { and, asc, eq } from "drizzle-orm";
 
 import { getDiet } from "~/domains/diet/services/diet-service";
+import { listSupplements } from "~/domains/supplements/services/supplement-service";
 import { db } from "~/shared/db";
 import {
 	aiInterest,
@@ -46,6 +47,7 @@ export async function exportUserData(userId: string) {
 		activity,
 		ai,
 		interest,
+		supplements,
 	] = await Promise.all([
 		db
 			.select({ name: user.name, email: user.email, createdAt: user.createdAt })
@@ -89,6 +91,7 @@ export async function exportUserData(userId: string) {
 			.orderBy(asc(userActivity.day)),
 		db.select().from(aiUsage).where(eq(aiUsage.userId, userId)),
 		db.select().from(aiInterest).where(eq(aiInterest.userId, userId)),
+		listSupplements(userId),
 	]);
 
 	return {
@@ -98,6 +101,7 @@ export async function exportUserData(userId: string) {
 		goal: withoutUserId(goalRows)[0] ?? null,
 		settings: withoutUserId(settingsRows)[0] ?? null,
 		diet: meals,
+		supplements,
 		customFoods: withoutUserId(customFoods),
 		measurements: withoutUserId(measurements),
 		checkins: withoutUserId(checkins),

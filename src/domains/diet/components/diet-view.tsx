@@ -83,6 +83,7 @@ import {
 } from "~/domains/meal-variation/actions/meal-variation-actions";
 import { PricesProvider } from "~/domains/shopping/components/prices-context";
 import type { Price } from "~/domains/shopping/data/reference-prices";
+import { type Supplement, SupplementsCard } from "~/domains/supplements";
 import {
 	ArrowUpDown,
 	EllipsisVertical,
@@ -136,6 +137,8 @@ interface DietViewProps {
 	ironGoal?: number | null;
 	/** Preços da pessoa (`[chave, preço]`), pro custo das trocas. */
 	userPrices?: [string, Price][];
+	/** Suplementação (seção no fim da dieta; não entra nas calorias). */
+	initialSupplements?: Supplement[];
 }
 
 const MODES = ["editar", "visualizar"] as const;
@@ -180,6 +183,7 @@ export function DietView({
 	proteinCounting,
 	ironGoal = null,
 	userPrices = [],
+	initialSupplements = [],
 }: DietViewProps) {
 	const router = useRouter();
 	// Id estável pro dnd-kit: sem ele, o contador global dos ids de
@@ -215,6 +219,7 @@ export function DietView({
 		setMode("visualizar");
 	}
 	const [meals, setMealsState] = useState(initialMeals);
+	const [supplements, setSupplements] = useState(initialSupplements);
 	// dnd-kit dispara `onDragEnd` logo depois do último `onDragOver`, antes do
 	// re-render comitar: a ref espelhada (atualizada de forma síncrona) garante
 	// que o fim do arrasto leia a posição mais recente (mesmo padrão do listify).
@@ -676,6 +681,7 @@ export function DietView({
 		setEditingItemId(null);
 		setEditingMeal(null);
 		setMeals(result.data);
+		setSupplements([]);
 		toast.success("Dieta resetada: 3 refeições em branco.");
 	}
 
@@ -953,6 +959,7 @@ export function DietView({
 							meals={meals}
 							proteinCounting={proteinCounting}
 							printable
+							supplements={supplements}
 							mealActions={(meal) => (
 								<MealMenu meal={meal} {...menuFor(meal)} />
 							)}
@@ -998,6 +1005,14 @@ export function DietView({
 									)}
 									Adicionar refeição
 								</button>
+								<div className="md:col-span-2">
+									<SupplementsCard
+										supplements={supplements}
+										onSupplementsChange={setSupplements}
+										meals={meals}
+										onStale={() => router.refresh()}
+									/>
+								</div>
 							</div>
 
 							<DragOverlay dropAnimation={null}>
@@ -1114,7 +1129,17 @@ export function DietView({
 									optimistic(
 										(current) => current.filter((meal) => meal.id !== mealId),
 										() => deleteMealAction(mealId),
-									);
+									).then((ok) => {
+										// No banco o vínculo vira nulo (set null); aqui também.
+										if (!ok) return;
+										setSupplements((current) =>
+											current.map((supplement) =>
+												supplement.mealId === mealId
+													? { ...supplement, mealId: null }
+													: supplement,
+											),
+										);
+									});
 								}}
 							>
 								Remover
@@ -1133,9 +1158,10 @@ export function DietView({
 						<AlertDialogHeader>
 							<AlertDialogTitle>Resetar a dieta?</AlertDialogTitle>
 							<AlertDialogDescription>
-								Todas as refeições e alimentos do plano serão apagados e a dieta
-								volta a ter 3 refeições em branco. Isso não pode ser desfeito.
-								Seus alimentos cadastrados, TMB e meta continuam como estão.
+								Todas as refeições, alimentos e suplementos do plano serão
+								apagados e a dieta volta a ter 3 refeições em branco. Isso não
+								pode ser desfeito. Seus alimentos cadastrados, TMB e meta
+								continuam como estão.
 							</AlertDialogDescription>
 						</AlertDialogHeader>
 						<AlertDialogFooter>

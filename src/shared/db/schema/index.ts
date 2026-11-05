@@ -12,4 +12,5 @@ export * from "~/shared/db/schema/price-schema";
 export * from "~/shared/db/schema/profile-schema";
 export * from "~/shared/db/schema/recipe-schema";
 export * from "~/shared/db/schema/settings-schema";
+export * from "~/shared/db/schema/supplement-schema";
 export * from "~/shared/db/schema/weekly-summary-schema";

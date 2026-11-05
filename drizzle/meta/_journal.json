@@ -183,6 +183,13 @@
       "when": 1793834187043,
       "tag": "0025_grey_zaladane",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1793873419411,
+      "tag": "0026_lethal_arclight",
+      "breakpoints": true
     }
   ]
 }

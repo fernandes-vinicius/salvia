@@ -22,6 +22,7 @@ import { calculateBmr, calculateTdee } from "~/domains/profile";
 import { findProfileByUserId } from "~/domains/profile/services/profile-service";
 import { getSettingsByUserId } from "~/domains/settings/services/settings-service";
 import { listUserPrices } from "~/domains/shopping/services/price-service";
+import { listSupplements } from "~/domains/supplements/services/supplement-service";
 import { PageHeader } from "~/shared/components/page-header";
 import { Skeleton } from "~/shared/components/ui/skeleton";
 
@@ -58,6 +59,7 @@ async function DietContent() {
 		prices,
 		quota,
 		interested,
+		supplements,
 	] = await Promise.all([
 		getDiet(user.id),
 		findProfileByUserId(user.id),
@@ -68,6 +70,7 @@ async function DietContent() {
 		listUserPrices(user.id),
 		beta ? monthlyQuotaLeft(user) : {},
 		beta ? aiInterests(user.id) : [],
+		listSupplements(user.id),
 	]);
 
 	// Gasto e meta vêm das abas TMB e Meta; sem eles, a grade funciona mas o
@@ -101,6 +104,7 @@ async function DietContent() {
 				proteinCounting={settings.proteinCounting}
 				ironGoal={ironTarget(profile)}
 				userPrices={prices}
+				initialSupplements={supplements}
 			/>
 		</AiQuotaProvider>
 	);
