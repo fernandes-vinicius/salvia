@@ -65,7 +65,7 @@ export const MEASUREMENT_FIELDS: MeasurementField[] = [
 		short: "Abdômen",
 		group: "Tronco",
 		unit: "cm",
-		hint: "Na parte mais larga da barriga.",
+		hint: "Abaixo do umbigo, onde a barriga fica mais saliente.",
 	},
 	{
 		key: "hipsCm",
