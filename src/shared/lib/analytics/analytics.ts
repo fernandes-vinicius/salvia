@@ -29,7 +29,8 @@ export type AnalyticsEvent =
 	| "manchete_aberta"
 	| "sugestao_enviada"
 	| "quero_mais_ia"
-	| "conta_criada";
+	| "conta_criada"
+	| "medidas_importadas";
 
 type Properties = Record<string, string | number | boolean | null>;
 
