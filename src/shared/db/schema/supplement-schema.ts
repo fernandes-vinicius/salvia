@@ -1,4 +1,5 @@
 import {
+	date,
 	doublePrecision,
 	index,
 	integer,
@@ -6,6 +7,7 @@ import {
 	pgTable,
 	text,
 	timestamp,
+	uniqueIndex,
 	uuid,
 } from "drizzle-orm/pg-core";
 
@@ -51,4 +53,30 @@ export const dietSupplement = pgTable(
 		createdAt: timestamp("created_at").defaultNow().notNull(),
 	},
 	(table) => [index("diet_supplement_user_id_idx").on(table.userId)],
+);
+
+// "Tomei hoje" (check-in do Início): uma linha por suplemento por dia; sem
+// linha = não marcado. Guarda o nome: o histórico continua se ele for apagado.
+export const supplementCheckin = pgTable(
+	"supplement_checkin",
+	{
+		id: uuid("id").primaryKey().defaultRandom(),
+		userId: text("user_id")
+			.notNull()
+			.references(() => user.id, { onDelete: "cascade" }),
+		supplementId: uuid("supplement_id").references(() => dietSupplement.id, {
+			onDelete: "set null",
+		}),
+		supplementName: text("supplement_name").notNull(),
+		/** Dia no fuso do app (`localDateString`). */
+		day: date("day").notNull(),
+		createdAt: timestamp("created_at").defaultNow().notNull(),
+	},
+	(table) => [
+		index("supplement_checkin_user_day_idx").on(table.userId, table.day),
+		uniqueIndex("supplement_checkin_supplement_day_idx").on(
+			table.supplementId,
+			table.day,
+		),
+	],
 );

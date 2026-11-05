@@ -112,3 +112,32 @@ export function moveSupplement<T extends { id: string }>(
 	[next[index], next[target]] = [next[target], next[index]];
 	return next;
 }
+
+/** Dia da semana (0 = domingo) de uma data "YYYY-MM-DD", sem depender do fuso. */
+function weekdayOf(day: string) {
+	return new Date(`${day}T12:00:00Z`).getUTCDay();
+}
+
+/**
+ * Suplementos que valem no dia. "Dias de treino" aparecem todo dia (o perfil
+ * não sabe em quais dias a pessoa treina); a tela marca como "se treinar".
+ */
+export function supplementsForDay<
+	T extends Pick<Supplement, "days" | "weekdays">,
+>(supplements: T[], day: string) {
+	const weekday = weekdayOf(day);
+	return supplements.filter(
+		(supplement) =>
+			supplement.days !== "weekdays" || supplement.weekdays.includes(weekday),
+	);
+}
+
+/** Os ligados à refeição que valem no dia (lembrete na próxima refeição). */
+export function mealSupplements<
+	T extends Pick<Supplement, "days" | "weekdays" | "timing" | "mealId">,
+>(supplements: T[], mealId: string, day: string) {
+	return supplementsForDay(supplements, day).filter(
+		(supplement) =>
+			supplement.timing === "meal" && supplement.mealId === mealId,
+	);
+}

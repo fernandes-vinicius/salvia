@@ -17,6 +17,7 @@ import {
 	profile,
 	savedRecipe,
 	settings,
+	supplementCheckin,
 	user,
 	userActivity,
 	userPrice,
@@ -48,6 +49,7 @@ export async function exportUserData(userId: string) {
 		ai,
 		interest,
 		supplements,
+		supplementCheckins,
 	] = await Promise.all([
 		db
 			.select({ name: user.name, email: user.email, createdAt: user.createdAt })
@@ -92,6 +94,11 @@ export async function exportUserData(userId: string) {
 		db.select().from(aiUsage).where(eq(aiUsage.userId, userId)),
 		db.select().from(aiInterest).where(eq(aiInterest.userId, userId)),
 		listSupplements(userId),
+		db
+			.select()
+			.from(supplementCheckin)
+			.where(eq(supplementCheckin.userId, userId))
+			.orderBy(asc(supplementCheckin.day)),
 	]);
 
 	return {
@@ -105,6 +112,7 @@ export async function exportUserData(userId: string) {
 		customFoods: withoutUserId(customFoods),
 		measurements: withoutUserId(measurements),
 		checkins: withoutUserId(checkins),
+		supplementCheckins: withoutUserId(supplementCheckins),
 		savedRecipes: withoutUserId(recipes),
 		prices: withoutUserId(prices),
 		dietShareLink: share.length > 0,

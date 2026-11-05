@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { toast } from "sonner";
 
 import { setCheckinAction } from "~/domains/checkin/actions/checkin-actions";
@@ -63,6 +63,8 @@ interface CheckinCardProps {
 	/** Hoje no fuso do app (o mesmo que o servidor usa ao gravar). */
 	today: string;
 	initialCheckins: Checkin[];
+	/** Extra depois das refeições (ex.: suplementos de hoje). */
+	children?: ReactNode;
 }
 
 // "Segui a dieta?": um toque por refeição (comi ou furei; comer a opção do
@@ -72,6 +74,7 @@ export function CheckinCard({
 	meals,
 	today,
 	initialCheckins,
+	children,
 }: CheckinCardProps) {
 	const router = useRouter();
 	const [checkins, setCheckins] = useState(initialCheckins);
@@ -264,6 +267,8 @@ export function CheckinCard({
 					);
 				})}
 			</ul>
+
+			{children}
 
 			<div className="flex flex-col gap-2">
 				<ol aria-label="Últimos 7 dias" className="grid grid-cols-7 gap-1.5">
