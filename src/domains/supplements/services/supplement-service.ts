@@ -8,7 +8,12 @@ import {
 } from "~/domains/supplements/schemas/supplement-schema";
 import type { Supplement } from "~/domains/supplements/types/supplement-types";
 import { db } from "~/shared/db";
-import { dietMeal, dietSupplement } from "~/shared/db/schema";
+import {
+	dietMeal,
+	dietSupplement,
+	supplementCheckin,
+} from "~/shared/db/schema";
+import { localDateString } from "~/shared/lib/dates";
 
 const columns = {
 	id: dietSupplement.id,
@@ -128,5 +133,58 @@ export async function reorderSupplements(userId: string, ids: string[]) {
 				.where(eq(dietSupplement.id, id));
 		}
 	});
+	return true;
+}
+
+/** Ids dos suplementos marcados como tomados no dia. */
+export async function listSupplementCheckins(userId: string, day: string) {
+	const rows = await db
+		.select({ supplementId: supplementCheckin.supplementId })
+		.from(supplementCheckin)
+		.where(
+			and(eq(supplementCheckin.userId, userId), eq(supplementCheckin.day, day)),
+		);
+	return rows.flatMap((row) => (row.supplementId ? [row.supplementId] : []));
+}
+
+/**
+ * Marca (ou desmarca) o suplemento como tomado hoje, no fuso do app. Só
+ * suplementos da própria pessoa.
+ */
+export async function setSupplementCheckin(
+	userId: string,
+	supplementId: string,
+	taken: boolean,
+) {
+	const [supplement] = await db
+		.select({ name: dietSupplement.name })
+		.from(dietSupplement)
+		.where(
+			and(
+				eq(dietSupplement.id, supplementId),
+				eq(dietSupplement.userId, userId),
+			),
+		)
+		.limit(1);
+	if (!supplement) return false;
+
+	const day = localDateString();
+	if (!taken) {
+		await db
+			.delete(supplementCheckin)
+			.where(
+				and(
+					eq(supplementCheckin.userId, userId),
+					eq(supplementCheckin.supplementId, supplementId),
+					eq(supplementCheckin.day, day),
+				),
+			);
+		return true;
+	}
+
+	await db
+		.insert(supplementCheckin)
+		.values({ userId, supplementId, supplementName: supplement.name, day })
+		.onConflictDoNothing();
 	return true;
 }

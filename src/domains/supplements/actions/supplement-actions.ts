@@ -12,6 +12,7 @@ import {
 	deleteSupplement,
 	reorderSupplements,
 	type SupplementWriteStatus,
+	setSupplementCheckin,
 	updateSupplement,
 } from "~/domains/supplements/services/supplement-service";
 import type { Supplement } from "~/domains/supplements/types/supplement-types";
@@ -100,4 +101,21 @@ export async function reorderSupplementsAction(
 	return (await reorderSupplements(user.id, parsed.data))
 		? done(null)
 		: stale("Seus suplementos mudaram em outra aba.");
+}
+
+export async function setSupplementCheckinAction(
+	data: unknown,
+): Promise<SupplementActionResult> {
+	const user = await getCurrentUser();
+	const parsed = z
+		.object({ supplementId: id, taken: z.boolean() })
+		.safeParse(data);
+	if (!parsed.success) return fail("Marcação inválida.");
+	return (await setSupplementCheckin(
+		user.id,
+		parsed.data.supplementId,
+		parsed.data.taken,
+	))
+		? done(null)
+		: stale("Suplemento não encontrado.");
 }

@@ -55,6 +55,12 @@ import { getLatestNews } from "~/domains/news/services/news-service";
 import { calculateBmr, calculateTdee } from "~/domains/profile";
 import { findProfileByUserId } from "~/domains/profile/services/profile-service";
 import { getSettingsByUserId } from "~/domains/settings/services/settings-service";
+import { SupplementsToday } from "~/domains/supplements/components/supplements-today";
+import {
+	listSupplementCheckins,
+	listSupplements,
+} from "~/domains/supplements/services/supplement-service";
+import { supplementsForDay } from "~/domains/supplements/utils/supplements";
 import { WeeklySummaryCard } from "~/domains/weekly-summary/components/weekly-summary-card";
 import { findWeeklySummary } from "~/domains/weekly-summary/services/weekly-summary-service";
 import { weekStartOf } from "~/domains/weekly-summary/utils/weekly-summary";
@@ -100,6 +106,8 @@ async function HomeContent() {
 		weekly,
 		quota,
 		interested,
+		supplements,
+		supplementsTaken,
 	] = await Promise.all([
 		findProfileByUserId(user.id),
 		findGoalByUserId(user.id),
@@ -116,6 +124,8 @@ async function HomeContent() {
 		beta ? findWeeklySummary(user.id, weekStartOf(today)) : null,
 		beta ? monthlyQuotaLeft(user) : {},
 		beta ? aiInterests(user.id) : [],
+		listSupplements(user.id),
+		listSupplementCheckins(user.id, today),
 	]);
 
 	// Gasto da fórmula + o ajuste pelo peso real já aplicado.
@@ -200,6 +210,19 @@ async function HomeContent() {
 			name: meal.name,
 			time: meal.time,
 		}));
+	const todaySupplements = supplementsForDay(supplements, today);
+	const supplementsToday = todaySupplements.length > 0 && (
+		<SupplementsToday
+			supplements={todaySupplements}
+			meals={meals}
+			initialTaken={supplementsTaken}
+			className={
+				checkinMeals.length > 0
+					? "border-border border-t pt-4"
+					: "rounded-3xl bg-card p-4 md:p-5"
+			}
+		/>
+	);
 	const templates = (
 		<DietTemplates
 			templates={previewTemplates(
@@ -227,12 +250,16 @@ async function HomeContent() {
 
 			<SetupChecklist steps={steps} />
 			<AttentionList items={attention} />
-			{checkinMeals.length > 0 && (
+			{checkinMeals.length > 0 ? (
 				<CheckinCard
 					meals={checkinMeals}
 					today={today}
 					initialCheckins={checkins}
-				/>
+				>
+					{supplementsToday}
+				</CheckinCard>
+			) : (
+				supplementsToday
 			)}
 			{/* Sem dieta ainda: as prontas são o atalho mais útil, vêm antes. */}
 			{!hasFoods && templates}
@@ -277,7 +304,9 @@ async function HomeContent() {
 				{goal && targets && tdee !== null && (
 					<GoalCard goal={goal} targets={targets} tdee={tdee} />
 				)}
-				{meals.length > 0 && <NextMealCard meals={meals} />}
+				{meals.length > 0 && (
+					<NextMealCard meals={meals} supplements={supplements} today={today} />
+				)}
 				{calibrationAnalysis && review && !review.due && (
 					<DietReviewCard
 						status={review}

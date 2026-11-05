@@ -5,7 +5,9 @@ import {
 	daysLabel,
 	doseLabel,
 	looksCaloric,
+	mealSupplements,
 	moveSupplement,
+	supplementsForDay,
 	timingLabel,
 } from "~/domains/supplements/utils/supplements";
 
@@ -132,5 +134,47 @@ describe("moveSupplement", () => {
 	it("não passa das pontas", () => {
 		expect(ids(moveSupplement(list, "a", -1))).toEqual(["a", "b", "c"]);
 		expect(ids(moveSupplement(list, "c", 1))).toEqual(["a", "b", "c"]);
+	});
+});
+
+describe("supplementsForDay", () => {
+	const ids = (items: Supplement[]) => items.map((item) => item.id);
+	const list = [
+		supplement({ id: "todo-dia" }),
+		supplement({ id: "treino", days: "training_days" }),
+		supplement({ id: "seg-qua", days: "weekdays", weekdays: [1, 3] }),
+		supplement({ id: "domingo", days: "weekdays", weekdays: [0] }),
+	];
+
+	it("numa segunda, mostra os de todo dia, os de treino e os de segunda", () => {
+		// 02/11/2026 é segunda-feira.
+		expect(ids(supplementsForDay(list, "2026-11-02"))).toEqual([
+			"todo-dia",
+			"treino",
+			"seg-qua",
+		]);
+	});
+
+	it("no domingo, só o do domingo entre os de dias escolhidos", () => {
+		expect(ids(supplementsForDay(list, "2026-11-08"))).toEqual([
+			"todo-dia",
+			"treino",
+			"domingo",
+		]);
+	});
+});
+
+describe("mealSupplements", () => {
+	it("traz os ligados à refeição que valem no dia", () => {
+		const list = [
+			supplement({ id: "a", mealId: "m1" }),
+			supplement({ id: "b", mealId: "m2" }),
+			supplement({ id: "c", timing: "bedtime", mealId: null }),
+			supplement({ id: "d", mealId: "m1", days: "weekdays", weekdays: [5] }),
+		];
+		// Segunda: o "d" (só sexta) fica de fora.
+		expect(
+			mealSupplements(list, "m1", "2026-11-02").map((item) => item.id),
+		).toEqual(["a"]);
 	});
 });
