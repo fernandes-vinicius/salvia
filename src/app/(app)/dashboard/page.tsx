@@ -264,6 +264,14 @@ async function HomeContent() {
 			) : (
 				supplementsToday
 			)}
+			{/* Marcadores do dia juntos no topo: dieta, suplementos e água. */}
+			{profile && (
+				<WaterCard
+					water={suggestedWater(profile)}
+					today={today}
+					initialLogs={waterLogs}
+				/>
+			)}
 			{/* Sem dieta ainda: as prontas são o atalho mais útil, vêm antes. */}
 			{!hasFoods && templates}
 
@@ -316,13 +324,6 @@ async function HomeContent() {
 						analysis={calibrationAnalysis}
 						weight={null}
 						adherence={null}
-					/>
-				)}
-				{profile && (
-					<WaterCard
-						water={suggestedWater(profile)}
-						today={today}
-						initialLogs={waterLogs}
 					/>
 				)}
 				<div className="sm:col-span-2">
