@@ -21,6 +21,7 @@ import {
 	user,
 	userActivity,
 	userPrice,
+	waterLog,
 } from "~/shared/db/schema";
 
 /** Tira a coluna `userId` (repetida em toda linha, não diz nada a mais). */
@@ -50,6 +51,7 @@ export async function exportUserData(userId: string) {
 		interest,
 		supplements,
 		supplementCheckins,
+		water,
 	] = await Promise.all([
 		db
 			.select({ name: user.name, email: user.email, createdAt: user.createdAt })
@@ -99,6 +101,11 @@ export async function exportUserData(userId: string) {
 			.from(supplementCheckin)
 			.where(eq(supplementCheckin.userId, userId))
 			.orderBy(asc(supplementCheckin.day)),
+		db
+			.select()
+			.from(waterLog)
+			.where(eq(waterLog.userId, userId))
+			.orderBy(asc(waterLog.day)),
 	]);
 
 	return {
@@ -113,6 +120,7 @@ export async function exportUserData(userId: string) {
 		measurements: withoutUserId(measurements),
 		checkins: withoutUserId(checkins),
 		supplementCheckins: withoutUserId(supplementCheckins),
+		water: withoutUserId(water),
 		savedRecipes: withoutUserId(recipes),
 		prices: withoutUserId(prices),
 		dietShareLink: share.length > 0,

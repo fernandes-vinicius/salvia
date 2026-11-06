@@ -48,8 +48,9 @@ export default function PrivacyPage() {
 						rotina de atividade e treinos, objetivo, metas de calorias e macros,
 						dieta, suplementos que você anota e marca como tomados, alimentos
 						cadastrados, medidas corporais e o check-in das refeições (se você
-						comeu, comeu a opção ou furou cada refeição do dia), além dos preços
-						de mercado que você salvar na lista de compras.
+						comeu, comeu a opção ou furou cada refeição do dia), a água que você
+						registra a cada dia, além dos preços de mercado que você salvar na
+						lista de compras.
 					</li>
 					<li>
 						<strong>Sessão e segurança:</strong> endereço IP e navegador usados

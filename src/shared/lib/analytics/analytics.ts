@@ -32,7 +32,8 @@ export type AnalyticsEvent =
 	| "conta_criada"
 	| "medidas_importadas"
 	| "suplemento_adicionado"
-	| "suplemento_tomado";
+	| "suplemento_tomado"
+	| "agua_registrada";
 
 type Properties = Record<string, string | number | boolean | null>;
 

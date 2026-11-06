@@ -42,7 +42,6 @@ import {
 	SetupChecklist,
 	type SetupStep,
 } from "~/domains/home/components/setup-checklist";
-import { WaterCard } from "~/domains/home/components/water-card";
 import {
 	type AttentionItem,
 	emptyMealItems,
@@ -61,6 +60,8 @@ import {
 	listSupplements,
 } from "~/domains/supplements/services/supplement-service";
 import { supplementsForDay } from "~/domains/supplements/utils/supplements";
+import { WaterCard } from "~/domains/water";
+import { listWaterLogs } from "~/domains/water/services/water-service";
 import { WeeklySummaryCard } from "~/domains/weekly-summary/components/weekly-summary-card";
 import { findWeeklySummary } from "~/domains/weekly-summary/services/weekly-summary-service";
 import { weekStartOf } from "~/domains/weekly-summary/utils/weekly-summary";
@@ -108,6 +109,7 @@ async function HomeContent() {
 		interested,
 		supplements,
 		supplementsTaken,
+		waterLogs,
 	] = await Promise.all([
 		findProfileByUserId(user.id),
 		findGoalByUserId(user.id),
@@ -126,6 +128,7 @@ async function HomeContent() {
 		beta ? aiInterests(user.id) : [],
 		listSupplements(user.id),
 		listSupplementCheckins(user.id, today),
+		listWaterLogs(user.id, addDays(today, -60)),
 	]);
 
 	// Gasto da fórmula + o ajuste pelo peso real já aplicado.
@@ -315,7 +318,13 @@ async function HomeContent() {
 						adherence={null}
 					/>
 				)}
-				{profile && <WaterCard water={suggestedWater(profile)} />}
+				{profile && (
+					<WaterCard
+						water={suggestedWater(profile)}
+						today={today}
+						initialLogs={waterLogs}
+					/>
+				)}
 				<div className="sm:col-span-2">
 					<MeasurementsCard measurements={measurements} />
 				</div>

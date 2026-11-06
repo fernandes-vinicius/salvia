@@ -18,6 +18,12 @@ const WEEKDAY_NAMES = [
 	"sábado",
 ];
 
+/** Inicial ("S") e nome ("segunda") do dia da semana de "YYYY-MM-DD". */
+export function weekdayOf(day: string) {
+	const weekday = new Date(`${day}T12:00:00Z`).getUTCDay();
+	return { label: WEEKDAYS[weekday], name: WEEKDAY_NAMES[weekday] };
+}
+
 /** Refeições seguidas (comi ou comi a opção) e furadas no dia. */
 export function dayCounts(checkins: Checkin[], day: string) {
 	let followed = 0;
@@ -85,7 +91,6 @@ export function weekSummary(
 	for (let offset = -6; offset <= 0; offset++) {
 		const day = addDays(today, offset);
 		const { followed, skipped } = dayCounts(checkins, day);
-		const weekday = new Date(`${day}T12:00:00Z`).getUTCDay();
 		let state: WeekDayState = "none";
 		if (isFullDay(checkins, day, mealCount)) state = "full";
 		else if (followed > 0) state = "partial";
@@ -97,8 +102,7 @@ export function weekSummary(
 		}
 		days.push({
 			day,
-			label: WEEKDAYS[weekday],
-			name: WEEKDAY_NAMES[weekday],
+			...weekdayOf(day),
 			state,
 			followed,
 			isToday: offset === 0,
