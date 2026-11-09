@@ -6,12 +6,7 @@ import {
 	type ExtractedDiet,
 	extractedDietSchema,
 } from "~/domains/diet-import/schemas/diet-import-schema";
-import {
-	AI_NOT_CONFIGURED,
-	AI_RATE_LIMITED,
-	getAiModel,
-	isRateLimited,
-} from "~/shared/lib/ai";
+import { AI_NOT_CONFIGURED, aiErrorMessage, getAiModel } from "~/shared/lib/ai";
 
 const INSTRUCTIONS = `Você lê dietas (plano alimentar) feitas por nutricionistas, enviadas como PDF ou foto, e transcreve as refeições num formato estruturado.
 
@@ -60,7 +55,8 @@ export async function readDietDocuments(
 		return { ok: true, diet: output };
 	} catch (error) {
 		console.error("[diet-import] falha ao ler a dieta", error);
-		if (isRateLimited(error)) return { ok: false, error: AI_RATE_LIMITED };
+		const message = aiErrorMessage(error);
+		if (message) return { ok: false, error: message };
 		if (NoObjectGeneratedError.isInstance(error)) {
 			return {
 				ok: false,

@@ -149,10 +149,10 @@ export default function HowWeCalculatePage() {
 					<li>
 						<strong>Sódio e ferro:</strong> somados pela TACO (e pelo sódio dos
 						seus alimentos, se o rótulo foi copiado), sem contar o sal de
-						cozinha. Aviso acima de 2.000 mg de sódio por dia (OMS) e abaixo do
-						ferro recomendado (IOM): 8 mg pra homens e pra mulheres depois dos
-						50 anos, 18 mg pra mulheres de 19 a 50, 11 e 15 mg pra meninos e
-						meninas adolescentes.
+						cozinha. Aviso acima de 2.000 mg de sódio por dia (OMS) e com o
+						ferro na metade ou menos do ferro recomendado (IOM): 8 mg pra homens
+						e pra mulheres depois dos 50 anos, 18 mg pra mulheres de 19 a 50, 11
+						e 15 mg pra meninos e meninas adolescentes.
 					</li>
 					<li>
 						<strong>Água:</strong> mínimo de 35 ml por kg; recomendado de 40 ml

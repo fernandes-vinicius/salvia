@@ -4,12 +4,7 @@ import { generateText, NoObjectGeneratedError, Output } from "ai";
 import type { z } from "zod";
 
 import { aiMealFillSchema } from "~/domains/meal-fill/schemas/meal-fill-schema";
-import {
-	AI_NOT_CONFIGURED,
-	AI_RATE_LIMITED,
-	getAiModel,
-	isRateLimited,
-} from "~/shared/lib/ai";
+import { AI_NOT_CONFIGURED, aiErrorMessage, getAiModel } from "~/shared/lib/ai";
 
 const INSTRUCTIONS = `Você completa uma refeição de dieta com o que falta pra meta do dia.
 
@@ -46,7 +41,8 @@ export async function suggestMealFill(
 		return { ok: true, fill: output };
 	} catch (error) {
 		console.error("[meal-fill] falha ao completar refeição", error);
-		if (isRateLimited(error)) return { ok: false, error: AI_RATE_LIMITED };
+		const message = aiErrorMessage(error);
+		if (message) return { ok: false, error: message };
 		if (NoObjectGeneratedError.isInstance(error)) {
 			return { ok: false, error: "Não saiu uma boa sugestão. Tente de novo." };
 		}

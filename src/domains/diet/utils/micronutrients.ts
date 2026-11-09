@@ -12,6 +12,9 @@ export const SODIUM_LIMIT_MG = 2000;
 /** Abaixo disso o dia está quase vazio e o aviso de ferro só atrapalha. */
 const MIN_IRON_CHECK_MG = 1;
 
+/** Ferro acima dessa fração da meta é tolerável (sem aviso). */
+export const IRON_TOLERANCE = 0.5;
+
 const amountFor = (food: Food, quantity: number, value = 0) =>
 	value * (food.unit === "unit" ? quantity : quantity / 100);
 
@@ -65,7 +68,7 @@ export function micronutrientAlerts({
 	if (
 		ironGoal !== null &&
 		micros.iron >= MIN_IRON_CHECK_MG &&
-		Math.round(micros.iron) < ironGoal
+		micros.iron <= ironGoal * IRON_TOLERANCE
 	) {
 		alerts.push("iron-low");
 	}
