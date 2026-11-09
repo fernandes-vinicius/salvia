@@ -10,12 +10,7 @@ import type {
 } from "~/domains/meal-recipe/utils/meal-recipe";
 import { aiVariationSchema } from "~/domains/meal-variation/schemas/meal-variation-schema";
 import { variationPrompt } from "~/domains/meal-variation/utils/meal-variation";
-import {
-	AI_NOT_CONFIGURED,
-	AI_RATE_LIMITED,
-	getAiModel,
-	isRateLimited,
-} from "~/shared/lib/ai";
+import { AI_NOT_CONFIGURED, aiErrorMessage, getAiModel } from "~/shared/lib/ai";
 
 const INSTRUCTIONS = `Você monta uma versão diferente de uma refeição de dieta, com os mesmos macros, trocando alimentos por equivalentes.
 
@@ -63,7 +58,8 @@ export async function suggestMealVariation(
 		return { ok: true, variation: output };
 	} catch (error) {
 		console.error("[meal-variation] falha ao variar refeição", error);
-		if (isRateLimited(error)) return { ok: false, error: AI_RATE_LIMITED };
+		const message = aiErrorMessage(error);
+		if (message) return { ok: false, error: message };
 		if (NoObjectGeneratedError.isInstance(error)) {
 			return { ok: false, error: "Não saiu uma boa versão. Tente de novo." };
 		}

@@ -13,12 +13,7 @@ import {
 	recipeStylePrompt,
 } from "~/domains/meal-recipe/utils/meal-recipe";
 import { MAX_RECIPE_SWAPS } from "~/domains/meal-recipe/utils/recipe-swap";
-import {
-	AI_NOT_CONFIGURED,
-	AI_RATE_LIMITED,
-	getAiModel,
-	isRateLimited,
-} from "~/shared/lib/ai";
+import { AI_NOT_CONFIGURED, aiErrorMessage, getAiModel } from "~/shared/lib/ai";
 
 const INSTRUCTIONS = `Você sugere receitas caseiras e práticas pra uma refeição de uma dieta, usando SÓ os alimentos dela.
 
@@ -84,7 +79,8 @@ export async function suggestMealRecipe(
 		};
 	} catch (error) {
 		console.error("[meal-recipe] falha ao sugerir receita", error);
-		if (isRateLimited(error)) return { ok: false, error: AI_RATE_LIMITED };
+		const message = aiErrorMessage(error);
+		if (message) return { ok: false, error: message };
 		if (NoObjectGeneratedError.isInstance(error)) {
 			return { ok: false, error: "Não saiu uma receita boa. Tente de novo." };
 		}

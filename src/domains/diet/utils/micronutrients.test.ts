@@ -104,6 +104,18 @@ describe("micronutrientAlerts", () => {
 		).toEqual(["sodium-high", "iron-low"]);
 	});
 
+	it("tolera ferro acima da metade da meta", () => {
+		const ironAlert = (iron: number) =>
+			micronutrientAlerts({
+				micros: { sodium: 0, iron, customWithoutSodium: 0 },
+				ironGoal: 8,
+			});
+		expect(ironAlert(5)).toEqual([]);
+		expect(ironAlert(4.6)).toEqual([]);
+		expect(ironAlert(4)).toEqual(["iron-low"]);
+		expect(ironAlert(3)).toEqual(["iron-low"]);
+	});
+
 	it("fica quieto dentro das faixas e sem perfil", () => {
 		expect(
 			micronutrientAlerts({

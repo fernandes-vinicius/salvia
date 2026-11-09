@@ -23,15 +23,33 @@ export function getAiModel() {
 	return google(GEMINI_MODEL || DEFAULT_MODEL);
 }
 
+export const AI_UNAVAILABLE =
+	"A IA está indisponível no momento. Tente de novo mais tarde.";
+
+/** Status HTTP da resposta do fornecedor, olhando o último erro das tentativas. */
+function statusOf(error: unknown) {
+	const cause = RetryError.isInstance(error) ? error.lastError : error;
+	return APICallError.isInstance(cause) ? cause.statusCode : undefined;
+}
+
 /**
  * O fornecedor recusou por excesso de pedidos (cota do plano grátis, 429)
- * ou está sobrecarregado (503). Depois das tentativas, o AI SDK embrulha o
- * erro num `RetryError`: olha o último.
+ * ou está sobrecarregado (503).
  */
 export function isRateLimited(error: unknown): boolean {
-	const cause = RetryError.isInstance(error) ? error.lastError : error;
-	return (
-		APICallError.isInstance(cause) &&
-		(cause.statusCode === 429 || cause.statusCode === 503)
-	);
+	const status = statusOf(error);
+	return status === 429 || status === 503;
+}
+
+/**
+ * Mensagem pros erros do fornecedor que não dependem do recurso: sem crédito
+ * no pré-pago do Gemini (402) ou ocupada (429/503). Null = cada recurso usa a
+ * sua.
+ */
+export function aiErrorMessage(error: unknown): string | null {
+	if (statusOf(error) === 402) {
+		console.error("[ai] Gemini sem crédito (402): recarregue o pré-pago");
+		return AI_UNAVAILABLE;
+	}
+	return isRateLimited(error) ? AI_RATE_LIMITED : null;
 }

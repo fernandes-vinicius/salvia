@@ -28,12 +28,7 @@ import {
 } from "~/domains/weekly-summary/utils/weekly-summary";
 import { db } from "~/shared/db";
 import { weeklySummary } from "~/shared/db/schema";
-import {
-	AI_NOT_CONFIGURED,
-	AI_RATE_LIMITED,
-	getAiModel,
-	isRateLimited,
-} from "~/shared/lib/ai";
+import { AI_NOT_CONFIGURED, aiErrorMessage, getAiModel } from "~/shared/lib/ai";
 
 export async function findWeeklySummary(
 	userId: string,
@@ -151,7 +146,8 @@ export async function generateWeeklyText(
 		return { ok: true, summary: output };
 	} catch (error) {
 		console.error("[weekly-summary] falha ao gerar o resumo", error);
-		if (isRateLimited(error)) return { ok: false, error: AI_RATE_LIMITED };
+		const message = aiErrorMessage(error);
+		if (message) return { ok: false, error: message };
 		if (NoObjectGeneratedError.isInstance(error)) {
 			return { ok: false, error: "Não saiu um bom resumo. Tente de novo." };
 		}
