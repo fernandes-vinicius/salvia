@@ -11,7 +11,7 @@ import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { suggestedWater } from "~/domains/calculators/utils/water";
 import { addDays, CheckinCard, type CheckinMeal } from "~/domains/checkin";
 import { listCheckins } from "~/domains/checkin/services/checkin-service";
-import { periodAdherence } from "~/domains/checkin/utils/checkin";
+import { dayCounts, periodAdherence } from "~/domains/checkin/utils/checkin";
 import { summarizeDiet } from "~/domains/diet";
 import { getDiet } from "~/domains/diet/services/diet-service";
 import { ironTarget } from "~/domains/diet/utils/micronutrients";
@@ -66,6 +66,7 @@ import { WeeklySummaryCard } from "~/domains/weekly-summary/components/weekly-su
 import { findWeeklySummary } from "~/domains/weekly-summary/services/weekly-summary-service";
 import { weekStartOf } from "~/domains/weekly-summary/utils/weekly-summary";
 import { CelebrationProvider } from "~/providers/celebration-provider";
+import { PlantProvider } from "~/shared/components/mascot/plant-context";
 import { Skeleton } from "~/shared/components/ui/skeleton";
 import { localDateString } from "~/shared/lib/dates";
 
@@ -244,94 +245,107 @@ async function HomeContent() {
 	);
 
 	const firstName = user.name.split(" ")[0];
+	const followedToday = dayCounts(checkins, today).followed;
 
 	return (
 		<CelebrationProvider enabled={settings.celebrations}>
-			<h1 className="font-heading font-semibold text-2xl sm:text-3xl">
-				Olá, {firstName}
-			</h1>
+			<PlantProvider
+				initial={{
+					leaves: followedToday,
+					bloom:
+						checkinMeals.length > 0 && followedToday >= checkinMeals.length,
+				}}
+			>
+				<h1 className="font-heading font-semibold text-2xl sm:text-3xl">
+					Olá, {firstName}
+				</h1>
 
-			<SetupChecklist steps={steps} />
-			<AttentionList items={attention} />
-			{checkinMeals.length > 0 ? (
-				<CheckinCard
-					meals={checkinMeals}
-					today={today}
-					initialCheckins={checkins}
-				>
-					{supplementsToday}
-				</CheckinCard>
-			) : (
-				supplementsToday
-			)}
-			{/* Marcadores do dia juntos no topo: dieta, suplementos e água. */}
-			{profile && (
-				<WaterCard
-					water={suggestedWater(profile)}
-					today={today}
-					initialLogs={waterLogs}
-				/>
-			)}
-			{/* Sem dieta ainda: as prontas são o atalho mais útil, vêm antes. */}
-			{!hasFoods && templates}
-
-			{beta && (
-				<AiQuotaProvider initial={quota} interested={interested}>
-					<WeeklySummaryCard initialSummary={weekly} />
-				</AiQuotaProvider>
-			)}
-
-			{targets && (
-				<PlanOverview
-					summary={summary}
-					targets={targets}
-					proteinCounting={settings.proteinCounting}
-				/>
-			)}
-			{calibrationAnalysis && review?.due ? (
-				<DietReviewCard
-					status={review}
-					analysis={calibrationAnalysis}
-					weight={
-						dietCycle?.startedOn
-							? weightSince(toWeighIns(measurements), dietCycle.startedOn)
-							: null
-					}
-					adherence={
-						periodAdherence(checkins, mealsWithFoods, reviewStart, today)
-							?.percent ?? null
-					}
-				/>
-			) : (
-				calibrationAnalysis && (
-					<CalibrationCard
-						analysis={calibrationAnalysis}
-						calibration={calibration}
+				<SetupChecklist steps={steps} />
+				<AttentionList items={attention} />
+				{checkinMeals.length > 0 ? (
+					<CheckinCard
+						meals={checkinMeals}
+						today={today}
+						initialCheckins={checkins}
+					>
+						{supplementsToday}
+					</CheckinCard>
+				) : (
+					supplementsToday
+				)}
+				{/* Marcadores do dia juntos no topo: dieta, suplementos e água. */}
+				{profile && (
+					<WaterCard
+						water={suggestedWater(profile)}
+						today={today}
+						initialLogs={waterLogs}
 					/>
-				)
-			)}
+				)}
+				{/* Sem dieta ainda: as prontas são o atalho mais útil, vêm antes. */}
+				{!hasFoods && templates}
 
-			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-start">
-				{goal && targets && tdee !== null && (
-					<GoalCard goal={goal} targets={targets} tdee={tdee} />
+				{beta && (
+					<AiQuotaProvider initial={quota} interested={interested}>
+						<WeeklySummaryCard initialSummary={weekly} />
+					</AiQuotaProvider>
 				)}
-				{meals.length > 0 && (
-					<NextMealCard meals={meals} supplements={supplements} today={today} />
+
+				{targets && (
+					<PlanOverview
+						summary={summary}
+						targets={targets}
+						proteinCounting={settings.proteinCounting}
+					/>
 				)}
-				{calibrationAnalysis && review && !review.due && (
+				{calibrationAnalysis && review?.due ? (
 					<DietReviewCard
 						status={review}
 						analysis={calibrationAnalysis}
-						weight={null}
-						adherence={null}
+						weight={
+							dietCycle?.startedOn
+								? weightSince(toWeighIns(measurements), dietCycle.startedOn)
+								: null
+						}
+						adherence={
+							periodAdherence(checkins, mealsWithFoods, reviewStart, today)
+								?.percent ?? null
+						}
 					/>
+				) : (
+					calibrationAnalysis && (
+						<CalibrationCard
+							analysis={calibrationAnalysis}
+							calibration={calibration}
+						/>
+					)
 				)}
-				<div className="sm:col-span-2">
-					<MeasurementsCard measurements={measurements} />
-				</div>
-			</div>
 
-			{hasFoods && templates}
+				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-start">
+					{goal && targets && tdee !== null && (
+						<GoalCard goal={goal} targets={targets} tdee={tdee} />
+					)}
+					{meals.length > 0 && (
+						<NextMealCard
+							meals={meals}
+							supplements={supplements}
+							today={today}
+						/>
+					)}
+					{calibrationAnalysis && review && !review.due && (
+						<DietReviewCard
+							status={review}
+							analysis={calibrationAnalysis}
+							weight={null}
+							adherence={null}
+						/>
+					)}
+					<div className="sm:col-span-2">
+						<MeasurementsCard measurements={measurements} />
+					</div>
+				</div>
+
+				{hasFoods && templates}
+			</PlantProvider>
 		</CelebrationProvider>
 	);
 }

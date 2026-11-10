@@ -10,6 +10,7 @@ const past = (offset: number, ml: number): WaterDay => ({
 	day: addDays(TODAY, offset),
 	ml,
 	targetMl: TARGET,
+	entries: offset === 0 ? [ml] : [],
 });
 
 const meta = {

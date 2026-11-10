@@ -1,0 +1,1 @@
+ALTER TABLE "water_log" ADD COLUMN "entries" integer[] DEFAULT '{}'::integer[] NOT NULL;

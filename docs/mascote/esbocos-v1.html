@@ -1,0 +1,383 @@
+<title>Esboços do mascote Sálvia</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@600;700;800&display=swap">
+<style>
+/* Layout: one reading column; each concept = growth strip + expression grid; closing row of post mockups side by side */
+:root {
+  --bg: #F6F4EC;
+  --surface: #FFFDF8;
+  --tile: #EAEEDF;
+  --fg: #1E2A1C;
+  --muted: #56624F;
+  --accent: #3E6A3A;
+  --accent-soft: #DDE8D0;
+  --font-display: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* mascot palette (follows the page theme) */
+  --m-body: #3E6A3A;
+  --m-light: #A3BF94;
+  --m-cream: #F6F4EC;
+  --m-pupil: #1E331B;
+  --m-cheek: #C27C5A;
+  --m-wheat: #C9A65B;
+  --m-pot: #C27C5A;
+  --m-rim: #A65F41;
+  --m-potface: #3B241A;
+  --m-potcheek: #E7A688;
+  --m-water: #BCD6D1;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131813; --surface: #1A2119; --tile: #222B21; --fg: #EEF0E8; --muted: #A9B3A4;
+    --accent: #A3C293; --accent-soft: #2A3628;
+    --m-body: #5C8452; --m-light: #A3C293; --m-pupil: #131813;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131813; --surface: #1A2119; --tile: #222B21; --fg: #EEF0E8; --muted: #A9B3A4;
+  --accent: #A3C293; --accent-soft: #2A3628;
+  --m-body: #5C8452; --m-light: #A3C293; --m-pupil: #131813;
+  color-scheme: dark;
+}
+/* forced palettes for the comparison tiles */
+.on-light { --m-body: #3E6A3A; --m-light: #A3BF94; --m-pupil: #1E331B; background: #F6F4EC !important; color: #1E2A1C; }
+.on-dark  { --m-body: #5C8452; --m-light: #A3C293; --m-pupil: #131813; background: #131813 !important; color: #EEF0E8; }
+.on-brand { --m-body: #A3C293; --m-light: #DDE8D0; --m-pupil: #1E331B; --m-cream: #F6F4EC; background: #3E6A3A !important; color: #F6F4EC; }
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font: 400 1rem/1.6 var(--font-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 2rem 4rem;
+}
+.wrap { max-width: 60rem; margin: 0 auto; display: grid; gap: 3.5rem; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: clamp(1.9rem, 5vw, 2.8rem); font-weight: 800; line-height: 1.1; }
+h2 { font-size: 1.5rem; font-weight: 800; }
+h3 { font-size: 1rem; font-weight: 700; }
+p { margin: 0; max-width: 65ch; }
+.muted { color: var(--muted); }
+.eyebrow { font: 600 0.75rem/1 var(--font-body); text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); }
+
+header { display: grid; grid-template-columns: 1fr; gap: 1.5rem; align-items: center; }
+@media (min-width: 40rem) { header { grid-template-columns: 1.3fr 1fr; } }
+header .intro { display: grid; gap: 0.9rem; }
+.hero-fig { background: var(--tile); border-radius: 1.5rem; aspect-ratio: 1; max-width: 100%; display: grid; place-items: center; }
+.hero-fig svg { width: 78%; height: auto; }
+
+section { display: grid; gap: 1.25rem; }
+.sec-head { display: grid; gap: 0.5rem; }
+.tag { display: inline-block; justify-self: start; font: 600 0.75rem/1 var(--font-body); padding: 0.4rem 0.65rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent); }
+
+.strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; background: var(--surface); border-radius: 1.25rem; padding: 1rem; align-items: end; }
+.strip figure { margin: 0; display: grid; gap: 0.25rem; justify-items: center; text-align: center; }
+.strip svg { width: 100%; max-width: 11rem; height: auto; }
+.strip figcaption { font-size: 0.85rem; }
+.strip figcaption b { font-family: var(--font-display); display: block; font-size: 0.95rem; }
+
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
+@media (min-width: 40rem) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.card { background: var(--surface); border-radius: 1.25rem; padding: 0.75rem 0.75rem 1rem; display: grid; gap: 0.4rem; min-width: 0; }
+.card .fig { background: var(--tile); border-radius: 0.9rem; display: grid; place-items: center; padding: 0.5rem; }
+.card svg { width: 100%; max-width: 10rem; height: auto; }
+.card h3 { padding-inline: 0.25rem; }
+.card p { font-size: 0.85rem; color: var(--muted); padding-inline: 0.25rem; }
+
+.compare { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; }
+.compare figure { margin: 0; border-radius: 1rem; padding: 0.75rem; display: grid; gap: 0.25rem; justify-items: center; font-size: 0.8rem; text-align: center; }
+.compare svg { width: 100%; max-width: 8rem; height: auto; }
+
+.sizes { display: flex; flex-wrap: wrap; align-items: end; gap: 1.25rem; background: var(--surface); border-radius: 1.25rem; padding: 1rem 1.25rem; }
+.sizes figure { margin: 0; display: grid; gap: 0.35rem; justify-items: center; font-size: 0.8rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.posts { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+@media (min-width: 40rem) { .posts { grid-template-columns: 1fr 1fr; } }
+.post { aspect-ratio: 1; max-width: 100%; border-radius: 1.25rem; padding: 1.5rem; display: grid; grid-template-rows: auto 1fr auto; overflow: hidden; }
+.post .p-top { font: 700 0.8rem/1 var(--font-display); letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.9; }
+.post .p-mid { display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; gap: 0.5rem; }
+.post .p-head { font: 800 clamp(1.4rem, 4.5vw, 2rem)/1.1 var(--font-display); text-wrap: balance; }
+.post svg { width: 100%; height: auto; }
+.post .p-foot { font-size: 0.8rem; opacity: 0.9; }
+.post.cream { background: #F6F4EC; color: #1E2A1C; --m-body: #3E6A3A; --m-light: #A3BF94; --m-pupil: #1E331B; }
+
+.notes { background: var(--surface); border-radius: 1.25rem; padding: 1.25rem 1.5rem; display: grid; gap: 0.75rem; }
+.notes ul { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.5rem; }
+.notes li { max-width: 70ch; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .anim .arm-wave { transform-box: view-box; transform-origin: 110px 94px; animation: wave 1.6s ease-in-out infinite; }
+  .anim .sway { transform-box: view-box; transform-origin: 80px 160px; animation: sway 3.2s ease-in-out infinite; }
+}
+@keyframes wave { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-16deg); } }
+@keyframes sway { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="intro">
+      <span class="eyebrow">Sálvia · mascote · esboço 1</span>
+      <h1>Dois caminhos pro mascote do Sálvia</h1>
+      <p class="muted">A folhinha nasce do logo e cresce junto com a sequência. O broto no vaso traz o terracota da gordura como corpo e usa as folhas como braços. Os dois usam só as cores do app, são planos e sem sombra. São rascunhos pra escolher a direção, não a arte final.</p>
+      <p class="muted">Nome provisório: <b>Broto</b>.</p>
+    </div>
+    <div class="hero-fig anim" data-c="leaf" data-mood="wave" data-stage="folha" data-anim="1" aria-label="Folhinha de sálvia acenando"></div>
+  </header>
+
+  <section>
+    <div class="sec-head">
+      <span class="tag">Conceito 1 · recomendado</span>
+      <h2>Folhinha de sálvia</h2>
+      <p class="muted">A folha do logo de pé, com rosto e bracinhos. Cresce em três estágios, ligados aos marcos de sequência (7 e 30 dias) e às revisões da dieta.</p>
+    </div>
+    <div class="strip">
+      <figure><div data-c="leaf" data-mood="wave" data-stage="broto"></div><figcaption><b>Broto</b>começo da dieta</figcaption></figure>
+      <figure><div data-c="leaf" data-mood="wave" data-stage="folha"></div><figcaption><b>Folha</b>7 dias seguidos</figcaption></figure>
+      <figure><div data-c="leaf" data-mood="wave" data-stage="ramo"></div><figcaption><b>Ramo</b>30 dias seguidos</figcaption></figure>
+    </div>
+    <div class="grid" data-moods="leaf"></div>
+
+    <h3>Nos três fundos que a marca usa</h3>
+    <div class="compare">
+      <figure class="on-light"><div data-c="leaf" data-mood="party" data-stage="folha"></div>creme</figure>
+      <figure class="on-dark"><div data-c="leaf" data-mood="party" data-stage="folha"></div>tema escuro</figure>
+      <figure class="on-brand"><div data-c="leaf" data-mood="party" data-stage="folha"></div>verde da marca</figure>
+    </div>
+    <p class="muted">No verde da marca, o corpo passa pra sálvia claro. Senão a folha some no fundo.</p>
+
+    <h3>Em tamanho pequeno</h3>
+    <div class="sizes">
+      <figure><div data-c="leaf" data-mood="wave" data-stage="folha" data-size="96"></div>96 px</figure>
+      <figure><div data-c="leaf" data-mood="wave" data-stage="folha" data-size="48"></div>48 px</figure>
+      <figure><div data-c="leaf" data-mood="wave" data-stage="folha" data-size="32"></div>32 px</figure>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="tag">Conceito 2</span>
+      <h2>Broto no vaso</h2>
+      <p class="muted">O vasinho terracota é o corpo, e o rosto fica nele. As folhas fazem o papel de braços. Rende poses fofas, mas se afasta do logo e lembra mais um app de plantas.</p>
+    </div>
+    <div class="strip">
+      <figure><div data-c="pot" data-mood="wave" data-stage="semente"></div><figcaption><b>Semente</b>começo da dieta</figcaption></figure>
+      <figure><div data-c="pot" data-mood="wave" data-stage="broto"></div><figcaption><b>Broto</b>7 dias seguidos</figcaption></figure>
+      <figure><div data-c="pot" data-mood="wave" data-stage="planta"></div><figcaption><b>Planta</b>30 dias seguidos</figcaption></figure>
+    </div>
+    <div class="grid" data-moods="pot"></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="tag">Na prática</span>
+      <h2>Como ficaria num post</h2>
+      <p class="muted">Formato quadrado do feed, com textos no tom do app.</p>
+    </div>
+    <div class="posts">
+      <div class="post on-brand">
+        <div class="p-top">Sálvia</div>
+        <div class="p-mid">
+          <div class="p-head">Sete dias seguindo a dieta. Seu Sálvia cresceu.</div>
+          <div data-c="leaf" data-mood="party" data-stage="ramo"></div>
+        </div>
+        <div class="p-foot">Marque cada refeição no Início e acompanhe a sequência.</div>
+      </div>
+      <div class="post cream">
+        <div class="p-top">Sálvia</div>
+        <div class="p-mid">
+          <div class="p-head">Minha dieta tá uma bagunça.</div>
+          <div data-c="pot" data-mood="confused" data-stage="broto"></div>
+        </div>
+        <div class="p-foot">Organize a sua no Sálvia, inclusive a do nutricionista.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>Pra levar ao ilustrador</h2>
+    <ul>
+      <li>A folhinha funciona até em 32 px. O vaso perde o rosto abaixo de uns 48 px, por isso o conceito 1 serve melhor de avatar e ícone.</li>
+      <li>Os braços e pernas são só traços arredondados, como o traço do logo. Isso facilita a animação no Rive (cada traço vira um osso).</li>
+      <li>As expressões vêm de olhos, boca e braços. O corpo não muda de forma, então não existe versão "magra" ou "forte".</li>
+      <li>A versão final precisa de arte vetorial em camadas (corpo, olhos, boca, cada braço, cada perna, acessórios) e cessão de direitos no contrato.</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+const MOODS = [
+  { mood: "wave", label: "Acenando", use: "Boas-vindas, landing e posts" },
+  { mood: "party", label: "Comemorando", use: "Dia completo e marcos de sequência" },
+  { mood: "think", label: "Pensando", use: "IA gerando receita ou resumo da semana" },
+  { mood: "water", label: "Com copo d’água", use: "Meta de água batida" },
+  { mood: "confused", label: "Confuso", use: "Página não encontrada e erros" },
+  { mood: "sleep", label: "Dormindo", use: "Ceia e sem conexão" },
+];
+
+const s = (d, w, c, extra = "") => `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" ${extra}/>`;
+
+const sparkle = (x, y, r, c) =>
+  `<path d="M${x} ${y - r} L${x + r * 0.28} ${y - r * 0.28} L${x + r} ${y} L${x + r * 0.28} ${y + r * 0.28} L${x} ${y + r} L${x - r * 0.28} ${y + r * 0.28} L${x - r} ${y} L${x - r * 0.28} ${y - r * 0.28} Z" fill="${c}"/>`;
+
+const confetti = () => [
+  `<rect x="22" y="30" width="7" height="7" rx="1.5" transform="rotate(20 25 33)" fill="var(--m-wheat)"/>`,
+  `<circle cx="138" cy="34" r="4" fill="var(--m-cheek)"/>`,
+  `<rect x="128" y="70" width="6" height="6" rx="1.5" transform="rotate(-25 131 73)" fill="var(--m-light)"/>`,
+  `<circle cx="20" cy="70" r="3.5" fill="var(--m-light)"/>`,
+  `<rect x="58" y="4" width="6" height="6" rx="1.5" transform="rotate(35 61 7)" fill="var(--m-cheek)"/>`,
+  `<circle cx="104" cy="8" r="3" fill="var(--m-wheat)"/>`,
+].join("");
+
+const zzz = (x, y, c) =>
+  `<g font-family="Manrope, sans-serif" font-weight="800" fill="${c}"><text x="${x}" y="${y}" font-size="14">z</text><text x="${x + 10}" y="${y - 12}" font-size="18">z</text><text x="${x + 23}" y="${y - 28}" font-size="23">z</text></g>`;
+
+const question = (x, y) =>
+  `<text x="${x}" y="${y}" font-family="Manrope, sans-serif" font-weight="800" font-size="34" fill="var(--m-wheat)">?</text>`;
+
+const glass = (x, y) =>
+  `<rect x="${x}" y="${y}" width="18" height="26" rx="3" fill="var(--m-cream)" stroke="var(--m-body)" stroke-width="2.5"/>` +
+  `<rect x="${x + 2.5}" y="${y + 10}" width="13" height="13.5" rx="1.5" fill="var(--m-water)"/>`;
+
+/* ---------- Concept 1: leaf ---------- */
+function leaf(mood, stage, anim) {
+  const cfg = {
+    wave: { arms: "wave", eyes: "open", mouth: "smile" },
+    party: { arms: "up", eyes: "happy", mouth: "open" },
+    think: { arms: "hip", eyes: "up", mouth: "small" },
+    water: { arms: "hold", eyes: "open", mouth: "smile" },
+    confused: { arms: "down", eyes: "confused", mouth: "wavy" },
+    sleep: { arms: "down", eyes: "sleep", mouth: "o" },
+  }[mood];
+
+  const L = "var(--m-body)", C = "var(--m-cream)", Pu = "var(--m-pupil)";
+  const leftArm = { down: "M50 98 Q38 112 41 124", wave: "M50 98 Q38 112 41 124", up: "M50 90 Q34 74 38 54", hold: "M50 98 Q38 112 41 124", hip: "M50 98 Q34 102 44 116" }[cfg.arms];
+  const rightArm = { down: "M110 98 Q122 112 119 124", wave: "M110 94 Q128 84 131 64", up: "M110 90 Q126 74 122 54", hold: "M110 98 Q120 106 122 113", hip: "M110 98 Q122 112 119 124" }[cfg.arms];
+
+  let out = "";
+  if (stage === "ramo") {
+    const side = "M80 30 C102 46 106 80 80 106 C54 80 58 46 80 30 Z";
+    out += `<path d="${side}" transform="rotate(-42 80 120)" fill="var(--m-light)"/>`;
+    out += `<path d="${side}" transform="rotate(42 80 120)" fill="var(--m-light)"/>`;
+  }
+  if (mood === "water") out += glass(118, 100);
+  out += s("M73 132 L70 158 L62 160 M87 132 L90 158 L98 160", 5, L);
+  out += s(leftArm, 5, L);
+  out += s(rightArm, 5, L, cfg.arms === "wave" ? 'class="arm-wave"' : "");
+  if (cfg.arms === "wave") out += s("M139 56 L145 51 M141 67 L148 67", 2.5, "var(--m-wheat)");
+
+  out += `<path d="M80 16 C118 40 124 94 80 138 C36 94 42 40 80 16 Z" fill="${L}"/>`;
+  out += s("M67 42 Q71 32 78 27", 3, "var(--m-light)");
+  out += s("M80 112 L80 132 M80 122 L71 115 M80 122 L89 115", 2.5, "var(--m-light)");
+  out += `<ellipse cx="56" cy="89" rx="5.5" ry="3.2" fill="var(--m-cheek)" opacity=".8"/><ellipse cx="104" cy="89" rx="5.5" ry="3.2" fill="var(--m-cheek)" opacity=".8"/>`;
+
+  const eye = (x, ry = 8, px = 1, py = 2) =>
+    `<ellipse cx="${x}" cy="74" rx="6.5" ry="${ry}" fill="${C}"/><circle cx="${x + px}" cy="${74 + py}" r="3.6" fill="${Pu}"/><circle cx="${x + px + 1.4}" cy="${74 + py - 1.6}" r="1.2" fill="${C}"/>`;
+  out += {
+    open: eye(66) + eye(94),
+    up: eye(66, 8, 1.5, -3) + eye(94, 8, 1.5, -3),
+    happy: s("M59 77 Q66 68 73 77", 3.5, C) + s("M87 77 Q94 68 101 77", 3.5, C),
+    sleep: s("M59 75 Q66 81 73 75", 3.5, C) + s("M87 75 Q94 81 101 75", 3.5, C),
+    confused: eye(66, 8, 2, 1) + eye(94, 5.5, -2, 0),
+  }[cfg.eyes];
+
+  out += {
+    smile: s("M71 94 Q80 102 89 94", 3.5, C),
+    open: `<path d="M70 92 Q80 110 90 92 Z" fill="${Pu}" stroke="${C}" stroke-width="2.5" stroke-linejoin="round"/>`,
+    small: s("M76 97 L85 95", 3.5, C),
+    wavy: s("M70 97 Q74 92 78 97 Q82 102 86 97 Q88 94 91 96", 3, C),
+    o: `<ellipse cx="80" cy="96" rx="3" ry="2.6" fill="none" stroke="${C}" stroke-width="2.5"/>`,
+  }[cfg.mouth];
+
+  if (mood === "party") out += confetti();
+  if (mood === "think") out += sparkle(128, 36, 11, "var(--m-wheat)") + sparkle(144, 58, 5, "var(--m-wheat)");
+  if (mood === "confused") out += question(118, 46);
+  if (mood === "sleep") out += zzz(112, 52, "var(--m-light)");
+
+  if (stage === "broto") {
+    out += `<path d="M80 17 C74 7 66 6 61 10 C65 16 73 19 80 17 Z" fill="var(--m-light)"/><path d="M80 17 C86 5 94 3 100 7 C96 14 87 18 80 17 Z" fill="var(--m-light)"/>`;
+    out = `<g transform="translate(80 162) scale(.78) translate(-80 -162)">${out}</g>`;
+  }
+  return `<g class="${anim ? "sway" : ""}">${out}</g>`;
+}
+
+/* ---------- Concept 2: pot ---------- */
+function pot(mood, stage) {
+  const cfg = {
+    wave: { l: 0, r: -38, eyes: "open", mouth: "smile" },
+    party: { l: 22, r: -22, eyes: "happy", mouth: "open" },
+    think: { l: 0, r: -8, eyes: "up", mouth: "small" },
+    water: { l: 0, r: 40, eyes: "open", mouth: "smile" },
+    confused: { l: 24, r: 30, eyes: "confused", mouth: "wavy" },
+    sleep: { l: -48, r: 48, eyes: "sleep", mouth: "o" },
+  }[mood];
+  const B = "var(--m-body)", F = "var(--m-potface)";
+  const leftLeaf = "M80 66 C66 66 54 56 52 44 C66 42 78 50 80 66 Z";
+  const rightLeaf = "M80 62 C94 62 108 52 110 38 C96 36 82 46 80 62 Z";
+
+  let out = "";
+  if (mood === "water") out += glass(124, 134);
+  if (stage === "semente") {
+    out += s("M80 94 L80 80", 5, B);
+    out += `<path d="M80 82 C88 82 96 76 97 68 C89 67 81 72 80 82 Z" fill="${B}" transform="rotate(${cfg.r / 2} 80 82)"/>`;
+  } else {
+    const top = stage === "planta" ? 46 : 58;
+    out += s(`M80 94 Q78 76 80 ${top}`, 5, B);
+    if (stage === "planta") {
+      out += `<path d="M80 84 C70 84 61 77 59 68 C69 67 78 73 80 84 Z" fill="var(--m-light)"/>`;
+      out += `<path d="M80 80 C90 80 99 73 101 64 C91 63 82 69 80 80 Z" fill="var(--m-light)"/>`;
+      out += `<circle cx="80" cy="42" r="5" fill="var(--m-wheat)"/>`;
+    }
+    const dy = stage === "planta" ? -10 : 0;
+    out += `<g transform="translate(0 ${dy})"><path d="${leftLeaf}" fill="${B}" transform="rotate(${cfg.l} 80 64)"/><path d="${rightLeaf}" fill="${B}" transform="rotate(${cfg.r} 80 62)"/></g>`;
+  }
+  if (mood === "wave") out += s("M120 30 L126 24 M124 42 L131 41", 2.5, "var(--m-wheat)");
+
+  out += `<path d="M46 108 L114 108 L106 160 Q105 166 98 166 L62 166 Q55 166 54 160 Z" fill="var(--m-pot)"/>`;
+  out += `<rect x="40" y="92" width="80" height="17" rx="4" fill="var(--m-rim)"/>`;
+  out += `<ellipse cx="60" cy="142" rx="5" ry="3" fill="var(--m-potcheek)"/><ellipse cx="100" cy="142" rx="5" ry="3" fill="var(--m-potcheek)"/>`;
+
+  const eye = (x, ry = 5.5, px = 0, py = 0) =>
+    `<ellipse cx="${x + px}" cy="${130 + py}" rx="4.5" ry="${ry}" fill="${F}"/><circle cx="${x + px + 1.5}" cy="${128 + py}" r="1.4" fill="#F6F4EC"/>`;
+  out += {
+    open: eye(68) + eye(92),
+    up: eye(68, 5.5, 1, -3) + eye(92, 5.5, 1, -3),
+    happy: s("M62 132 Q68 124 74 132", 3, F) + s("M86 132 Q92 124 98 132", 3, F),
+    sleep: s("M62 130 Q68 135 74 130", 3, F) + s("M86 130 Q92 135 98 130", 3, F),
+    confused: eye(68, 6) + eye(92, 3.5),
+  }[cfg.eyes];
+  out += {
+    smile: s("M73 144 Q80 150 87 144", 3, F),
+    open: `<path d="M72 142 Q80 156 88 142 Z" fill="${F}"/>`,
+    small: s("M76 146 L84 145", 3, F),
+    wavy: s("M71 146 Q75 142 79 146 Q83 150 87 146 Q89 144 91 145", 2.5, F),
+    o: `<ellipse cx="80" cy="146" rx="2.6" ry="2.2" fill="none" stroke="${F}" stroke-width="2.2"/>`,
+  }[cfg.mouth];
+
+  if (mood === "party") out += confetti();
+  if (mood === "think") out += sparkle(128, 40, 11, "var(--m-wheat)") + sparkle(144, 62, 5, "var(--m-wheat)");
+  if (mood === "confused") out += question(116, 56);
+  if (mood === "sleep") out += zzz(110, 70, "var(--m-light)");
+  return out;
+}
+
+function render(el) {
+  const { c, mood, stage, size, anim } = el.dataset;
+  const inner = c === "leaf" ? leaf(mood, stage, anim) : pot(mood, stage);
+  const label = el.getAttribute("aria-label") || "Esboço do mascote";
+  const dim = size ? `width="${size}" height="${Math.round(size * 1.125)}"` : "";
+  el.innerHTML = `<svg viewBox="0 0 160 180" ${dim} role="img" aria-label="${label}">${inner}</svg>`;
+}
+
+document.querySelectorAll("[data-moods]").forEach((grid) => {
+  const c = grid.dataset.moods;
+  grid.innerHTML = MOODS.map(
+    (m) => `<div class="card"><div class="fig" data-c="${c}" data-mood="${m.mood}" data-stage="${c === "leaf" ? "folha" : "broto"}" aria-label="${m.label}"></div><h3>${m.label}</h3><p>${m.use}</p></div>`
+  ).join("");
+});
+document.querySelectorAll("[data-c]").forEach(render);
+</script>

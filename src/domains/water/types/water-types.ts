@@ -6,4 +6,6 @@ export interface WaterDay {
 	ml: number;
 	/** Recomendado daquele dia (ml), guardado pra a meta antiga não mudar. */
 	targetMl: number;
+	/** Changes of the day in order (+ added, − removed), for undo. */
+	entries: number[];
 }

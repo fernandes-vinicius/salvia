@@ -17,6 +17,7 @@ const day = (d: string, ml: number, targetMl = 3500): WaterDay => ({
 	day: d,
 	ml,
 	targetMl,
+	entries: [],
 });
 
 describe("isWaterGoalMet", () => {

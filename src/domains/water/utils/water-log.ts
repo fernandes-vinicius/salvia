@@ -107,3 +107,39 @@ export function waterAmountLabel(ml: number) {
 		? `${formatNumber(ml)} ml`
 		: `${formatNumber(ml / 1000, 2)} L`;
 }
+
+/** How many of today's changes can be undone, newest first. */
+export const MAX_UNDO_ENTRIES = 50;
+
+/** Today's total plus the changes that led to it (for undo). */
+export interface WaterHistory {
+	ml: number;
+	/** Applied changes in order: positive added, negative removed. */
+	entries: number[];
+}
+
+/**
+ * Applies a change and remembers what was actually applied (the total stays
+ * between 0 and `MAX_DAY_ML`). Returns the same state when nothing changes.
+ */
+export function recordWater(state: WaterHistory, ml: number): WaterHistory {
+	const next = addWater(state.ml, ml);
+	if (next === state.ml) return state;
+	return {
+		ml: next,
+		entries: [...state.entries, next - state.ml].slice(-MAX_UNDO_ENTRIES),
+	};
+}
+
+/**
+ * Undoes the latest change. Water saved before the history existed (total
+ * larger than the entries) stays. Null when there is nothing to undo.
+ */
+export function undoWater(state: WaterHistory): WaterHistory | null {
+	const last = state.entries.at(-1);
+	if (last === undefined) return null;
+	return {
+		ml: addWater(state.ml, -last),
+		entries: state.entries.slice(0, -1),
+	};
+}

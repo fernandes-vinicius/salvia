@@ -86,3 +86,24 @@ Lista viva das ideias de recursos pagos. O grátis continua com tudo o que exist
 **Risco legal:** baixo, é o "Substituir" que o app já faz, dentro da dieta da própria pessoa e com confirmação.
 
 **Limitações conhecidas:** alimento muito concentrado sem equivalente comum (whey) costuma ficar igual ou virar carne/peixe (em teste de 20/10, às vezes a IA ainda chama a ceia de "jantar leve"). Leite integral/desnatado UHT, que vinham sem valores na TACO, foram preenchidos com dados do USDA (`tacoMacros`) em 20/10/2026.
+
+---
+
+## 5. Acompanhamento pelo nutricionista (paciente no Sálvia, nutri vê a adesão)
+
+**Registrada em:** 09/11/2026 · **Status:** ideia; validar antes com um nutricionista parceiro e 5–10 pacientes dele, sem painel (relatório manual/PDF).
+
+**Problema:** o nutricionista entrega a dieta e só sabe se o paciente seguiu na consulta seguinte (30–60 dias depois), pelo relato. O paciente esquece, desanima entre as consultas e manda dúvida solta no WhatsApp.
+
+**Como funcionaria:**
+1. O paciente importa a dieta do nutri (já existe: `diet-import`) ou o nutri manda direto.
+2. O paciente usa o que já existe: check-in das refeições, água, suplementos, medidas, lista de compras, opções "ou".
+3. Com consentimento explícito do paciente (LGPD: dado de saúde), o nutri vê um resumo: adesão por refeição, refeições que mais fura, peso/cintura, água, sequência. Antes do painel, um "relatório pra levar na consulta" (PDF/link) já testa a ideia.
+4. O app nunca altera a prescrição; trocas e IA respeitam a dieta do nutri (ou ficam desligadas pra paciente vinculado, a decidir com o nutri).
+
+**Por que vale pagar:** pro nutri, dado de adesão entre consultas e menos WhatsApp (pagaria por paciente ativo ou plano mensal); pro Sálvia, cada nutri traz dezenas de usuários com motivo pra abrir o app todo dia (canal de aquisição com retenção alta).
+
+**Cuidados:**
+- Código de Ética do CFN (Res. 599/2018): restrições a publicidade e a vínculo com produtos/comissão por indicação; conferir antes de qualquer modelo de comissão ou divulgação com a imagem do nutri.
+- LGPD: o nutri passa a acessar dado de saúde; definir controlador/operador, termo de consentimento e revogação pelo paciente.
+- Não virar "app de consultório" cedo: o público principal continua sendo quem treina e acompanha a própria dieta.
