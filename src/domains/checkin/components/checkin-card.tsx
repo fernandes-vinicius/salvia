@@ -20,6 +20,7 @@ import {
 	weekSummary,
 } from "~/domains/checkin/utils/checkin";
 import {
+	MAX_MASCOT_LEAVES,
 	type MascotMoment,
 	mascotMoment,
 } from "~/domains/checkin/utils/mascot";
@@ -35,6 +36,7 @@ import {
 	XIcon,
 } from "~/shared/components/icons";
 import { usePlant } from "~/shared/components/mascot/plant-context";
+import { PotMascot } from "~/shared/components/mascot/pot-mascot";
 import { Button } from "~/shared/components/ui/button";
 import { analytics } from "~/shared/lib/analytics/analytics";
 import { cn } from "~/shared/lib/utils";
@@ -91,6 +93,8 @@ export function CheckinCard({
 	const [popped, setPopped] = useState<string | null>(null);
 	const [justCompleted, setJustCompleted] = useState(false);
 	// Jarrinho que aparece depois de um "Comi" (id novo reinicia a animação).
+	// Quando uma folha nasceu (key nova refaz a animação no jarro do card).
+	const [grownAt, setGrownAt] = useState<number | null>(null);
 	const [mascot, setMascot] = useState<{
 		id: number;
 		moment: MascotMoment;
@@ -152,6 +156,7 @@ export function CheckinCard({
 		celebrate("tap", origin);
 		const followed = dayCounts(after, today).followed;
 		if (animate && status === "done") {
+			setGrownAt(Date.now());
 			setMascot({
 				id: Date.now(),
 				followed,
@@ -230,19 +235,33 @@ export function CheckinCard({
 							? "Dia completo. Boa!"
 							: `${Math.min(followed, mealCount)} de ${mealCount} refeições seguidas`}
 					</p>
+					{streak > 0 && (
+						<p
+							key={streak}
+							className={cn(
+								"mt-1.5 flex items-center gap-1 self-start rounded-full bg-secondary px-2.5 py-1 font-medium text-secondary-foreground text-xs tabular-nums",
+								justCompleted && animate && "motion-safe:animate-celebrate-in",
+							)}
+						>
+							<Flame className="size-3.5" aria-hidden />
+							{streak === 1 ? "1 dia seguido" : `${streak} dias seguidos`}
+						</p>
+					)}
 				</div>
-				{streak > 0 && (
-					<p
-						key={streak}
-						className={cn(
-							"flex shrink-0 items-center gap-1 rounded-full bg-secondary px-2.5 py-1 font-medium text-secondary-foreground text-xs tabular-nums",
-							justCompleted && animate && "motion-safe:animate-celebrate-in",
-						)}
-					>
-						<Flame className="size-3.5" aria-hidden />
-						{streak === 1 ? "1 dia seguido" : `${streak} dias seguidos`}
-					</p>
-				)}
+				{/* A planta do dia: uma folha por refeição seguida, flor no dia completo. */}
+				<PotMascot
+					key={grownAt ?? "still"}
+					leaves={Math.min(followed, MAX_MASCOT_LEAVES)}
+					bloom={complete}
+					mood={complete ? "party" : followed === 0 ? "hungry" : "happy"}
+					animate={grownAt !== null}
+					label={
+						complete
+							? "Plantinha florida: dia completo"
+							: `Plantinha com ${Math.min(followed, mealCount)} de ${mealCount} folhas`
+					}
+					className="-mt-1 h-24 w-auto shrink-0"
+				/>
 			</div>
 
 			<ul className="flex flex-col divide-y divide-border">

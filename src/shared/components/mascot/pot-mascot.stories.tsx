@@ -32,6 +32,12 @@ export const Estagios: Story = {
 	name: "Estágios do dia",
 	render: () => (
 		<div className="flex flex-wrap items-end gap-6">
+			<figure className="flex flex-col items-center gap-1">
+				<PotMascot leaves={0} mood="hungry" className="h-36 w-auto" />
+				<figcaption className="text-muted-foreground text-xs">
+					0 de 4 (com fome)
+				</figcaption>
+			</figure>
 			{[1, 2, 3, 4].map((leaves) => (
 				<figure key={leaves} className="flex flex-col items-center gap-1">
 					<PotMascot leaves={leaves} className="h-36 w-auto" />

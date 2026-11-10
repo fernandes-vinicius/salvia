@@ -81,13 +81,14 @@ describe("waterMoment", () => {
 });
 
 describe("plantThirst", () => {
-	it("is thirsty while less than 40% of the goal was drunk", () => {
+	it("is thirsty until half of the goal was drunk", () => {
 		expect(plantThirst(0, 2800)).toBe("thirsty");
-		expect(plantThirst(1100, 2800)).toBe("thirsty");
+		expect(plantThirst(250, 2800)).toBe("thirsty");
+		expect(plantThirst(1399, 2800)).toBe("thirsty");
 	});
 
-	it("is fine from 40% until the goal", () => {
-		expect(plantThirst(1120, 2800)).toBe("fine");
+	it("is fine from half of the goal until the goal", () => {
+		expect(plantThirst(1400, 2800)).toBe("fine");
 		expect(plantThirst(2799, 2800)).toBe("fine");
 	});
 

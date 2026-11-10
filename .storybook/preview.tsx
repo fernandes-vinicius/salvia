@@ -6,6 +6,7 @@ import "~/app/globals.css";
 
 // Server Actions pull the database into the browser bundle; components that
 // import them get the stand-in from the sibling `__mocks__` folder.
+sb.mock(import("../src/domains/checkin/actions/checkin-actions.ts"));
 sb.mock(import("../src/domains/water/actions/water-actions.ts"));
 
 // Fundo e fonte do app em toda story; tema claro (padrão) ou escuro pela
