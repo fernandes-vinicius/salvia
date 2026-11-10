@@ -11,6 +11,9 @@ const CHEEK = "#E7A688";
 const SOIL = "#5E4030";
 const WET_SOIL = "#3A2619";
 const WATER = "#9FD3E3";
+const DRY_LEAF = "#B59A62";
+const DRY_LEAF_DARK = "#9A7E4A";
+const DRY_STEM = "#7C8A55";
 const DROP =
 	"M0 -5 C2.6 -1.6 3.4 0.6 3.4 1.6 A3.4 3.4 0 0 1 -3.4 1.6 C-3.4 0.6 -2.6 -1.6 0 -5 Z";
 
@@ -34,7 +37,13 @@ interface PotMascotProps {
 	leaves: number;
 	/** Flower on top: the day is complete. */
 	bloom?: boolean;
-	mood?: "happy" | "party";
+	mood?: "happy" | "party" | "sad";
+	/** Leaves bend down by this many degrees (thirsty plant); negative perks up. */
+	droop?: number;
+	/** Dry, hanging leaves and a bent stem (no water today). */
+	wilted?: boolean;
+	/** Overrides the accessible name. */
+	label?: string;
 	/** Plays the hop, grows the newest leaf and opens the flower. */
 	animate?: boolean;
 	/** With `animate`: grow the newest leaf/flower (off when only watering). */
@@ -55,10 +64,16 @@ export function PotMascot({
 	growLeaf = true,
 	watering = false,
 	dew = false,
+	droop = 0,
+	wilted = false,
+	label,
 	className,
 }: PotMascotProps) {
 	const grow = animate && growLeaf;
-	const stemTop = RIM_TOP - 22 - leaves * LEAF_STEP - (bloom ? 4 : 0);
+	// A thirsty plant leans: the top of the stem moves sideways and down.
+	const bend = droop > 0 ? droop * 0.12 : 0;
+	const stemTop =
+		RIM_TOP - 22 - leaves * LEAF_STEP - (bloom ? 4 : 0) + bend * 0.3;
 	const stemHeight = RIM_TOP - stemTop;
 	const newest = leaves - 1;
 	const newestY = RIM_TOP - 16 - newest * LEAF_STEP;
@@ -73,7 +88,8 @@ export function PotMascot({
 			viewBox="0 0 160 200"
 			role="img"
 			aria-label={
-				bloom ? "Jarrinho do Sálvia florido" : "Jarrinho do Sálvia crescendo"
+				label ??
+				(bloom ? "Jarrinho do Sálvia florido" : "Jarrinho do Sálvia crescendo")
 			}
 			className={cn("overflow-visible", className)}
 		>
@@ -81,76 +97,98 @@ export function PotMascot({
 				className={cn(animate && "motion-safe:animate-mascot-hop")}
 				style={{ transformBox: "fill-box", transformOrigin: "50% 100%" }}
 			>
-				<path
-					d={`M80 ${RIM_TOP} C76 ${RIM_TOP - stemHeight * 0.35} 84 ${RIM_TOP - stemHeight * 0.7} 80 ${stemTop}`}
-					fill="none"
-					className="stroke-primary"
-					strokeWidth={5}
-					strokeLinecap="round"
-				/>
+				{wilted ? (
+					<WiltedPlant leaves={leaves} bloom={bloom} />
+				) : (
+					<>
+						<path
+							d={`M80 ${RIM_TOP} C76 ${RIM_TOP - stemHeight * 0.35} ${84 + bend * 0.4} ${RIM_TOP - stemHeight * 0.7} ${80 + bend} ${stemTop}`}
+							fill="none"
+							className="stroke-primary"
+							strokeWidth={5}
+							strokeLinecap="round"
+						/>
 
-				{Array.from({ length: leaves }, (_, i) => {
-					const side = i % 2 === 0 ? 1 : -1;
-					const scale = 1.05 - i * 0.05;
-					const y = RIM_TOP - 16 - i * LEAF_STEP;
-					return (
-						<g
-							// biome-ignore lint/suspicious/noArrayIndexKey: leaves are positional
-							key={i}
-							transform={`translate(${80 + side * 1.5} ${y}) scale(${side * scale} ${scale}) rotate(-8)`}
-						>
-							<g
-								style={LEAF_ORIGIN}
-								className={cn(
-									grow && i === newest && "motion-safe:animate-leaf-grow",
-								)}
-							>
-								<path
-									d={LEAF}
-									className={
-										i % 2 === 0 ? "fill-primary" : "fill-macro-protein-vegetal"
-									}
-								/>
-								<path
-									d={VEIN}
-									fill="none"
-									className="stroke-card"
-									strokeOpacity={0.55}
-									strokeWidth={1.6}
-									strokeLinecap="round"
-								/>
-								{dew && (
-									<path
-										d={DROP}
-										transform="translate(19 -8) scale(0.7)"
-										fill={WATER}
-									/>
-								)}
-							</g>
-						</g>
-					);
-				})}
-
-				{bloom && (
-					<g
-						style={CENTER_ORIGIN}
-						className={cn(grow && "motion-safe:animate-bloom")}
-					>
-						{Array.from({ length: 6 }, (_, i) => {
-							const angle = (i * Math.PI) / 3;
+						{Array.from({ length: leaves }, (_, i) => {
+							const side = i % 2 === 0 ? 1 : -1;
+							const scale = 1.05 - i * 0.05;
+							const y = RIM_TOP - 16 - i * LEAF_STEP;
+							const along = Math.min(1, (RIM_TOP - y) / stemHeight);
 							return (
-								<circle
-									// biome-ignore lint/suspicious/noArrayIndexKey: fixed petals
+								<g
+									// biome-ignore lint/suspicious/noArrayIndexKey: leaves are positional
 									key={i}
-									cx={80 + Math.cos(angle) * 7.5}
-									cy={stemTop + Math.sin(angle) * 7.5}
-									r={6}
-									className="fill-macro-carb"
-								/>
+									transform={`translate(${80 + side * 1.5 + bend * along * along} ${y}) scale(${side * scale} ${scale}) rotate(${droop - 8})`}
+								>
+									<g
+										style={{
+											filter:
+												droop > 30 ? "saturate(0.45) brightness(1.08)" : "none",
+										}}
+										className="transition-[filter] duration-700 motion-reduce:transition-none"
+									>
+										<g
+											style={LEAF_ORIGIN}
+											className={cn(
+												grow && i === newest && "motion-safe:animate-leaf-grow",
+											)}
+										>
+											<path
+												d={LEAF}
+												className={
+													i % 2 === 0
+														? "fill-primary"
+														: "fill-macro-protein-vegetal"
+												}
+											/>
+											<path
+												d={VEIN}
+												fill="none"
+												className="stroke-card"
+												strokeOpacity={0.55}
+												strokeWidth={1.6}
+												strokeLinecap="round"
+											/>
+											{dew && (
+												<path
+													d={DROP}
+													transform="translate(19 -8) scale(0.7)"
+													fill={WATER}
+												/>
+											)}
+										</g>
+									</g>
+								</g>
 							);
 						})}
-						<circle cx={80} cy={stemTop} r={5} className="fill-macro-fat" />
-					</g>
+
+						{bloom && (
+							<g
+								style={CENTER_ORIGIN}
+								className={cn(grow && "motion-safe:animate-bloom")}
+							>
+								{Array.from({ length: 6 }, (_, i) => {
+									const angle = (i * Math.PI) / 3;
+									return (
+										<circle
+											// biome-ignore lint/suspicious/noArrayIndexKey: fixed petals
+											key={i}
+											cx={80 + bend + Math.cos(angle) * 7.5}
+											cy={stemTop + Math.sin(angle) * 7.5}
+											r={6}
+											className="fill-macro-carb"
+										/>
+									);
+								})}
+								<circle
+									cx={80 + bend}
+									cy={stemTop}
+									r={5}
+									className="fill-macro-fat"
+								/>
+							</g>
+						)}
+					</>
 				)}
 
 				<path
@@ -171,7 +209,21 @@ export function PotMascot({
 				)}
 				<ellipse cx={60} cy={170} rx={6} ry={3.5} fill={CHEEK} />
 				<ellipse cx={100} cy={170} rx={6} ry={3.5} fill={CHEEK} />
+				{wilted && (
+					<path
+						d={LEAF}
+						transform={`translate(96 ${RIM_TOP + 1}) rotate(-6) scale(0.55 0.4)`}
+						fill={DRY_LEAF}
+					/>
+				)}
 				<Face mood={mood} />
+				{mood === "sad" && (
+					<path
+						d={DROP}
+						transform="translate(116 146) scale(0.9)"
+						fill={WATER}
+					/>
+				)}
 			</g>
 
 			{watering && <WateringCan />}
@@ -190,6 +242,55 @@ export function PotMascot({
 					/>
 				))}
 		</svg>
+	);
+}
+
+// No water today: the stem bends over and the dry leaves hang down.
+function WiltedPlant({ leaves, bloom }: { leaves: number; bloom: boolean }) {
+	const p0 = { x: 80, y: RIM_TOP };
+	const p1 = { x: 78, y: 82 };
+	const p2 = { x: 104, y: 60 };
+	const p3 = { x: 112, y: 88 };
+	const at = (s: number) => {
+		const u = 1 - s;
+		const k = [u * u * u, 3 * u * u * s, 3 * u * s * s, s * s * s];
+		return {
+			x: k[0] * p0.x + k[1] * p1.x + k[2] * p2.x + k[3] * p3.x,
+			y: k[0] * p0.y + k[1] * p1.y + k[2] * p2.y + k[3] * p3.y,
+		};
+	};
+	return (
+		<g>
+			<path
+				d={`M${p0.x} ${p0.y} C${p1.x} ${p1.y} ${p2.x} ${p2.y} ${p3.x} ${p3.y}`}
+				fill="none"
+				stroke={DRY_STEM}
+				strokeWidth={5}
+				strokeLinecap="round"
+			/>
+			{Array.from({ length: leaves }, (_, i) => {
+				const point = at(0.3 + (0.6 * i) / Math.max(leaves - 1, 1));
+				const side = i % 2 === 0 ? 1 : -1;
+				return (
+					<path
+						// biome-ignore lint/suspicious/noArrayIndexKey: leaves are positional
+						key={i}
+						d={LEAF}
+						transform={`translate(${point.x} ${point.y}) scale(${side * 0.85} 0.6) rotate(${side === 1 ? 108 : 96})`}
+						fill={i % 2 === 0 ? DRY_LEAF : DRY_LEAF_DARK}
+					/>
+				);
+			})}
+			{bloom && (
+				<circle
+					cx={p3.x}
+					cy={p3.y + 4}
+					r={6}
+					className="fill-macro-carb"
+					opacity={0.7}
+				/>
+			)}
+		</g>
 	);
 }
 
@@ -248,7 +349,22 @@ function WateringCan() {
 	);
 }
 
-function Face({ mood }: { mood: "happy" | "party" }) {
+function Face({ mood }: { mood: "happy" | "party" | "sad" }) {
+	if (mood === "sad") {
+		return (
+			<g fill="none" stroke={FACE} strokeLinecap="round">
+				<path d="M59 151 L71 147" strokeWidth={2.6} />
+				<path d="M89 147 L101 151" strokeWidth={2.6} />
+				{[66, 94].map((x) => (
+					<g key={x} stroke="none">
+						<ellipse cx={x} cy={159} rx={4.6} ry={5.4} fill={FACE} />
+						<circle cx={x + 1.4} cy={157} r={1.5} fill="#F6F4EC" />
+					</g>
+				))}
+				<path d="M72 177 Q80 170 88 177" strokeWidth={3.2} />
+			</g>
+		);
+	}
 	if (mood === "party") {
 		return (
 			<g fill="none" stroke={FACE} strokeWidth={3.2} strokeLinecap="round">

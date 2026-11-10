@@ -5,7 +5,7 @@ import { MascotCelebration } from "~/domains/checkin/components/mascot-celebrati
 import type { CheckinCelebration } from "~/domains/checkin/utils/checkin";
 import { mascotMoment } from "~/domains/checkin/utils/mascot";
 import { WaterCelebration } from "~/domains/water/components/water-celebration";
-import { waterMoment } from "~/domains/water/utils/water-moment";
+import { THIRST_LOOK, waterMoment } from "~/domains/water/utils/water-moment";
 import { PlantProvider } from "~/shared/components/mascot/plant-context";
 import { PotMascot } from "~/shared/components/mascot/pot-mascot";
 import { Button } from "~/shared/components/ui/button";
@@ -177,5 +177,29 @@ export const MetaDeAgua: Story = {
 				/>
 			</div>
 		</PlantProvider>
+	),
+};
+
+export const CardDaAgua: Story = {
+	name: "No card da água",
+	render: () => (
+		<div className="flex flex-wrap items-end gap-6">
+			{(["thirsty", "fine", "hydrated"] as const).map((thirst) => (
+				<figure key={thirst} className="flex flex-col items-center gap-1">
+					<PotMascot
+						leaves={3}
+						droop={THIRST_LOOK[thirst].droop}
+						wilted={THIRST_LOOK[thirst].wilted}
+						mood={THIRST_LOOK[thirst].mood}
+						dew={thirst === "hydrated"}
+						label={THIRST_LOOK[thirst].label}
+						className="h-28 w-auto"
+					/>
+					<figcaption className="text-muted-foreground text-xs">
+						{THIRST_LOOK[thirst].label}
+					</figcaption>
+				</figure>
+			))}
+		</div>
 	),
 };

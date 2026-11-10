@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { waterMoment } from "~/domains/water/utils/water-moment";
+import { plantThirst, waterMoment } from "~/domains/water/utils/water-moment";
 
 describe("waterMoment", () => {
 	it("watering below the goal says how much is left", () => {
@@ -77,5 +77,22 @@ describe("waterMoment", () => {
 			title: "7 dias bebendo água!",
 			subtitle: "Meta de água batida. Sua plantinha agradece.",
 		});
+	});
+});
+
+describe("plantThirst", () => {
+	it("is thirsty while less than 40% of the goal was drunk", () => {
+		expect(plantThirst(0, 2800)).toBe("thirsty");
+		expect(plantThirst(1100, 2800)).toBe("thirsty");
+	});
+
+	it("is fine from 40% until the goal", () => {
+		expect(plantThirst(1120, 2800)).toBe("fine");
+		expect(plantThirst(2799, 2800)).toBe("fine");
+	});
+
+	it("is hydrated once the goal is met", () => {
+		expect(plantThirst(2800, 2800)).toBe("hydrated");
+		expect(plantThirst(4000, 2800)).toBe("hydrated");
 	});
 });

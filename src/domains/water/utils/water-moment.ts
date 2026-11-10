@@ -48,3 +48,26 @@ export function waterMoment({
 				: "Ela já está hidratada hoje.",
 	};
 }
+
+/** Below this share of the goal the plant on the water card droops. */
+export const THIRSTY_BELOW = 0.4;
+
+export type PlantThirst = "thirsty" | "fine" | "hydrated";
+
+/** How the plant on the water card looks for today's water. */
+export function plantThirst(total: number, target: number): PlantThirst {
+	if (total >= target) return "hydrated";
+	return total < target * THIRSTY_BELOW ? "thirsty" : "fine";
+}
+
+/** How the pot on the water card looks: leaves bend down when thirsty. */
+export const THIRST_LOOK = {
+	thirsty: { droop: 0, wilted: true, mood: "sad", label: "Plantinha com sede" },
+	fine: { droop: 14, wilted: false, mood: "happy", label: "Plantinha bem" },
+	hydrated: {
+		droop: -10,
+		wilted: false,
+		mood: "party",
+		label: "Plantinha hidratada",
+	},
+} as const;
