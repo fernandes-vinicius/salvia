@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
 	date,
 	integer,
@@ -23,6 +24,8 @@ export const waterLog = pgTable(
 		day: date("day").notNull(),
 		ml: integer("ml").notNull(),
 		targetMl: integer("target_ml").notNull(),
+		/** Changes of the day in order (+ added, − removed), for undo. */
+		entries: integer("entries").array().notNull().default(sql`'{}'::integer[]`),
 		createdAt: timestamp("created_at").defaultNow().notNull(),
 		updatedAt: timestamp("updated_at")
 			.defaultNow()

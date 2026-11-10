@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useCallback, useState } from "react";
 import { toast } from "sonner";
 
 import type { WaterResult as WaterNeed } from "~/domains/calculators/utils/water";
@@ -9,17 +9,24 @@ import {
 	setTodayWaterAction,
 	type WaterResult,
 } from "~/domains/water/actions/water-actions";
+import { WaterCelebration } from "~/domains/water/components/water-celebration";
 import type { WaterDay } from "~/domains/water/types/water-types";
 import {
-	addWater,
 	parseWaterAmount,
+	recordWater,
+	undoWater,
 	WATER_QUICK_ADDS,
 	type WaterDayState,
+	type WaterHistory,
 	waterAmountLabel,
 	waterCelebrationFor,
 	waterStreak,
 	waterWeek,
 } from "~/domains/water/utils/water-log";
+import {
+	type WaterMoment,
+	waterMoment,
+} from "~/domains/water/utils/water-moment";
 import {
 	useCelebrate,
 	useCelebrationsEnabled,
@@ -55,7 +62,7 @@ interface WaterCardProps {
 	today: string;
 	initialLogs: WaterDay[];
 	/** Grava o total de hoje (trocável na story). */
-	save?: (data: { ml: number }) => Promise<WaterResult>;
+	save?: (data: WaterHistory) => Promise<WaterResult>;
 }
 
 // Água de hoje no Início: atalhos de um toque (copo, garrafa…) ou outra
@@ -68,8 +75,13 @@ export function WaterCard({
 	save = setTodayWaterAction,
 }: WaterCardProps) {
 	const [logs, setLogs] = useState(initialLogs);
-	// Adições desta visita, pra "Desfazer" a última.
-	const [added, setAdded] = useState<number[]>([]);
+	// Jarrinho sendo regado depois de um registro (id novo reinicia).
+	const [watered, setWatered] = useState<{
+		id: number;
+		moment: WaterMoment;
+		percent: number;
+	} | null>(null);
+	const closeWatered = useCallback(() => setWatered(null), []);
 	const [customOpen, setCustomOpen] = useState(false);
 	const [custom, setCustom] = useState("");
 	const [customError, setCustomError] = useState<string | null>(null);
@@ -77,35 +89,57 @@ export function WaterCard({
 	const celebrate = useCelebrate();
 	const animate = useCelebrationsEnabled();
 
-	const { schedule } = useAutosave<number>({
-		save: async (ml) => {
-			const result = await save({ ml });
+	const { schedule } = useAutosave<WaterHistory>({
+		save: async (history) => {
+			const result = await save(history);
 			if (!result.ok) toast.error(result.error);
 			return result.ok;
 		},
 	});
 
 	const target = water.recommendedMl;
-	const total = logs.find((log) => log.day === today)?.ml ?? 0;
+	const todayLog = logs.find((log) => log.day === today);
+	const total = todayLog?.ml ?? 0;
+	const history: WaterHistory = { ml: total, entries: todayLog?.entries ?? [] };
 
-	function change(ml: number, origin?: DOMRect) {
-		const next = addWater(total, ml);
-		if (next === total) return;
+	/** Grava o novo estado de hoje e devolve os registros atualizados. */
+	function apply(next: WaterHistory) {
 		const updated = [
 			...logs.filter((log) => log.day !== today),
-			{ day: today, ml: next, targetMl: target },
+			{ day: today, ml: next.ml, targetMl: target, entries: next.entries },
 		];
-		const level = waterCelebrationFor({ before: logs, after: updated, today });
 		setLogs(updated);
 		schedule(next);
+		return updated;
+	}
+
+	function change(ml: number, origin?: DOMRect) {
+		const next = recordWater(history, ml);
+		if (next === history) return;
+		const updated = apply(next);
+		const level = waterCelebrationFor({ before: logs, after: updated, today });
 		if (ml > 0) {
-			setAdded((list) => [...list, next - total]);
-			analytics.track("agua_registrada", { ml, meta: next >= target });
+			analytics.track("agua_registrada", { ml, meta: next.ml >= target });
+			if (origin) celebrate("tap", origin);
+			if (animate) {
+				setWatered({
+					id: Date.now(),
+					percent: Math.min(100, Math.round((next.ml / target) * 100)),
+					moment: waterMoment({
+						level,
+						added: next.ml - total,
+						total: next.ml,
+						target,
+						streak: waterStreak(updated, today),
+					}),
+				});
+			}
 		}
 		if (!level) return;
 
 		setJustMet(true);
-		if (origin) celebrate("tap", origin);
+		// Com o jarrinho na tela, a chuva e o marco aparecem nele.
+		if (animate) return;
 		setTimeout(() => celebrate(level), origin ? 250 : 0);
 		if (level === "milestone") showMilestone(waterStreak(updated, today));
 	}
@@ -124,11 +158,10 @@ export function WaterCard({
 		});
 	}
 
+	/** Desfaz o último registro de hoje; tocando de novo, o anterior. */
 	function undo() {
-		const last = added.at(-1);
-		if (last === undefined) return;
-		setAdded((list) => list.slice(0, -1));
-		change(-last);
+		const previous = undoWater(history);
+		if (previous) apply(previous);
 	}
 
 	function applyCustom(sign: 1 | -1) {
@@ -146,7 +179,7 @@ export function WaterCard({
 	const left = Math.max(0, target - total);
 	const streak = waterStreak(logs, today);
 	const week = waterWeek(logs, today);
-	const lastAdded = added.at(-1);
+	const lastEntry = history.entries.at(-1);
 
 	return (
 		<section
@@ -232,10 +265,16 @@ export function WaterCard({
 						<Pencil data-icon="inline-start" />
 						Outra quantidade
 					</Button>
-					{lastAdded !== undefined && (
+					{lastEntry !== undefined && (
 						<Button variant="ghost" size="sm" onClick={undo}>
 							<RotateCcw data-icon="inline-start" />
-							Desfazer + {waterAmountLabel(lastAdded)}
+							Desfazer {lastEntry > 0 ? "+" : "−"}{" "}
+							{waterAmountLabel(Math.abs(lastEntry))}
+							{history.entries.length > 1 && (
+								<span className="text-muted-foreground tabular-nums">
+									({history.entries.length})
+								</span>
+							)}
 						</Button>
 					)}
 				</div>
@@ -324,6 +363,15 @@ export function WaterCard({
 					</p>
 				)}
 			</div>
+
+			{watered && (
+				<WaterCelebration
+					key={watered.id}
+					moment={watered.moment}
+					percent={watered.percent}
+					onDone={closeWatered}
+				/>
+			)}
 
 			<p className="rounded-2xl bg-muted px-4 py-3 text-muted-foreground text-xs">
 				Meta pelo seu peso e pelo treino da semana. No dia de descanso, o mínimo

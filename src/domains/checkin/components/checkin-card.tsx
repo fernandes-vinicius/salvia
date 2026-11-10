@@ -1,10 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { setCheckinAction } from "~/domains/checkin/actions/checkin-actions";
+import { MascotCelebration } from "~/domains/checkin/components/mascot-celebration";
 import type {
 	Checkin,
 	CheckinMeal,
@@ -19,6 +20,10 @@ import {
 	weekSummary,
 } from "~/domains/checkin/utils/checkin";
 import {
+	type MascotMoment,
+	mascotMoment,
+} from "~/domains/checkin/utils/mascot";
+import {
 	useCelebrate,
 	useCelebrationsEnabled,
 } from "~/providers/celebration-provider";
@@ -29,6 +34,7 @@ import {
 	type LucideIcon,
 	XIcon,
 } from "~/shared/components/icons";
+import { usePlant } from "~/shared/components/mascot/plant-context";
 import { Button } from "~/shared/components/ui/button";
 import { analytics } from "~/shared/lib/analytics/analytics";
 import { cn } from "~/shared/lib/utils";
@@ -84,6 +90,12 @@ export function CheckinCard({
 	// completar (texto e selo 🔥 entram animados). Só em transições.
 	const [popped, setPopped] = useState<string | null>(null);
 	const [justCompleted, setJustCompleted] = useState(false);
+	// Jarrinho que aparece depois de um "Comi" (id novo reinicia a animação).
+	const [mascot, setMascot] = useState<{
+		id: number;
+		moment: MascotMoment;
+		followed: number;
+	} | null>(null);
 
 	// "Comi a opção" (marcações antigas) aparece e se comporta como "Comi".
 	const statusOf = (mealId: string) => {
@@ -138,12 +150,26 @@ export function CheckinCard({
 		setPopped(`${mealId}:${status}`);
 		setTimeout(() => setPopped(null), 450);
 		celebrate("tap", origin);
+		const followed = dayCounts(after, today).followed;
+		if (animate && status === "done") {
+			setMascot({
+				id: Date.now(),
+				followed,
+				moment: mascotMoment({
+					level,
+					followed,
+					mealCount: meals.length,
+					streak: checkinStreak(after, meals.length, today),
+				}),
+			});
+		}
 		if (level === "tap") return;
 
 		setJustCompleted(true);
 		// Depois das partículas do botão, a festa maior.
 		setTimeout(() => celebrate(level), 250);
-		if (level === "milestone") showMilestone(after);
+		// Com o jarrinho na tela, o marco já aparece nele.
+		if (level === "milestone" && !animate) showMilestone(after);
 	}
 
 	/** Aviso do marco, uma vez por dia (não repete ao desmarcar/remarcar). */
@@ -162,11 +188,19 @@ export function CheckinCard({
 		});
 	}
 
+	const closeMascot = useCallback(() => setMascot(null), []);
+
 	const mealCount = meals.length;
 	const { followed } = dayCounts(checkins, today);
 	const streak = checkinStreak(checkins, mealCount, today);
 	const week = weekSummary(checkins, mealCount, today);
 	const complete = followed >= mealCount;
+
+	// A planta do dia também aparece no card da água (sendo regada).
+	const { setPlant } = usePlant();
+	useEffect(() => {
+		setPlant({ leaves: followed, bloom: complete });
+	}, [followed, complete, setPlant]);
 
 	return (
 		<section
@@ -269,6 +303,16 @@ export function CheckinCard({
 			</ul>
 
 			{children}
+
+			{mascot && (
+				<MascotCelebration
+					key={mascot.id}
+					moment={mascot.moment}
+					followed={mascot.followed}
+					mealCount={mealCount}
+					onDone={closeMascot}
+				/>
+			)}
 
 			<div className="flex flex-col gap-2">
 				<ol aria-label="Últimos 7 dias" className="grid grid-cols-7 gap-1.5">

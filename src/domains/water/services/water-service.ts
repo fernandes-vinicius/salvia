@@ -13,23 +13,29 @@ export async function listWaterLogs(
 	sinceDay: string,
 ): Promise<WaterDay[]> {
 	return db
-		.select({ day: waterLog.day, ml: waterLog.ml, targetMl: waterLog.targetMl })
+		.select({
+			day: waterLog.day,
+			ml: waterLog.ml,
+			targetMl: waterLog.targetMl,
+			entries: waterLog.entries,
+		})
 		.from(waterLog)
 		.where(and(eq(waterLog.userId, userId), gte(waterLog.day, sinceDay)))
 		.orderBy(asc(waterLog.day));
 }
 
-/** Grava o total de hoje (fuso do app) com o recomendado de agora. */
+/** Grava o total de hoje (fuso do app), os registros e o recomendado de agora. */
 export async function setTodayWater(
 	userId: string,
 	ml: number,
+	entries: number[],
 	targetMl: number,
 ) {
 	await db
 		.insert(waterLog)
-		.values({ userId, day: localDateString(), ml, targetMl })
+		.values({ userId, day: localDateString(), ml, entries, targetMl })
 		.onConflictDoUpdate({
 			target: [waterLog.userId, waterLog.day],
-			set: { ml, targetMl },
+			set: { ml, entries, targetMl },
 		});
 }
