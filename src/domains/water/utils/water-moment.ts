@@ -49,10 +49,10 @@ export function waterMoment({
 	};
 }
 
-/** Below this share of the goal the plant on the water card droops. */
-export const THIRSTY_BELOW = 0.4;
-
 export type PlantThirst = "thirsty" | "fine" | "hydrated";
+
+/** Below this share of the goal the plant on the water card stays wilted. */
+export const THIRSTY_BELOW = 0.5;
 
 /** How the plant on the water card looks for today's water. */
 export function plantThirst(total: number, target: number): PlantThirst {

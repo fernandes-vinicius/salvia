@@ -37,7 +37,7 @@ interface PotMascotProps {
 	leaves: number;
 	/** Flower on top: the day is complete. */
 	bloom?: boolean;
-	mood?: "happy" | "party" | "sad";
+	mood?: "happy" | "party" | "sad" | "hungry";
 	/** Leaves bend down by this many degrees (thirsty plant); negative perks up. */
 	droop?: number;
 	/** Dry, hanging leaves and a bent stem (no water today). */
@@ -109,6 +109,27 @@ export function PotMascot({
 							strokeLinecap="round"
 						/>
 
+						{leaves === 0 && !bloom && (
+							// Morning sprout: two round seed leaves on a short stem.
+							<g>
+								<ellipse
+									cx={73}
+									cy={stemTop + 1}
+									rx={8}
+									ry={4.5}
+									transform={`rotate(-28 73 ${stemTop + 1})`}
+									className="fill-macro-protein-vegetal"
+								/>
+								<ellipse
+									cx={87}
+									cy={stemTop + 1}
+									rx={8}
+									ry={4.5}
+									transform={`rotate(28 87 ${stemTop + 1})`}
+									className="fill-primary"
+								/>
+							</g>
+						)}
 						{Array.from({ length: leaves }, (_, i) => {
 							const side = i % 2 === 0 ? 1 : -1;
 							const scale = 1.05 - i * 0.05;
@@ -349,7 +370,47 @@ function WateringCan() {
 	);
 }
 
-function Face({ mood }: { mood: "happy" | "party" | "sad" }) {
+function Face({ mood }: { mood: "happy" | "party" | "sad" | "hungry" }) {
+	if (mood === "hungry") {
+		// Tired of waiting for food: heavy lids over half of each eye (drooping
+		// to the sides), light bags and a flat mouth.
+		return (
+			<g>
+				{[
+					{ x: 67, lid: "M60 158.5 Q67 155.5 74 157.5" },
+					{ x: 93, lid: "M86 157.5 Q93 155.5 100 158.5" },
+				].map(({ x, lid }) => (
+					<g key={x}>
+						<ellipse cx={x} cy={160} rx={5.2} ry={6} fill={FACE} />
+						<circle cx={x + 1.6} cy={161.4} r={1.2} fill="#F6F4EC" />
+						<path d={`${lid} L${x + 8} 148 L${x - 8} 148 Z`} fill={POT} />
+						<path
+							d={lid}
+							fill="none"
+							stroke={FACE}
+							strokeWidth={2.8}
+							strokeLinecap="round"
+						/>
+						<path
+							d={`M${x - 5} 168.5 Q${x} 170.5 ${x + 5} 168.5`}
+							fill="none"
+							stroke={FACE}
+							strokeOpacity={0.35}
+							strokeWidth={1.6}
+							strokeLinecap="round"
+						/>
+					</g>
+				))}
+				<path
+					d="M73 177 Q80 174.5 87 177"
+					fill="none"
+					stroke={FACE}
+					strokeWidth={2.8}
+					strokeLinecap="round"
+				/>
+			</g>
+		);
+	}
 	if (mood === "sad") {
 		return (
 			<g fill="none" stroke={FACE} strokeLinecap="round">

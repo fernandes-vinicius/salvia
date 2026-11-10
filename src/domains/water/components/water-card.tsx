@@ -81,6 +81,8 @@ export function WaterCard({
 }: WaterCardProps) {
 	const [logs, setLogs] = useState(initialLogs);
 	// Jarrinho sendo regado depois de um registro (id novo reinicia).
+	// Quando a planta do card foi regada (key nova refaz a animação).
+	const [wateredAt, setWateredAt] = useState<number | null>(null);
 	const [watered, setWatered] = useState<{
 		id: number;
 		moment: WaterMoment;
@@ -127,6 +129,7 @@ export function WaterCard({
 			analytics.track("agua_registrada", { ml, meta: next.ml >= target });
 			if (origin) celebrate("tap", origin);
 			if (animate) {
+				setWateredAt(Date.now());
 				setWatered({
 					id: Date.now(),
 					percent: Math.min(100, Math.round((next.ml / target) * 100)),
@@ -248,7 +251,11 @@ export function WaterCard({
 				</div>
 				{/* A planta do dia: murcha com pouca água, firme na meta. */}
 				<PotMascot
-					leaves={Math.min(Math.max(plant.leaves, 1), MAX_MASCOT_LEAVES)}
+					key={wateredAt ?? "still"}
+					animate={wateredAt !== null}
+					growLeaf={false}
+					watering={wateredAt !== null}
+					leaves={Math.min(plant.leaves, MAX_MASCOT_LEAVES)}
 					bloom={plant.bloom}
 					droop={THIRST_LOOK[thirst].droop}
 					wilted={THIRST_LOOK[thirst].wilted}
