@@ -5,6 +5,7 @@ import { type FormEvent, useCallback, useState } from "react";
 import { toast } from "sonner";
 
 import type { WaterResult as WaterNeed } from "~/domains/calculators/utils/water";
+import { MAX_MASCOT_LEAVES } from "~/domains/checkin/utils/mascot";
 import {
 	setTodayWaterAction,
 	type WaterResult,
@@ -24,6 +25,8 @@ import {
 	waterWeek,
 } from "~/domains/water/utils/water-log";
 import {
+	plantThirst,
+	THIRST_LOOK,
 	type WaterMoment,
 	waterMoment,
 } from "~/domains/water/utils/water-moment";
@@ -32,6 +35,8 @@ import {
 	useCelebrationsEnabled,
 } from "~/providers/celebration-provider";
 import { Check, Droplet, Pencil, RotateCcw } from "~/shared/components/icons";
+import { usePlant } from "~/shared/components/mascot/plant-context";
+import { PotMascot } from "~/shared/components/mascot/pot-mascot";
 import { Button } from "~/shared/components/ui/button";
 import { Input } from "~/shared/components/ui/input";
 import { Progress } from "~/shared/components/ui/progress";
@@ -180,6 +185,8 @@ export function WaterCard({
 	const streak = waterStreak(logs, today);
 	const week = waterWeek(logs, today);
 	const lastEntry = history.entries.at(-1);
+	const { plant } = usePlant();
+	const thirst = plantThirst(total, target);
 
 	return (
 		<section
@@ -208,35 +215,48 @@ export function WaterCard({
 				)}
 			</div>
 
-			<div className="flex flex-col gap-2">
-				<p className="font-heading tabular-nums">
-					<span className="font-semibold text-2xl">
-						{waterAmountLabel(total)}
-					</span>{" "}
-					<span className="text-muted-foreground text-sm">
-						de {waterAmountLabel(target)}
-					</span>
-				</p>
-				<Progress
-					value={Math.min(100, Math.round((total / target) * 100))}
-					aria-label="Água de hoje"
+			<div className="flex items-end gap-3">
+				<div className="flex min-w-0 flex-1 flex-col gap-2">
+					<p className="font-heading tabular-nums">
+						<span className="font-semibold text-2xl">
+							{waterAmountLabel(total)}
+						</span>{" "}
+						<span className="text-muted-foreground text-sm">
+							de {waterAmountLabel(target)}
+						</span>
+					</p>
+					<Progress
+						value={Math.min(100, Math.round((total / target) * 100))}
+						aria-label="Água de hoje"
+					/>
+					<p
+						key={met ? "met" : "left"}
+						aria-live="polite"
+						className={cn(
+							"text-muted-foreground text-sm tabular-nums",
+							met && "font-medium text-primary",
+							met &&
+								justMet &&
+								animate &&
+								"origin-left motion-safe:animate-celebrate-in",
+						)}
+					>
+						{met
+							? "Meta do dia batida. Boa!"
+							: `Faltam ${waterAmountLabel(left)}`}
+					</p>
+				</div>
+				{/* A planta do dia: murcha com pouca água, firme na meta. */}
+				<PotMascot
+					leaves={Math.min(Math.max(plant.leaves, 1), MAX_MASCOT_LEAVES)}
+					bloom={plant.bloom}
+					droop={THIRST_LOOK[thirst].droop}
+					wilted={THIRST_LOOK[thirst].wilted}
+					mood={THIRST_LOOK[thirst].mood}
+					dew={thirst === "hydrated"}
+					label={THIRST_LOOK[thirst].label}
+					className="-mb-1 h-24 w-auto shrink-0"
 				/>
-				<p
-					key={met ? "met" : "left"}
-					aria-live="polite"
-					className={cn(
-						"text-muted-foreground text-sm tabular-nums",
-						met && "font-medium text-primary",
-						met &&
-							justMet &&
-							animate &&
-							"origin-left motion-safe:animate-celebrate-in",
-					)}
-				>
-					{met
-						? "Meta do dia batida. Boa!"
-						: `Faltam ${waterAmountLabel(left)}`}
-				</p>
 			</div>
 
 			<div className="flex flex-col gap-2">
