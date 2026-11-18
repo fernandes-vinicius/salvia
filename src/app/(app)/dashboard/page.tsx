@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { Suspense } from "react";
 
 import { AiQuotaProvider } from "~/domains/ai-usage/components/ai-quota-provider";
@@ -34,6 +35,8 @@ import {
 } from "~/domains/goal/utils/calibration";
 import { reviewStatus, weightSince } from "~/domains/goal/utils/review";
 import { AttentionList } from "~/domains/home/components/attention-list";
+import { DayPicker } from "~/domains/home/components/day-picker";
+import { DayWeightCard } from "~/domains/home/components/day-weight-card";
 import { GoalCard } from "~/domains/home/components/goal-card";
 import { MeasurementsCard } from "~/domains/home/components/measurements-card";
 import { NextMealCard } from "~/domains/home/components/next-meal-card";
@@ -42,6 +45,12 @@ import {
 	SetupChecklist,
 	type SetupStep,
 } from "~/domains/home/components/setup-checklist";
+import {
+	type DiaryDayKind,
+	diaryDay,
+	diaryDayKind,
+	shiftMonth,
+} from "~/domains/home/utils/diary";
 import {
 	type AttentionItem,
 	emptyMealItems,
@@ -72,28 +81,57 @@ import { localDateString } from "~/shared/lib/dates";
 
 export const metadata: Metadata = { title: "Início" };
 
-export default function DashboardPage() {
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+/** Dia aberto no diário (`?dia=YYYY-MM-DD`); sem ele ou inválido, hoje. */
+async function selectedDay(searchParams: SearchParams, today: string) {
+	const raw = (await searchParams).dia;
+	return diaryDay(Array.isArray(raw) ? raw[0] : raw, today);
+}
+
+export default function DashboardPage({
+	searchParams,
+}: {
+	searchParams: SearchParams;
+}) {
 	return (
 		<main className="container-wrapper flex flex-col gap-6">
 			<Suspense fallback={<HomeSkeleton />}>
-				<HomeContent />
+				<HomeContent searchParams={searchParams} />
 			</Suspense>
 			{/* Separado: não segura o Início se o blog estiver lento. */}
 			<Suspense fallback={null}>
-				<LatestNews />
+				<LatestNews searchParams={searchParams} />
 			</Suspense>
 		</main>
 	);
 }
 
-async function LatestNews() {
+async function LatestNews({ searchParams }: { searchParams: SearchParams }) {
+	// Hoje depende do relógio: só depois de marcar a renderização como da
+	// requisição (ler a hora no pré-render quebra o Cache Components).
+	await connection();
+	const { dia } = await searchParams;
+	const today = localDateString();
+	// Manchetes só em hoje: num dia passado o Início vira diário.
+	if (diaryDay(Array.isArray(dia) ? dia[0] : dia, today) !== today) {
+		return null;
+	}
 	return <NewsCard items={await getLatestNews()} />;
 }
 
-async function HomeContent() {
+async function HomeContent({ searchParams }: { searchParams: SearchParams }) {
 	const user = await getCurrentUser();
 	const beta = canUseAi(user);
 	const today = localDateString();
+	const day = await selectedDay(searchParams, today);
+	const isToday = day === today;
+	// Dois meses pra sequência e semana; num dia mais antigo, desde o mês
+	// anterior ao aberto (bolinhas do calendário).
+	const since = [
+		addDays(today, -60),
+		`${shiftMonth(day.slice(0, 7), -1)}-01`,
+	].sort()[0];
 	const [
 		profile,
 		goal,
@@ -121,15 +159,14 @@ async function HomeContent() {
 		listMeasurements(user.id),
 		getTemplateFoods(user.id),
 		findGoalCalibration(user.id),
-		// Dois meses bastam pra sequência e semana do check-in.
-		listCheckins(user.id, addDays(today, -60)),
+		listCheckins(user.id, since),
 		findDietCycle(user.id),
 		beta ? findWeeklySummary(user.id, weekStartOf(today)) : null,
 		beta ? monthlyQuotaLeft(user) : {},
 		beta ? aiInterests(user.id) : [],
 		listSupplements(user.id),
-		listSupplementCheckins(user.id, today),
-		listWaterLogs(user.id, addDays(today, -60)),
+		listSupplementCheckins(user.id, day),
+		listWaterLogs(user.id, since),
 	]);
 
 	// Gasto da fórmula + o ajuste pelo peso real já aplicado.
@@ -214,12 +251,15 @@ async function HomeContent() {
 			name: meal.name,
 			time: meal.time,
 		}));
-	const todaySupplements = supplementsForDay(supplements, today);
-	const supplementsToday = todaySupplements.length > 0 && (
+	const daySupplements = supplementsForDay(supplements, day);
+	const supplementsToday = daySupplements.length > 0 && (
 		<SupplementsToday
-			supplements={todaySupplements}
+			key={`supplements-${day}`}
+			supplements={daySupplements}
 			meals={meals}
 			initialTaken={supplementsTaken}
+			day={day}
+			isToday={isToday}
 			className={
 				checkinMeals.length > 0
 					? "border-border border-t pt-4"
@@ -245,11 +285,20 @@ async function HomeContent() {
 	);
 
 	const firstName = user.name.split(" ")[0];
-	const followedToday = dayCounts(checkins, today).followed;
+	const followedToday = dayCounts(checkins, day).followed;
+	// Bolinhas do seletor: só dos dias com check-in carregado.
+	const kinds: Record<string, DiaryDayKind> = {};
+	for (let date = since; date <= today; date = addDays(date, 1)) {
+		kinds[date] = diaryDayKind(checkins, checkinMeals.length, date);
+	}
+	const dayWeight =
+		measurements.find((measurement) => measurement.measuredOn === day)
+			?.weightKg ?? null;
 
 	return (
 		<CelebrationProvider enabled={settings.celebrations}>
 			<PlantProvider
+				key={day}
 				initial={{
 					leaves: followedToday,
 					bloom:
@@ -260,12 +309,16 @@ async function HomeContent() {
 					Olá, {firstName}
 				</h1>
 
-				<SetupChecklist steps={steps} />
-				<AttentionList items={attention} />
+				<DayPicker today={today} day={day} kinds={kinds} />
+
+				{isToday && <SetupChecklist steps={steps} />}
+				{isToday && <AttentionList items={attention} />}
 				{checkinMeals.length > 0 ? (
 					<CheckinCard
+						key={`checkin-${day}`}
 						meals={checkinMeals}
 						today={today}
+						day={day}
 						initialCheckins={checkins}
 					>
 						{supplementsToday}
@@ -276,75 +329,83 @@ async function HomeContent() {
 				{/* Marcadores do dia juntos no topo: dieta, suplementos e água. */}
 				{profile && (
 					<WaterCard
+						key={`water-${day}`}
 						water={suggestedWater(profile)}
 						today={today}
+						day={day}
 						initialLogs={waterLogs}
 					/>
 				)}
-				{/* Sem dieta ainda: as prontas são o atalho mais útil, vêm antes. */}
-				{!hasFoods && templates}
+				{/* Num dia passado o Início é só o diário: o resto fala de hoje. */}
+				{!isToday && <DayWeightCard weightKg={dayWeight} />}
+				{isToday && (
+					<>
+						{/* Sem dieta ainda: as prontas são o atalho mais útil, vêm antes. */}
+						{!hasFoods && templates}
 
-				{beta && (
-					<AiQuotaProvider initial={quota} interested={interested}>
-						<WeeklySummaryCard initialSummary={weekly} />
-					</AiQuotaProvider>
+						{beta && (
+							<AiQuotaProvider initial={quota} interested={interested}>
+								<WeeklySummaryCard initialSummary={weekly} />
+							</AiQuotaProvider>
+						)}
+
+						{targets && (
+							<PlanOverview
+								summary={summary}
+								targets={targets}
+								proteinCounting={settings.proteinCounting}
+							/>
+						)}
+						{calibrationAnalysis && review?.due ? (
+							<DietReviewCard
+								status={review}
+								analysis={calibrationAnalysis}
+								weight={
+									dietCycle?.startedOn
+										? weightSince(toWeighIns(measurements), dietCycle.startedOn)
+										: null
+								}
+								adherence={
+									periodAdherence(checkins, mealsWithFoods, reviewStart, today)
+										?.percent ?? null
+								}
+							/>
+						) : (
+							calibrationAnalysis && (
+								<CalibrationCard
+									analysis={calibrationAnalysis}
+									calibration={calibration}
+								/>
+							)
+						)}
+
+						<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-start">
+							{goal && targets && tdee !== null && (
+								<GoalCard goal={goal} targets={targets} tdee={tdee} />
+							)}
+							{meals.length > 0 && (
+								<NextMealCard
+									meals={meals}
+									supplements={supplements}
+									today={today}
+								/>
+							)}
+							{calibrationAnalysis && review && !review.due && (
+								<DietReviewCard
+									status={review}
+									analysis={calibrationAnalysis}
+									weight={null}
+									adherence={null}
+								/>
+							)}
+							<div className="sm:col-span-2">
+								<MeasurementsCard measurements={measurements} />
+							</div>
+						</div>
+
+						{hasFoods && templates}
+					</>
 				)}
-
-				{targets && (
-					<PlanOverview
-						summary={summary}
-						targets={targets}
-						proteinCounting={settings.proteinCounting}
-					/>
-				)}
-				{calibrationAnalysis && review?.due ? (
-					<DietReviewCard
-						status={review}
-						analysis={calibrationAnalysis}
-						weight={
-							dietCycle?.startedOn
-								? weightSince(toWeighIns(measurements), dietCycle.startedOn)
-								: null
-						}
-						adherence={
-							periodAdherence(checkins, mealsWithFoods, reviewStart, today)
-								?.percent ?? null
-						}
-					/>
-				) : (
-					calibrationAnalysis && (
-						<CalibrationCard
-							analysis={calibrationAnalysis}
-							calibration={calibration}
-						/>
-					)
-				)}
-
-				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:items-start">
-					{goal && targets && tdee !== null && (
-						<GoalCard goal={goal} targets={targets} tdee={tdee} />
-					)}
-					{meals.length > 0 && (
-						<NextMealCard
-							meals={meals}
-							supplements={supplements}
-							today={today}
-						/>
-					)}
-					{calibrationAnalysis && review && !review.due && (
-						<DietReviewCard
-							status={review}
-							analysis={calibrationAnalysis}
-							weight={null}
-							adherence={null}
-						/>
-					)}
-					<div className="sm:col-span-2">
-						<MeasurementsCard measurements={measurements} />
-					</div>
-				</div>
-
-				{hasFoods && templates}
 			</PlantProvider>
 		</CelebrationProvider>
 	);

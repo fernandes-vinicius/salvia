@@ -86,3 +86,19 @@ export const DiaCompleto: Story = {
 		initialCheckins: [...pastDays(4), ...MEALS.map((meal) => done(meal.id))],
 	},
 };
+
+export const DiaPassado: Story = {
+	name: "Dia passado (diário)",
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"Aberto pelo seletor de data do Início: marca no dia escolhido e não comemora.",
+			},
+		},
+	},
+	args: {
+		day: addDays(TODAY, -1),
+		initialCheckins: [done("cafe", addDays(TODAY, -1))],
+	},
+};

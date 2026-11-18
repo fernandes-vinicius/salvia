@@ -48,6 +48,7 @@ export {
 	HardHat,
 	Heart,
 	HeartPulse,
+	History,
 	House,
 	InfoIcon,
 	Laptop,

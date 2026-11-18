@@ -24,18 +24,23 @@ export async function listWaterLogs(
 		.orderBy(asc(waterLog.day));
 }
 
-/** Grava o total de hoje (fuso do app), os registros e o recomendado de agora. */
-export async function setTodayWater(
+/**
+ * Grava o total do dia, os registros e o recomendado de agora. Num dia passado
+ * que já tinha registro, o recomendado daquele dia continua o mesmo.
+ */
+export async function setWater(
 	userId: string,
+	day: string,
 	ml: number,
 	entries: number[],
 	targetMl: number,
 ) {
+	const keepTarget = day !== localDateString();
 	await db
 		.insert(waterLog)
-		.values({ userId, day: localDateString(), ml, entries, targetMl })
+		.values({ userId, day, ml, entries, targetMl })
 		.onConflictDoUpdate({
 			target: [waterLog.userId, waterLog.day],
-			set: { ml, entries, targetMl },
+			set: keepTarget ? { ml, entries } : { ml, entries, targetMl },
 		});
 }

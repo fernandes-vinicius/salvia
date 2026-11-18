@@ -8,7 +8,6 @@ import type {
 } from "~/domains/checkin/types/checkin-types";
 import { db } from "~/shared/db";
 import { dietMeal, mealCheckin } from "~/shared/db/schema";
-import { localDateString } from "~/shared/lib/dates";
 
 /** Check-ins desde `sinceDay` (inclusive), pra sequência e semana. */
 export async function listCheckins(
@@ -27,13 +26,14 @@ export async function listCheckins(
 }
 
 /**
- * Marca (ou, com `status` nulo, desmarca) a refeição no dia de hoje, no fuso
- * do app. Só refeições do próprio usuário.
+ * Marca (ou, com `status` nulo, desmarca) a refeição no dia ("YYYY-MM-DD" no
+ * fuso do app; quem chama valida). Só refeições do próprio usuário.
  */
 export async function setCheckin(
 	userId: string,
 	mealId: string,
 	status: CheckinStatus | null,
+	day: string,
 ) {
 	const [meal] = await db
 		.select({ name: dietMeal.name })
@@ -42,7 +42,6 @@ export async function setCheckin(
 		.limit(1);
 	if (!meal) return false;
 
-	const day = localDateString();
 	if (status === null) {
 		await db
 			.delete(mealCheckin)
