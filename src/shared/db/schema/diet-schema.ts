@@ -1,4 +1,5 @@
 import {
+	type AnyPgColumn,
 	doublePrecision,
 	index,
 	integer,
@@ -23,9 +24,24 @@ export const dietMeal = pgTable(
 		/** "HH:MM" ou nulo. */
 		time: text("time"),
 		position: integer("position").notNull(),
+		/**
+		 * `active` (a dieta que vale), `draft` (rascunho pra experimentar) ou
+		 * `previous` (a guardada ao usar um rascunho, pra voltar).
+		 */
+		variant: text("variant", { enum: ["active", "draft", "previous"] })
+			.notNull()
+			.default("active"),
+		/** No rascunho/anterior: a refeição da dieta de onde a cópia veio. */
+		sourceMealId: uuid("source_meal_id").references(
+			(): AnyPgColumn => dietMeal.id,
+			{ onDelete: "set null" },
+		),
 		createdAt: timestamp("created_at").defaultNow().notNull(),
 	},
-	(table) => [index("diet_meal_user_id_idx").on(table.userId)],
+	(table) => [
+		index("diet_meal_user_id_idx").on(table.userId),
+		index("diet_meal_user_variant_idx").on(table.userId, table.variant),
+	],
 );
 
 export const dietItem = pgTable(

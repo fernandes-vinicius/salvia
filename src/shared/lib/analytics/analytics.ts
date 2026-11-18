@@ -35,7 +35,11 @@ export type AnalyticsEvent =
 	| "suplemento_tomado"
 	| "agua_registrada"
 	| "diario_dia_aberto"
-	| "relatorio_dia_baixado";
+	| "relatorio_dia_baixado"
+	| "rascunho_criado"
+	| "rascunho_usado"
+	| "rascunho_descartado"
+	| "dieta_anterior_restaurada";
 
 type Properties = Record<string, string | number | boolean | null>;
 

@@ -15,7 +15,7 @@ import {
 	cheaperSwaps,
 	pickCheaperSwap,
 } from "~/domains/cheaper-swap/utils/cheaper-swap";
-import { getDiet } from "~/domains/diet/services/diet-service";
+import { getDietOfItem } from "~/domains/diet/services/diet-service";
 import { foodsForSwaps } from "~/domains/food/services/food-service";
 import { SWAP_FOODS } from "~/domains/meal-recipe/data/swap-foods";
 import { isLightMeal } from "~/domains/meal-recipe/utils/recipe-swap";
@@ -35,7 +35,7 @@ export async function suggestCheaperSwapAction(
 	const parsed = suggestCheaperSwapInputSchema.safeParse(input);
 	if (!parsed.success) return null;
 
-	const meals = await getDiet(user.id, { createIfEmpty: false });
+	const meals = await getDietOfItem(user.id, parsed.data.itemId);
 	const meal = meals.find((entry) =>
 		entry.items.some((item) => item.id === parsed.data.itemId),
 	);

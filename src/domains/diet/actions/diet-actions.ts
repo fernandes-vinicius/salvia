@@ -48,11 +48,13 @@ const done = <T>(data: T) => ({ ok: true as const, data });
 
 export async function addMealAction(
 	name: unknown,
+	variant: unknown = "active",
 ): Promise<ActionResult<DietMeal>> {
 	const user = await getCurrentUser();
 	const parsed = mealData.shape.name.safeParse(name);
-	if (!parsed.success) return fail("Nome inválido.");
-	return done(await addMeal(user.id, parsed.data));
+	const parsedVariant = z.enum(["active", "draft"]).safeParse(variant);
+	if (!parsed.success || !parsedVariant.success) return fail("Nome inválido.");
+	return done(await addMeal(user.id, parsed.data, parsedVariant.data));
 }
 
 export async function updateMealAction(

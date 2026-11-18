@@ -5,7 +5,7 @@ import { z } from "zod";
 
 import { canUseAi } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
-import { getDiet } from "~/domains/diet/services/diet-service";
+import { getDietOfMeal } from "~/domains/diet/services/diet-service";
 import { findVisibleFood } from "~/domains/food/services/food-service";
 import {
 	restoreRecipeInputSchema,
@@ -55,7 +55,7 @@ export async function saveRecipeAction(
 	const parsed = saveRecipeInputSchema.safeParse(input);
 	if (!parsed.success) return fail("Receita inválida.");
 
-	const meals = await getDiet(user.id, { createIfEmpty: false });
+	const meals = await getDietOfMeal(user.id, parsed.data.mealId);
 	const meal = meals.find((entry) => entry.id === parsed.data.mealId);
 	if (!meal || meal.items.length === 0) {
 		return fail("Essa refeição mudou. Gere a receita de novo.");
@@ -119,10 +119,9 @@ export async function restoreRecipeAction(
 	const parsed = restoreRecipeInputSchema.safeParse(input);
 	if (!parsed.success) return fail("Não foi possível desfazer.");
 
-	const meals = await getDiet(user.id, { createIfEmpty: false });
-	const mealId = meals.some((meal) => meal.id === parsed.data.mealId)
-		? parsed.data.mealId
-		: null;
+	const wanted = parsed.data.mealId;
+	const meals = wanted ? await getDietOfMeal(user.id, wanted) : [];
+	const mealId = meals.some((meal) => meal.id === wanted) ? wanted : null;
 	// O link público não volta: excluir já desativou.
 	await restoreRecipe(user.id, { ...parsed.data, mealId, shareToken: null });
 	return { ok: true, data: null };

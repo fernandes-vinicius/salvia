@@ -91,7 +91,10 @@ export async function applyTemplateMeals(
 			}
 		}
 
-		await tx.delete(dietMeal).where(eq(dietMeal.userId, userId));
+		// Só a dieta que vale; o rascunho e a versão anterior ficam.
+		await tx
+			.delete(dietMeal)
+			.where(and(eq(dietMeal.userId, userId), eq(dietMeal.variant, "active")));
 
 		for (const [position, meal] of meals.entries()) {
 			const [row] = await tx

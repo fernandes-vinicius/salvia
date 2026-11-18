@@ -7,7 +7,7 @@ import {
 import { limitReachedMessage } from "~/domains/ai-usage/utils/ai-usage";
 import { canUseAi } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
-import { getDiet } from "~/domains/diet/services/diet-service";
+import { getDietOfMeal } from "~/domains/diet/services/diet-service";
 import { summarizeDiet } from "~/domains/diet/utils/diet";
 import { foodsForSwaps } from "~/domains/food/services/food-service";
 import { getUserTargets } from "~/domains/goal/services/targets-service";
@@ -56,7 +56,7 @@ export async function suggestMealFillAction(
 	if (!parsed.success) return fail("Refeição inválida.");
 
 	const [meals, plan] = await Promise.all([
-		getDiet(user.id, { createIfEmpty: false }),
+		getDietOfMeal(user.id, parsed.data.mealId),
 		getUserTargets(user.id),
 	]);
 	const meal = meals.find((entry) => entry.id === parsed.data.mealId);

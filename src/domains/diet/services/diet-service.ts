@@ -2,8 +2,13 @@ import "server-only";
 
 import { and, asc, count, eq, gte, inArray, max, sql } from "drizzle-orm";
 
-import type { DietItemOption, DietMeal } from "~/domains/diet/types/diet-types";
+import type {
+	DietItemOption,
+	DietMeal,
+	DietVariant,
+} from "~/domains/diet/types/diet-types";
 import { MAX_ITEM_OPTIONS } from "~/domains/diet/utils/diet";
+import { applyPlan } from "~/domains/diet/utils/diet-draft";
 import { foodColumns } from "~/domains/food/services/food-service";
 import { db } from "~/shared/db";
 import {
@@ -18,20 +23,38 @@ const INITIAL_MEALS = 3;
 
 /**
  * Plano do usuário. Por padrão cria as 3 refeições em branco na primeira
- * visita (aba Dieta); `createIfEmpty: false` só lê (ex.: Início).
+ * visita (aba Dieta); `createIfEmpty: false` só lê (ex.: Início). `variant`
+ * lê o rascunho ou a versão anterior em vez da dieta que vale.
  */
 export async function getDiet(
 	userId: string,
-	{ createIfEmpty = true }: { createIfEmpty?: boolean } = {},
+	{
+		createIfEmpty = true,
+		variant = "active",
+	}: { createIfEmpty?: boolean; variant?: DietVariant } = {},
 ): Promise<DietMeal[]> {
-	let meals = await db
-		.select({ id: dietMeal.id, name: dietMeal.name, time: dietMeal.time })
+	let meals: {
+		id: string;
+		name: string;
+		time: string | null;
+		sourceMealId?: string | null;
+	}[] = await db
+		.select({
+			id: dietMeal.id,
+			name: dietMeal.name,
+			time: dietMeal.time,
+			sourceMealId: dietMeal.sourceMealId,
+		})
 		.from(dietMeal)
-		.where(eq(dietMeal.userId, userId))
+		.where(and(eq(dietMeal.userId, userId), eq(dietMeal.variant, variant)))
 		.orderBy(asc(dietMeal.position), asc(dietMeal.createdAt));
 
-	if (meals.length === 0 && createIfEmpty) {
+	if (meals.length === 0 && createIfEmpty && variant === "active") {
 		meals = await insertInitialMeals(db, userId);
+	}
+	// A origem só interessa nas cópias (rascunho e anterior).
+	if (variant === "active") {
+		meals = meals.map(({ sourceMealId: _, ...meal }) => meal);
 	}
 
 	const items = await db
@@ -62,6 +85,32 @@ export async function getDiet(
 				options: options.get(item.id) ?? [],
 			})),
 	}));
+}
+
+/**
+ * A dieta (atual ou rascunho) que contém a refeição: os recursos de IA
+ * funcionam nas duas. Sem a refeição, a dieta atual.
+ */
+export async function getDietOfMeal(userId: string, mealId: string) {
+	const meal = await ownedMeal(userId, mealId);
+	return getDiet(userId, {
+		createIfEmpty: false,
+		variant: meal?.variant ?? "active",
+	});
+}
+
+/** A dieta (atual ou rascunho) que contém o item. */
+export async function getDietOfItem(userId: string, itemId: string) {
+	const [row] = await db
+		.select({ variant: dietMeal.variant })
+		.from(dietItem)
+		.innerJoin(dietMeal, eq(dietMeal.id, dietItem.mealId))
+		.where(and(eq(dietItem.id, itemId), eq(dietMeal.userId, userId)))
+		.limit(1);
+	return getDiet(userId, {
+		createIfEmpty: false,
+		variant: row?.variant ?? "active",
+	});
 }
 
 /** Opções dos itens, agrupadas pelo item e na ordem em que foram criadas. */
@@ -124,11 +173,14 @@ export interface NewDietMeal {
 /**
  * Troca a dieta inteira (ex.: importada de um documento), numa transação:
  * apaga as refeições atuais (itens e opções vão junto, cascade) e grava as
- * novas. Os alimentos já precisam ter sido checados.
+ * novas. Os alimentos já precisam ter sido checados. O rascunho e a versão
+ * anterior ficam (só perdem a ligação com as refeições apagadas).
  */
 export async function replaceDiet(userId: string, meals: NewDietMeal[]) {
 	await db.transaction(async (tx) => {
-		await tx.delete(dietMeal).where(eq(dietMeal.userId, userId));
+		await tx
+			.delete(dietMeal)
+			.where(and(eq(dietMeal.userId, userId), eq(dietMeal.variant, "active")));
 		for (const [position, meal] of meals.entries()) {
 			const [row] = await tx
 				.insert(dietMeal)
@@ -160,7 +212,11 @@ export async function replaceDiet(userId: string, meals: NewDietMeal[]) {
 
 async function ownedMeal(userId: string, mealId: string) {
 	const [meal] = await db
-		.select({ id: dietMeal.id, position: dietMeal.position })
+		.select({
+			id: dietMeal.id,
+			position: dietMeal.position,
+			variant: dietMeal.variant,
+		})
 		.from(dietMeal)
 		.where(and(eq(dietMeal.id, mealId), eq(dietMeal.userId, userId)))
 		.limit(1);
@@ -177,11 +233,11 @@ async function ownedItem(userId: string, itemId: string) {
 	return item ?? null;
 }
 
-async function mealPositions(userId: string) {
+async function mealPositions(userId: string, variant: DietVariant) {
 	return db
 		.select({ id: dietMeal.id, position: dietMeal.position })
 		.from(dietMeal)
-		.where(eq(dietMeal.userId, userId))
+		.where(and(eq(dietMeal.userId, userId), eq(dietMeal.variant, variant)))
 		.orderBy(asc(dietMeal.position), asc(dietMeal.createdAt));
 }
 
@@ -190,7 +246,9 @@ async function mealPositions(userId: string) {
  * as refeições do usuário; senão, a lista mudou em outra aba.
  */
 export async function reorderMeals(userId: string, mealIds: string[]) {
-	const current = await mealPositions(userId);
+	const first = await ownedMeal(userId, mealIds[0]);
+	if (!first) return false;
+	const current = await mealPositions(userId, first.variant);
 	const known = new Set(current.map((meal) => meal.id));
 	if (
 		mealIds.length !== current.length ||
@@ -207,12 +265,16 @@ export async function reorderMeals(userId: string, mealIds: string[]) {
 	return true;
 }
 
-export async function addMeal(userId: string, name: string) {
-	const positions = await mealPositions(userId);
+export async function addMeal(
+	userId: string,
+	name: string,
+	variant: "active" | "draft" = "active",
+) {
+	const positions = await mealPositions(userId, variant);
 	const last = positions.at(-1);
 	const [meal] = await db
 		.insert(dietMeal)
-		.values({ userId, name, position: (last?.position ?? -1) + 1 })
+		.values({ userId, name, variant, position: (last?.position ?? -1) + 1 })
 		.returning({ id: dietMeal.id, name: dietMeal.name, time: dietMeal.time });
 	return { ...meal, items: [] } satisfies DietMeal;
 }
@@ -232,11 +294,14 @@ export async function deleteMeal(
 	userId: string,
 	mealId: string,
 ): Promise<"deleted" | "not-found" | "last-meal"> {
-	if (!(await ownedMeal(userId, mealId))) return "not-found";
+	const meal = await ownedMeal(userId, mealId);
+	if (!meal) return "not-found";
 	const [{ total }] = await db
 		.select({ total: count() })
 		.from(dietMeal)
-		.where(eq(dietMeal.userId, userId));
+		.where(
+			and(eq(dietMeal.userId, userId), eq(dietMeal.variant, meal.variant)),
+		);
 	if (total <= 1) return "last-meal";
 	await db.delete(dietMeal).where(eq(dietMeal.id, mealId));
 	return "deleted";
@@ -315,17 +380,26 @@ export async function placeItems(userId: string, layout: MealLayout[]) {
 	if (new Set(itemIds).size !== itemIds.length) return false;
 
 	const ownedMeals = await db
-		.select({ id: dietMeal.id })
+		.select({ id: dietMeal.id, variant: dietMeal.variant })
 		.from(dietMeal)
 		.where(and(eq(dietMeal.userId, userId), inArray(dietMeal.id, mealIds)));
 	if (ownedMeals.length !== new Set(mealIds).size) return false;
+	// Nada passa entre a dieta e o rascunho.
+	const variant = ownedMeals[0]?.variant;
+	if (ownedMeals.some((meal) => meal.variant !== variant)) return false;
 
 	if (itemIds.length > 0) {
 		const ownedItems = await db
 			.select({ id: dietItem.id })
 			.from(dietItem)
 			.innerJoin(dietMeal, eq(dietMeal.id, dietItem.mealId))
-			.where(and(eq(dietMeal.userId, userId), inArray(dietItem.id, itemIds)));
+			.where(
+				and(
+					eq(dietMeal.userId, userId),
+					eq(dietMeal.variant, variant),
+					inArray(dietItem.id, itemIds),
+				),
+			);
 		if (ownedItems.length !== itemIds.length) return false;
 	}
 
@@ -473,4 +547,197 @@ export async function swapItemOption(userId: string, optionId: string) {
 			.where(eq(dietItemOption.id, optionId));
 	});
 	return true;
+}
+
+// --- Rascunho e versão anterior ---------------------------------------------
+
+/** Quais versões além da atual a pessoa tem (rascunho, anterior). */
+export async function dietVariants(userId: string) {
+	const rows = await db
+		.selectDistinct({ variant: dietMeal.variant })
+		.from(dietMeal)
+		.where(
+			and(
+				eq(dietMeal.userId, userId),
+				inArray(dietMeal.variant, ["draft", "previous"]),
+			),
+		);
+	const found = new Set(rows.map((row) => row.variant));
+	return { draft: found.has("draft"), previous: found.has("previous") };
+}
+
+/**
+ * Copia a dieta que vale pra `to` (rascunho ou anterior), apagando o que
+ * houver lá: refeições com a origem, itens e opções.
+ */
+async function copyActive(tx: Tx, userId: string, to: "draft" | "previous") {
+	await tx
+		.delete(dietMeal)
+		.where(and(eq(dietMeal.userId, userId), eq(dietMeal.variant, to)));
+	const meals = await tx
+		.select({
+			id: dietMeal.id,
+			name: dietMeal.name,
+			time: dietMeal.time,
+			position: dietMeal.position,
+		})
+		.from(dietMeal)
+		.where(and(eq(dietMeal.userId, userId), eq(dietMeal.variant, "active")))
+		.orderBy(asc(dietMeal.position), asc(dietMeal.createdAt));
+	if (meals.length === 0) return;
+
+	const items = await tx
+		.select({
+			id: dietItem.id,
+			mealId: dietItem.mealId,
+			foodId: dietItem.foodId,
+			quantity: dietItem.quantity,
+			position: dietItem.position,
+		})
+		.from(dietItem)
+		.where(
+			inArray(
+				dietItem.mealId,
+				meals.map((meal) => meal.id),
+			),
+		);
+	const options =
+		items.length > 0
+			? await tx
+					.select({
+						itemId: dietItemOption.itemId,
+						foodId: dietItemOption.foodId,
+						quantity: dietItemOption.quantity,
+						position: dietItemOption.position,
+					})
+					.from(dietItemOption)
+					.where(
+						inArray(
+							dietItemOption.itemId,
+							items.map((item) => item.id),
+						),
+					)
+			: [];
+
+	for (const meal of meals) {
+		const [copy] = await tx
+			.insert(dietMeal)
+			.values({
+				userId,
+				name: meal.name,
+				time: meal.time,
+				position: meal.position,
+				variant: to,
+				sourceMealId: meal.id,
+			})
+			.returning({ id: dietMeal.id });
+		for (const item of items.filter((entry) => entry.mealId === meal.id)) {
+			const [itemCopy] = await tx
+				.insert(dietItem)
+				.values({
+					mealId: copy.id,
+					foodId: item.foodId,
+					quantity: item.quantity,
+					position: item.position,
+				})
+				.returning({ id: dietItem.id });
+			const itemOptions = options.filter((option) => option.itemId === item.id);
+			if (itemOptions.length === 0) continue;
+			await tx.insert(dietItemOption).values(
+				itemOptions.map((option) => ({
+					itemId: itemCopy.id,
+					foodId: option.foodId,
+					quantity: option.quantity,
+					position: option.position,
+				})),
+			);
+		}
+	}
+}
+
+/** Cria o rascunho como cópia da dieta (se já existe, continua o mesmo). */
+export async function startDraft(userId: string) {
+	await db.transaction(async (tx) => {
+		const [existing] = await tx
+			.select({ id: dietMeal.id })
+			.from(dietMeal)
+			.where(and(eq(dietMeal.userId, userId), eq(dietMeal.variant, "draft")))
+			.limit(1);
+		if (!existing) await copyActive(tx, userId, "draft");
+	});
+}
+
+/** Apaga o rascunho ou a versão anterior. */
+export async function discardVariant(
+	userId: string,
+	variant: "draft" | "previous",
+) {
+	await db
+		.delete(dietMeal)
+		.where(and(eq(dietMeal.userId, userId), eq(dietMeal.variant, variant)));
+}
+
+/**
+ * Faz o rascunho (ou a versão anterior) virar a dieta, numa transação. As
+ * refeições que continuam são atualizadas no lugar (`applyPlan`): os itens do
+ * rascunho passam pra elas e o check-in, os suplementos e as receitas ligados
+ * seguem valendo. Com `keepPrevious`, a dieta de antes vira a versão anterior.
+ * Devolve false se não houver o que usar.
+ */
+export async function applyVariant(
+	userId: string,
+	variant: "draft" | "previous",
+	{ keepPrevious = false }: { keepPrevious?: boolean } = {},
+) {
+	return db.transaction(async (tx) => {
+		const meals = await tx
+			.select({
+				id: dietMeal.id,
+				name: dietMeal.name,
+				time: dietMeal.time,
+				sourceMealId: dietMeal.sourceMealId,
+			})
+			.from(dietMeal)
+			.where(and(eq(dietMeal.userId, userId), eq(dietMeal.variant, variant)))
+			.orderBy(asc(dietMeal.position), asc(dietMeal.createdAt));
+		if (meals.length === 0) return false;
+
+		if (variant === "draft" && keepPrevious) {
+			await copyActive(tx, userId, "previous");
+		}
+		const active = await tx
+			.select({ id: dietMeal.id })
+			.from(dietMeal)
+			.where(and(eq(dietMeal.userId, userId), eq(dietMeal.variant, "active")));
+		const plan = applyPlan(
+			active.map((meal) => meal.id),
+			meals,
+		);
+
+		if (plan.remove.length > 0) {
+			await tx.delete(dietMeal).where(inArray(dietMeal.id, plan.remove));
+		}
+		for (const { from, into, position } of plan.update) {
+			const meal = meals.find((entry) => entry.id === from);
+			if (!meal) continue;
+			await tx
+				.update(dietMeal)
+				.set({ name: meal.name, time: meal.time, position })
+				.where(eq(dietMeal.id, into));
+			await tx.delete(dietItem).where(eq(dietItem.mealId, into));
+			// Os itens (com as opções) mudam de refeição, sem copiar.
+			await tx
+				.update(dietItem)
+				.set({ mealId: into })
+				.where(eq(dietItem.mealId, from));
+			await tx.delete(dietMeal).where(eq(dietMeal.id, from));
+		}
+		for (const { id, position } of plan.promote) {
+			await tx
+				.update(dietMeal)
+				.set({ variant: "active", sourceMealId: null, position })
+				.where(eq(dietMeal.id, id));
+		}
+		return true;
+	});
 }

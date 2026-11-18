@@ -38,7 +38,13 @@ export async function setCheckin(
 	const [meal] = await db
 		.select({ name: dietMeal.name })
 		.from(dietMeal)
-		.where(and(eq(dietMeal.id, mealId), eq(dietMeal.userId, userId)))
+		.where(
+			and(
+				eq(dietMeal.id, mealId),
+				eq(dietMeal.userId, userId),
+				eq(dietMeal.variant, "active"),
+			),
+		)
 		.limit(1);
 	if (!meal) return false;
 

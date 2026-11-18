@@ -19,7 +19,7 @@ import {
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { useRouter } from "next/navigation";
 import { parseAsStringLiteral, useQueryState } from "nuqs";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { WaterResult } from "~/domains/calculators/utils/water";
 import {
@@ -37,10 +37,21 @@ import {
 	swapItemOptionAction,
 	updateMealAction,
 } from "~/domains/diet/actions/diet-actions";
+import {
+	applyDraftAction,
+	discardDraftAction,
+	restorePreviousAction,
+	startDraftAction,
+} from "~/domains/diet/actions/diet-draft-actions";
 import { AddFoodSheet } from "~/domains/diet/components/add-food-sheet";
 import { DietPreview } from "~/domains/diet/components/diet-preview";
 import { DietSummaryCard } from "~/domains/diet/components/diet-summary";
 import { DietSummaryCompact } from "~/domains/diet/components/diet-summary-compact";
+import {
+	DietVariantSwitch,
+	useDietVersion,
+} from "~/domains/diet/components/diet-variant-switch";
+import { DraftBar } from "~/domains/diet/components/draft-bar";
 import { GoalProgress } from "~/domains/diet/components/goal-progress";
 import { ItemSheet } from "~/domains/diet/components/item-sheet";
 import { MealCard } from "~/domains/diet/components/meal-card";
@@ -63,6 +74,7 @@ import {
 	nextMealName,
 	summarizeDiet,
 } from "~/domains/diet/utils/diet";
+import { diffDraft } from "~/domains/diet/utils/diet-draft";
 import { dayMicronutrients } from "~/domains/diet/utils/micronutrients";
 import { type Food, MacroLine, macrosFor, UNIT_LABELS } from "~/domains/food";
 import type { GoalTargets } from "~/domains/goal/types/goal-types";
@@ -90,7 +102,9 @@ import {
 	Eye,
 	FileDown,
 	GripVertical,
+	History,
 	Loader2Icon,
+	Pencil,
 	Plus,
 	RotateCcw,
 	Share,
@@ -139,6 +153,13 @@ interface DietViewProps {
 	userPrices?: [string, Price][];
 	/** Suplementação (seção no fim da dieta; não entra nas calorias). */
 	initialSupplements?: Supplement[];
+	/**
+	 * Mostrando o rascunho: `base` é a dieta que vale, pra comparar. As ações
+	 * da dieta inteira (lista de compras, compartilhar, resetar) ficam de fora.
+	 */
+	draft?: { base: DietMeal[] } | null;
+	/** Versões guardadas: rascunho (e quantas mudanças tem) e a anterior. */
+	versions?: { draftChanges: number | null; previous: boolean };
 }
 
 const MODES = ["editar", "visualizar"] as const;
@@ -184,8 +205,13 @@ export function DietView({
 	ironGoal = null,
 	userPrices = [],
 	initialSupplements = [],
+	draft = null,
+	versions = { draftChanges: null, previous: false },
 }: DietViewProps) {
 	const router = useRouter();
+	const isDraft = draft !== null;
+	const version = useDietVersion();
+	const [confirmingRestore, setConfirmingRestore] = useState(false);
 	// Id estável pro dnd-kit: sem ele, o contador global dos ids de
 	// acessibilidade (`DndDescribedBy-N`) diverge entre servidor e navegador.
 	const dndId = useId();
@@ -289,6 +315,10 @@ export function DietView({
 	}
 
 	const summary = summarizeDiet(meals, { weightKg, tdee });
+	const diff = useMemo(
+		() => (draft ? diffDraft(draft.base, meals) : null),
+		[draft, meals],
+	);
 	const micros = { values: dayMicronutrients(meals), ironGoal };
 	// "Completar com IA" só quando falta algo pra meta (mesma regra do servidor).
 	const canFill =
@@ -685,9 +715,84 @@ export function DietView({
 		toast.success("Dieta resetada: 3 refeições em branco.");
 	}
 
+	/** "Devolver": o alimento tirado no rascunho volta pro fim da refeição. */
+	async function restoreRemoved(mealId: string, item: DietItem) {
+		const result = await addItemAction({
+			mealId,
+			foodId: item.food.id,
+			quantity: item.quantity,
+			options: optionInputs(item),
+		});
+		if (!result.ok) {
+			handleError(result);
+			return;
+		}
+		const restored = result.data;
+		setMeals((current) =>
+			mapMeal(current, mealId, (m) => ({
+				...m,
+				items: [...m.items, restored],
+			})),
+		);
+	}
+
+	async function startDraft() {
+		const result = await startDraftAction();
+		if (!result.ok) {
+			handleError(result);
+			return;
+		}
+		analytics.track("rascunho_criado");
+		version.showDraft();
+	}
+
+	async function discardDraft() {
+		const result = await discardDraftAction();
+		if (!result.ok) {
+			handleError(result);
+			return false;
+		}
+		analytics.track("rascunho_descartado");
+		toast("Rascunho descartado.");
+		version.showActive();
+		return true;
+	}
+
+	async function restorePrevious() {
+		const result = await restorePreviousAction();
+		if (!result.ok) {
+			handleError(result);
+			return false;
+		}
+		analytics.track("dieta_anterior_restaurada");
+		toast.success("Voltou à dieta anterior.");
+		router.refresh();
+		return true;
+	}
+
+	async function applyDraft(keepPrevious: boolean) {
+		const result = await applyDraftAction({ keepPrevious });
+		if (!result.ok) {
+			handleError(result);
+			return false;
+		}
+		analytics.track("rascunho_usado", { guardou_anterior: keepPrevious });
+		toast.success("Dieta atualizada com o rascunho.", {
+			duration: 10000,
+			action: keepPrevious
+				? { label: "Voltar à anterior", onClick: () => restorePrevious() }
+				: undefined,
+		});
+		version.showActive();
+		return true;
+	}
+
 	async function handleAddMeal() {
 		setAddingMeal(true);
-		const result = await addMealAction(nextMealName(meals));
+		const result = await addMealAction(
+			nextMealName(meals),
+			isDraft ? "draft" : "active",
+		);
 		setAddingMeal(false);
 		if (result.ok) setMeals((current) => [...current, result.data]);
 		else handleError(result);
@@ -845,6 +950,14 @@ export function DietView({
 		<PricesProvider prices={userPrices}>
 			<div className="flex flex-col gap-6">
 				<div className="flex flex-wrap items-center justify-end gap-2 print:hidden">
+					{versions.draftChanges !== null && (
+						<div className="mr-auto">
+							<DietVariantSwitch
+								draft={isDraft}
+								changes={diff?.count ?? versions.draftChanges}
+							/>
+						</div>
+					)}
 					{/* Ligado = Visualizar (só leitura); desligado = Editar. */}
 					{/* biome-ignore lint/a11y/noLabelWithoutControl: o controle é o Switch (Base UI) dentro do label */}
 					<label className="flex h-9 cursor-pointer items-center gap-2 rounded-4xl px-3 font-medium text-sm transition-colors hover:bg-muted">
@@ -878,23 +991,27 @@ export function DietView({
 								<FileDown />
 								Exportar PDF
 							</DropdownMenuItem>
-							<DropdownMenuItem
-								onClick={() => router.push("/dieta/lista-de-compras")}
-							>
-								<ShoppingCart />
-								Lista de compras
-							</DropdownMenuItem>
-							<DropdownMenuItem onClick={() => setSharing(true)}>
-								<Share />
-								Compartilhar dieta
-							</DropdownMenuItem>
+							{!isDraft && (
+								<>
+									<DropdownMenuItem
+										onClick={() => router.push("/dieta/lista-de-compras")}
+									>
+										<ShoppingCart />
+										Lista de compras
+									</DropdownMenuItem>
+									<DropdownMenuItem onClick={() => setSharing(true)}>
+										<Share />
+										Compartilhar dieta
+									</DropdownMenuItem>
+								</>
+							)}
 							{meals.length > 1 && (
 								<DropdownMenuItem onClick={() => setReorderingMeals(true)}>
 									<ArrowUpDown />
 									Reordenar refeições
 								</DropdownMenuItem>
 							)}
-							{beta && (
+							{beta && !isDraft && (
 								<DropdownMenuItem
 									onClick={() => router.push("/dieta/importar")}
 								>
@@ -902,17 +1019,57 @@ export function DietView({
 									Importar dieta
 								</DropdownMenuItem>
 							)}
-							<DropdownMenuSeparator />
-							<DropdownMenuItem
-								variant="destructive"
-								onClick={() => setConfirmingReset(true)}
-							>
-								<RotateCcw />
-								Resetar dieta
-							</DropdownMenuItem>
+							{!isDraft && (
+								<>
+									<DropdownMenuSeparator />
+									<DropdownMenuItem
+										onClick={() =>
+											versions.draftChanges !== null
+												? version.showDraft()
+												: startDraft()
+										}
+									>
+										<Pencil />
+										{versions.draftChanges !== null
+											? "Continuar o rascunho"
+											: "Experimentar mudanças"}
+									</DropdownMenuItem>
+									{versions.previous && (
+										<DropdownMenuItem
+											onClick={() => setConfirmingRestore(true)}
+										>
+											<History />
+											Voltar à dieta anterior
+										</DropdownMenuItem>
+									)}
+								</>
+							)}
+							{!isDraft && (
+								<>
+									<DropdownMenuSeparator />
+									<DropdownMenuItem
+										variant="destructive"
+										onClick={() => setConfirmingReset(true)}
+									>
+										<RotateCcw />
+										Resetar dieta
+									</DropdownMenuItem>
+								</>
+							)}
 						</DropdownMenuContent>
 					</DropdownMenu>
 				</div>
+
+				{draft && diff && (
+					<DraftBar
+						base={draft.base}
+						meals={meals}
+						diff={diff}
+						proteinCounting={proteinCounting}
+						onApply={applyDraft}
+						onDiscard={discardDraft}
+					/>
+				)}
 
 				{/* Celular: resumo no topo e 1 coluna. Tablet: resumo e meta lado a
 			    lado no topo, 2 colunas. ≥ lg: coluna lateral fixa à direita (como
@@ -989,6 +1146,9 @@ export function DietView({
 										meal={meal}
 										onAddFood={() => setAddingTo(meal.id)}
 										onEditItem={setEditingItemId}
+										changes={diff?.items}
+										removed={diff?.removed[meal.id]}
+										onRestore={(item) => restoreRemoved(meal.id, item)}
 										{...menuFor(meal)}
 									/>
 								))}
@@ -1005,7 +1165,7 @@ export function DietView({
 									)}
 									Adicionar refeição
 								</button>
-								<div className="md:col-span-2">
+								<div className={cn("md:col-span-2", isDraft && "hidden")}>
 									<SupplementsCard
 										supplements={supplements}
 										onSupplementsChange={setSupplements}
@@ -1180,6 +1340,31 @@ export function DietView({
 									/>
 								)}
 								Resetar dieta
+							</Button>
+						</AlertDialogFooter>
+					</AlertDialogContent>
+				</AlertDialog>
+				<AlertDialog
+					open={confirmingRestore}
+					onOpenChange={setConfirmingRestore}
+				>
+					<AlertDialogContent>
+						<AlertDialogHeader>
+							<AlertDialogTitle>Voltar à dieta anterior?</AlertDialogTitle>
+							<AlertDialogDescription>
+								A dieta guardada quando você usou o rascunho volta a valer. O
+								check-in e os suplementos ligados às refeições continuam.
+							</AlertDialogDescription>
+						</AlertDialogHeader>
+						<AlertDialogFooter>
+							<AlertDialogCancel>Cancelar</AlertDialogCancel>
+							<Button
+								onClick={() => {
+									setConfirmingRestore(false);
+									restorePrevious();
+								}}
+							>
+								Voltar à anterior
 							</Button>
 						</AlertDialogFooter>
 					</AlertDialogContent>

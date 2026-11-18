@@ -115,6 +115,15 @@ export async function exportUserData(userId: string) {
 		goal: withoutUserId(goalRows)[0] ?? null,
 		settings: withoutUserId(settingsRows)[0] ?? null,
 		diet: meals,
+		// Rascunho e versão anterior da dieta (vazios se não houver).
+		dietDraft: await getDiet(userId, {
+			createIfEmpty: false,
+			variant: "draft",
+		}),
+		dietPrevious: await getDiet(userId, {
+			createIfEmpty: false,
+			variant: "previous",
+		}),
 		supplements,
 		customFoods: withoutUserId(customFoods),
 		measurements: withoutUserId(measurements),
