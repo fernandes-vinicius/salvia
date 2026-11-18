@@ -7,7 +7,7 @@ import {
 import { limitReachedMessage } from "~/domains/ai-usage/utils/ai-usage";
 import { canUseAi } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
-import { getDiet } from "~/domains/diet/services/diet-service";
+import { getDietOfMeal } from "~/domains/diet/services/diet-service";
 import {
 	type SuggestedRecipe,
 	suggestRecipeInputSchema,
@@ -44,7 +44,7 @@ export async function suggestRecipeAction(
 	const parsed = suggestRecipeInputSchema.safeParse(input);
 	if (!parsed.success) return { ok: false, error: "Refeição inválida." };
 
-	const meals = await getDiet(user.id, { createIfEmpty: false });
+	const meals = await getDietOfMeal(user.id, parsed.data.mealId);
 	const meal = meals.find((entry) => entry.id === parsed.data.mealId);
 	if (!meal) return { ok: false, error: "Essa refeição não existe mais." };
 	if (meal.items.length === 0) {

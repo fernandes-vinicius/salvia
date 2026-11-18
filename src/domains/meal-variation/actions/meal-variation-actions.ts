@@ -8,7 +8,7 @@ import { limitReachedMessage } from "~/domains/ai-usage/utils/ai-usage";
 import { canUseAi } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import {
-	getDiet,
+	getDietOfMeal,
 	replaceMealFoods,
 } from "~/domains/diet/services/diet-service";
 import type { DietItem } from "~/domains/diet/types/diet-types";
@@ -45,7 +45,7 @@ async function betaUser() {
 }
 
 async function mealOf(userId: string, mealId: string) {
-	const meals = await getDiet(userId, { createIfEmpty: false });
+	const meals = await getDietOfMeal(userId, mealId);
 	return meals.find((meal) => meal.id === mealId) ?? null;
 }
 

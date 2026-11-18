@@ -20,7 +20,15 @@ export interface DietMeal {
 	/** "HH:MM" ou nulo. */
 	time: string | null;
 	items: DietItem[];
+	/** No rascunho (ou na versão anterior): a refeição da dieta de onde veio. */
+	sourceMealId?: string | null;
 }
+
+/**
+ * Versões da dieta: a que vale (`active`), o rascunho pra experimentar
+ * (`draft`) e a guardada ao usar um rascunho (`previous`, pra voltar).
+ */
+export type DietVariant = "active" | "draft" | "previous";
 
 export type MacroKey = keyof Macros;
 

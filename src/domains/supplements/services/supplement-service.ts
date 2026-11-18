@@ -41,7 +41,13 @@ async function ownsMeal(userId: string, mealId: string | null) {
 	const [meal] = await db
 		.select({ id: dietMeal.id })
 		.from(dietMeal)
-		.where(and(eq(dietMeal.id, mealId), eq(dietMeal.userId, userId)))
+		.where(
+			and(
+				eq(dietMeal.id, mealId),
+				eq(dietMeal.userId, userId),
+				eq(dietMeal.variant, "active"),
+			),
+		)
 		.limit(1);
 	return Boolean(meal);
 }

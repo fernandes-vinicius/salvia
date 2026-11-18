@@ -10,7 +10,8 @@ import { canUseAi } from "~/domains/auth/services/beta-service";
 import { getCurrentUser } from "~/domains/auth/services/session-service";
 import { suggestedWater } from "~/domains/calculators/utils/water";
 import { DietView } from "~/domains/diet";
-import { getDiet } from "~/domains/diet/services/diet-service";
+import { dietVariants, getDiet } from "~/domains/diet/services/diet-service";
+import { diffDraft } from "~/domains/diet/utils/diet-draft";
 import { ironTarget } from "~/domains/diet/utils/micronutrients";
 import { calculateTargets } from "~/domains/goal";
 import {
@@ -28,7 +29,13 @@ import { Skeleton } from "~/shared/components/ui/skeleton";
 
 export const metadata: Metadata = { title: "Dieta" };
 
-export default function DietaPage() {
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+export default function DietaPage({
+	searchParams,
+}: {
+	searchParams: SearchParams;
+}) {
 	return (
 		<main
 			data-wide-page
@@ -40,15 +47,16 @@ export default function DietaPage() {
 				className="print:hidden"
 			/>
 			<Suspense fallback={<DietSkeleton />}>
-				<DietContent />
+				<DietContent searchParams={searchParams} />
 			</Suspense>
 		</main>
 	);
 }
 
-async function DietContent() {
+async function DietContent({ searchParams }: { searchParams: SearchParams }) {
 	const user = await getCurrentUser();
 	const beta = canUseAi(user);
+	const wantsDraft = (await searchParams).versao === "rascunho";
 	const [
 		meals,
 		profile,
@@ -72,6 +80,11 @@ async function DietContent() {
 		beta ? aiInterests(user.id) : [],
 		listSupplements(user.id),
 	]);
+	const versions = await dietVariants(user.id);
+	const draftMeals = versions.draft
+		? await getDiet(user.id, { variant: "draft", createIfEmpty: false })
+		: null;
+	const showDraft = wantsDraft && draftMeals !== null;
 
 	// Gasto e meta vêm das abas TMB e Meta; sem eles, a grade funciona mas o
 	// resumo não mostra excedente nem comparação com a meta. O gasto inclui o
@@ -93,8 +106,13 @@ async function DietContent() {
 			<DietView
 				// Remonta quando o servidor devolve outras refeições (ex.: depois de
 				// `router.refresh()` por mudança em outra aba).
-				key={meals.map((meal) => meal.id).join(",")}
-				initialMeals={meals}
+				key={(showDraft ? draftMeals : meals).map((meal) => meal.id).join(",")}
+				initialMeals={showDraft ? draftMeals : meals}
+				draft={showDraft ? { base: meals } : null}
+				versions={{
+					draftChanges: draftMeals ? diffDraft(meals, draftMeals).count : null,
+					previous: versions.previous,
+				}}
 				weightKg={profile?.weightKg ?? null}
 				tdee={tdee}
 				targets={targets}

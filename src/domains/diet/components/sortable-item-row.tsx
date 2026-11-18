@@ -4,6 +4,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { DietItem } from "~/domains/diet/types/diet-types";
 import { itemMacros } from "~/domains/diet/utils/diet";
+import type { DraftItemChange } from "~/domains/diet/utils/diet-draft";
 import { kcalFor, UNIT_LABELS } from "~/domains/food/utils/food";
 import { householdHint } from "~/domains/food/utils/household";
 import {
@@ -18,6 +19,8 @@ interface SortableItemRowProps {
 	item: DietItem;
 	proteinCounting: ProteinCounting;
 	onEdit: () => void;
+	/** No rascunho: o que mudou neste alimento em relação à dieta atual. */
+	change?: DraftItemChange;
 }
 
 // Linha da grade arrastável pela alça (⋮⋮): a alça tem `touch-none` pra o
@@ -27,6 +30,7 @@ export function SortableItemRow({
 	item,
 	proteinCounting,
 	onEdit,
+	change,
 }: SortableItemRowProps) {
 	const {
 		attributes,
@@ -80,6 +84,26 @@ export function SortableItemRow({
 					{formatNumber(item.quantity, 1)} {UNIT_LABELS[item.food.unit].short}
 					{hint && <span title={hint.long}> · {hint.short}</span>}
 				</span>
+				{change && (
+					<span className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-xs">
+						<span
+							className={cn(
+								"rounded-full px-1.5 font-medium",
+								change.kind === "new"
+									? "bg-secondary text-secondary-foreground"
+									: "bg-macro-carb/25 text-macro-carb-ink",
+							)}
+						>
+							{change.kind === "new" ? "novo" : "mudou"}
+						</span>
+						{change.kind === "changed" && (
+							<span className="text-muted-foreground tabular-nums">
+								antes {formatNumber(change.before, 1)}{" "}
+								{UNIT_LABELS[item.food.unit].short}
+							</span>
+						)}
+					</span>
+				)}
 				{item.options.map((option) => (
 					<span
 						key={option.id}

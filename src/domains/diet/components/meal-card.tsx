@@ -11,15 +11,16 @@ import {
 	type MealMenuActions,
 } from "~/domains/diet/components/meal-menu";
 import { SortableItemRow } from "~/domains/diet/components/sortable-item-row";
-import type { DietMeal } from "~/domains/diet/types/diet-types";
+import type { DietItem, DietMeal } from "~/domains/diet/types/diet-types";
 import { mealMacros } from "~/domains/diet/utils/diet";
-import { kcalFor } from "~/domains/food/utils/food";
+import type { DraftItemChange } from "~/domains/diet/utils/diet-draft";
+import { kcalFor, UNIT_LABELS } from "~/domains/food/utils/food";
 import {
 	countedProtein,
 	PROTEIN_LABELS,
 	type ProteinCounting,
 } from "~/domains/goal/utils/protein-counting";
-import { Clock, Plus } from "~/shared/components/icons";
+import { Clock, Plus, RotateCcw } from "~/shared/components/icons";
 import { Button } from "~/shared/components/ui/button";
 import { formatNonZero, formatNumber } from "~/shared/lib/format";
 import { cn } from "~/shared/lib/utils";
@@ -30,6 +31,11 @@ interface MealCardProps extends MealMenuActions {
 	proteinCounting: ProteinCounting;
 	onAddFood: () => void;
 	onEditItem: (itemId: string) => void;
+	/** No rascunho: o que mudou em cada alimento (id → mudança). */
+	changes?: Record<string, DraftItemChange>;
+	/** No rascunho: alimentos da dieta atual que saíram desta refeição. */
+	removed?: DietItem[];
+	onRestore?: (item: DietItem) => void;
 }
 
 // Um bloco da grade (como "Refeição 1 - 9h" na planilha): alimentos em linhas
@@ -40,6 +46,9 @@ export function MealCard({
 	onAddFood,
 	onEditItem,
 	proteinCounting,
+	changes,
+	removed = [],
+	onRestore,
 	...menu
 }: MealCardProps) {
 	const { setNodeRef, isOver } = useDroppable({ id: meal.id });
@@ -119,6 +128,7 @@ export function MealCard({
 									item={item}
 									proteinCounting={proteinCounting}
 									onEdit={() => onEditItem(item.id)}
+									change={changes?.[item.id]}
 								/>
 							))}
 						</tbody>
@@ -145,6 +155,38 @@ export function MealCard({
 					</p>
 				)}
 			</SortableContext>
+
+			{removed.length > 0 && (
+				<ul aria-label="Tirados no rascunho" className="flex flex-col gap-1">
+					{removed.map((item) => (
+						<li
+							key={item.id}
+							className="flex items-center gap-2 rounded-2xl bg-muted px-3 py-1.5 text-sm"
+						>
+							<span className="min-w-0 flex-1 text-muted-foreground">
+								<span className="mr-1.5 rounded-full bg-destructive/15 px-1.5 font-medium text-destructive text-xs">
+									tirado
+								</span>
+								<span className="line-through">{item.food.name}</span>{" "}
+								<span className="tabular-nums">
+									{formatNumber(item.quantity, 1)}{" "}
+									{UNIT_LABELS[item.food.unit].short}
+								</span>
+							</span>
+							{onRestore && (
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={() => onRestore(item)}
+								>
+									<RotateCcw data-icon="inline-start" />
+									Devolver
+								</Button>
+							)}
+						</li>
+					))}
+				</ul>
+			)}
 
 			<Button
 				variant="ghost"
