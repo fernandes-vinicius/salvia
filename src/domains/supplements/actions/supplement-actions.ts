@@ -3,6 +3,7 @@
 import { z } from "zod";
 
 import { getCurrentUser } from "~/domains/auth/services/session-service";
+import { isDiaryDay } from "~/domains/home/utils/diary";
 import {
 	MAX_SUPPLEMENTS,
 	supplementInputSchema,
@@ -16,6 +17,7 @@ import {
 	updateSupplement,
 } from "~/domains/supplements/services/supplement-service";
 import type { Supplement } from "~/domains/supplements/types/supplement-types";
+import { localDateString } from "~/shared/lib/dates";
 
 export type SupplementActionResult<T = null> =
 	| { ok: true; data: T }
@@ -108,13 +110,22 @@ export async function setSupplementCheckinAction(
 ): Promise<SupplementActionResult> {
 	const user = await getCurrentUser();
 	const parsed = z
-		.object({ supplementId: id, taken: z.boolean() })
+		.object({
+			supplementId: id,
+			taken: z.boolean(),
+			/** Dia do diário (padrão: hoje). */
+			day: z.string().optional(),
+		})
 		.safeParse(data);
 	if (!parsed.success) return fail("Marcação inválida.");
+	const today = localDateString();
+	const day = parsed.data.day ?? today;
+	if (!isDiaryDay(day, today)) return fail("Dia inválido.");
 	return (await setSupplementCheckin(
 		user.id,
 		parsed.data.supplementId,
 		parsed.data.taken,
+		day,
 	))
 		? done(null)
 		: stale("Suplemento não encontrado.");

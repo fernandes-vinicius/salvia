@@ -3,8 +3,6 @@
 // browser bundle. Stories pass their own `save` when they need to.
 export type WaterResult = { ok: true } | { ok: false; error: string };
 
-export async function setTodayWaterAction(
-	_data: unknown,
-): Promise<WaterResult> {
+export async function setWaterAction(_data: unknown): Promise<WaterResult> {
 	return { ok: true };
 }

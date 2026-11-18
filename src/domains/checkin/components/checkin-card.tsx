@@ -12,6 +12,7 @@ import type {
 	CheckinStatus,
 } from "~/domains/checkin/types/checkin-types";
 import {
+	addDays,
 	celebrationFor,
 	checkinStreak,
 	dayCounts,
@@ -70,6 +71,8 @@ interface CheckinCardProps {
 	meals: CheckinMeal[];
 	/** Hoje no fuso do app (o mesmo que o servidor usa ao gravar). */
 	today: string;
+	/** Dia aberto no diário (padrão: hoje); num dia passado não comemora. */
+	day?: string;
 	initialCheckins: Checkin[];
 	/** Extra depois das refeições (ex.: suplementos de hoje). */
 	children?: ReactNode;
@@ -81,9 +84,11 @@ interface CheckinCardProps {
 export function CheckinCard({
 	meals,
 	today,
+	day = today,
 	initialCheckins,
 	children,
 }: CheckinCardProps) {
+	const isToday = day === today;
 	const router = useRouter();
 	const [checkins, setCheckins] = useState(initialCheckins);
 	const celebrate = useCelebrate();
@@ -104,7 +109,7 @@ export function CheckinCard({
 	// "Comi a opção" (marcações antigas) aparece e se comporta como "Comi".
 	const statusOf = (mealId: string) => {
 		const status =
-			checkins.find((c) => c.day === today && c.mealId === mealId)?.status ??
+			checkins.find((c) => c.day === day && c.mealId === mealId)?.status ??
 			null;
 		return status === "option" ? "done" : status;
 	};
@@ -117,13 +122,18 @@ export function CheckinCard({
 		const next = statusOf(meal.id) === status ? null : status;
 		const previous = checkins;
 		const updated = [
-			...checkins.filter((c) => !(c.day === today && c.mealId === meal.id)),
-			...(next ? [{ mealId: meal.id, day: today, status: next }] : []),
+			...checkins.filter((c) => !(c.day === day && c.mealId === meal.id)),
+			...(next ? [{ mealId: meal.id, day, status: next }] : []),
 		];
 		setCheckins(updated);
-		celebrateChange(previous, updated, meal.id, status, origin);
+		// Dia passado: anotação no diário, sem festa.
+		if (isToday) celebrateChange(previous, updated, meal.id, status, origin);
 
-		const result = await setCheckinAction({ mealId: meal.id, status: next });
+		const result = await setCheckinAction({
+			mealId: meal.id,
+			status: next,
+			day,
+		});
 		if (result.ok && next) analytics.track("checkin", { status: next });
 		if (!result.ok) {
 			setCheckins(previous);
@@ -196,7 +206,7 @@ export function CheckinCard({
 	const closeMascot = useCallback(() => setMascot(null), []);
 
 	const mealCount = meals.length;
-	const { followed } = dayCounts(checkins, today);
+	const { followed } = dayCounts(checkins, day);
 	const streak = checkinStreak(checkins, mealCount, today);
 	const week = weekSummary(checkins, mealCount, today);
 	const complete = followed >= mealCount;
@@ -219,7 +229,11 @@ export function CheckinCard({
 						className="flex items-center gap-2 font-heading font-semibold"
 					>
 						<CircleCheck className="size-4 text-primary" />
-						Segui a dieta hoje?
+						{isToday
+							? "Segui a dieta hoje?"
+							: day === addDays(today, -1)
+								? "Seguiu a dieta ontem?"
+								: "Seguiu a dieta nesse dia?"}
 					</h2>
 					<p
 						key={complete ? "complete" : "progress"}
@@ -253,7 +267,9 @@ export function CheckinCard({
 					key={grownAt ?? "still"}
 					leaves={Math.min(followed, MAX_MASCOT_LEAVES)}
 					bloom={complete}
-					mood={complete ? "party" : followed === 0 ? "hungry" : "happy"}
+					mood={
+						complete ? "party" : followed === 0 && isToday ? "hungry" : "happy"
+					}
 					animate={grownAt !== null}
 					label={
 						complete

@@ -21,8 +21,11 @@ interface SupplementsTodayProps {
 	/** Só os que valem hoje (`supplementsForDay`). */
 	supplements: Supplement[];
 	meals: SupplementMealRef[];
-	/** Ids já marcados hoje. */
+	/** Ids já marcados no dia. */
 	initialTaken: string[];
+	/** Dia aberto no diário (padrão: hoje no servidor). */
+	day?: string;
+	isToday?: boolean;
 	className?: string;
 }
 
@@ -32,6 +35,8 @@ export function SupplementsToday({
 	supplements,
 	meals,
 	initialTaken,
+	day,
+	isToday = true,
 	className,
 }: SupplementsTodayProps) {
 	const router = useRouter();
@@ -48,6 +53,7 @@ export function SupplementsToday({
 		const result = await setSupplementCheckinAction({
 			supplementId: supplement.id,
 			taken: next,
+			day,
 		});
 		if (result.ok && next) analytics.track("suplemento_tomado");
 		if (!result.ok) {
@@ -68,7 +74,7 @@ export function SupplementsToday({
 			<div className="flex flex-wrap items-baseline justify-between gap-x-3">
 				<h3 className="flex items-center gap-2 font-medium text-sm">
 					<Pill className="size-4 text-primary" aria-hidden />
-					Suplementos de hoje
+					{isToday ? "Suplementos de hoje" : "Suplementos do dia"}
 				</h3>
 				<p className="text-muted-foreground text-xs tabular-nums">
 					{count} de {supplements.length} tomados

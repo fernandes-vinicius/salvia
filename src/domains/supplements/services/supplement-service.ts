@@ -13,7 +13,6 @@ import {
 	dietSupplement,
 	supplementCheckin,
 } from "~/shared/db/schema";
-import { localDateString } from "~/shared/lib/dates";
 
 const columns = {
 	id: dietSupplement.id,
@@ -148,13 +147,14 @@ export async function listSupplementCheckins(userId: string, day: string) {
 }
 
 /**
- * Marca (ou desmarca) o suplemento como tomado hoje, no fuso do app. Só
- * suplementos da própria pessoa.
+ * Marca (ou desmarca) o suplemento como tomado no dia ("YYYY-MM-DD" no fuso do
+ * app; quem chama valida). Só suplementos da própria pessoa.
  */
 export async function setSupplementCheckin(
 	userId: string,
 	supplementId: string,
 	taken: boolean,
+	day: string,
 ) {
 	const [supplement] = await db
 		.select({ name: dietSupplement.name })
@@ -168,7 +168,6 @@ export async function setSupplementCheckin(
 		.limit(1);
 	if (!supplement) return false;
 
-	const day = localDateString();
 	if (!taken) {
 		await db
 			.delete(supplementCheckin)

@@ -5,9 +5,10 @@ import { type FormEvent, useCallback, useState } from "react";
 import { toast } from "sonner";
 
 import type { WaterResult as WaterNeed } from "~/domains/calculators/utils/water";
+import { addDays } from "~/domains/checkin/utils/checkin";
 import { MAX_MASCOT_LEAVES } from "~/domains/checkin/utils/mascot";
 import {
-	setTodayWaterAction,
+	setWaterAction,
 	type WaterResult,
 } from "~/domains/water/actions/water-actions";
 import { WaterCelebration } from "~/domains/water/components/water-celebration";
@@ -65,10 +66,14 @@ interface WaterCardProps {
 	water: WaterNeed;
 	/** Hoje no fuso do app (o mesmo que o servidor usa ao gravar). */
 	today: string;
+	/** Dia aberto no diário (padrão: hoje); num dia passado não comemora. */
+	day?: string;
 	initialLogs: WaterDay[];
-	/** Grava o total de hoje (trocável na story). */
-	save?: (data: WaterHistory) => Promise<WaterResult>;
+	/** Grava o total do dia (trocável na story). */
+	save?: (data: WaterSave) => Promise<WaterResult>;
 }
+
+type WaterSave = WaterHistory & { day: string };
 
 // Água de hoje no Início: atalhos de um toque (copo, garrafa…) ou outra
 // quantidade, contra o recomendado do dia. Bater a meta comemora; a sequência
@@ -76,9 +81,11 @@ interface WaterCardProps {
 export function WaterCard({
 	water,
 	today,
+	day = today,
 	initialLogs,
-	save = setTodayWaterAction,
+	save = setWaterAction,
 }: WaterCardProps) {
+	const isToday = day === today;
 	const [logs, setLogs] = useState(initialLogs);
 	// Jarrinho sendo regado depois de um registro (id novo reinicia).
 	// Quando a planta do card foi regada (key nova refaz a animação).
@@ -96,7 +103,7 @@ export function WaterCard({
 	const celebrate = useCelebrate();
 	const animate = useCelebrationsEnabled();
 
-	const { schedule } = useAutosave<WaterHistory>({
+	const { schedule } = useAutosave<WaterSave>({
 		save: async (history) => {
 			const result = await save(history);
 			if (!result.ok) toast.error(result.error);
@@ -104,19 +111,20 @@ export function WaterCard({
 		},
 	});
 
-	const target = water.recommendedMl;
-	const todayLog = logs.find((log) => log.day === today);
-	const total = todayLog?.ml ?? 0;
-	const history: WaterHistory = { ml: total, entries: todayLog?.entries ?? [] };
+	const dayLog = logs.find((log) => log.day === day);
+	// Num dia passado, vale o recomendado guardado naquele dia.
+	const target = !isToday && dayLog ? dayLog.targetMl : water.recommendedMl;
+	const total = dayLog?.ml ?? 0;
+	const history: WaterHistory = { ml: total, entries: dayLog?.entries ?? [] };
 
-	/** Grava o novo estado de hoje e devolve os registros atualizados. */
+	/** Grava o novo estado do dia e devolve os registros atualizados. */
 	function apply(next: WaterHistory) {
 		const updated = [
-			...logs.filter((log) => log.day !== today),
-			{ day: today, ml: next.ml, targetMl: target, entries: next.entries },
+			...logs.filter((log) => log.day !== day),
+			{ day, ml: next.ml, targetMl: target, entries: next.entries },
 		];
 		setLogs(updated);
-		schedule(next);
+		schedule({ ...next, day });
 		return updated;
 	}
 
@@ -124,9 +132,13 @@ export function WaterCard({
 		const next = recordWater(history, ml);
 		if (next === history) return;
 		const updated = apply(next);
-		const level = waterCelebrationFor({ before: logs, after: updated, today });
 		if (ml > 0) {
 			analytics.track("agua_registrada", { ml, meta: next.ml >= target });
+		}
+		// Dia passado: anotação no diário, sem festa.
+		if (!isToday) return;
+		const level = waterCelebrationFor({ before: logs, after: updated, today });
+		if (ml > 0) {
 			if (origin) celebrate("tap", origin);
 			if (animate) {
 				setWateredAt(Date.now());
@@ -202,7 +214,11 @@ export function WaterCard({
 					className="flex items-center gap-2 font-heading font-semibold"
 				>
 					<Droplet className="size-4 text-primary" />
-					Água de hoje
+					{isToday
+						? "Água de hoje"
+						: day === addDays(today, -1)
+							? "Água de ontem"
+							: "Água do dia"}
 				</h2>
 				{streak > 0 && (
 					<p
@@ -230,7 +246,7 @@ export function WaterCard({
 					</p>
 					<Progress
 						value={Math.min(100, Math.round((total / target) * 100))}
-						aria-label="Água de hoje"
+						aria-label={isToday ? "Água de hoje" : "Água do dia"}
 					/>
 					<p
 						key={met ? "met" : "left"}
